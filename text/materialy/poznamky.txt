@@ -1,0 +1,4 @@
+Hesla, ktera se budou hodit:
+=============================
+- optial range finder
+- coincidence range finder
