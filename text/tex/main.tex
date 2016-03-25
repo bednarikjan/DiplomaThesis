@@ -43,6 +43,10 @@
 \usepackage{siunitx}
 \DeclareSIUnit[number-unit-product = {}]{\inch}{''}
 
+\usepackage{xcolor}
+\newcommand\todo[1]{\textcolor{red}{[[ #1 ]] \\}}
+\newcommand{\vata[1]}{\textcolor{gray}{\blindtext[#1]}}
+
 % =======================================================================
 % balíček "hyperref" vytváří klikací odkazy v pdf, pokud tedy použijeme pdflatex
 % problém je, že balíček hyperref musí být uveden jako poslední, takže nemůže

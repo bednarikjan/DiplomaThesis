@@ -57,7 +57,6 @@ Chapter \ref{txt:system_overview} presents the general information about the sys
 %=========================================================================
 %=========================================================================
 \chapter{System Overview} \label{txt:system_overview}
-% 2 - 4 ns
 
 This section presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. From the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will be used throughout the document (see Figure \ref{fig:frame_convention}).
 
@@ -71,7 +70,22 @@ This section presents the main hardware building blocks of the OLS, the camera s
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Camera Stations}
+\section{Principle of Object Localisation}
+\todo{Obecne jak to funguje}
+
+\begin{figure*}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
+	\centering
+	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
+	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
+	\caption{\todo{Dodat caption}}
+	\label{fig:WidePicture}
+\end{figure*}
+
+\vata[4]
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{System Topology}
 
 The main building block of the OLS system is a \texttt{camera station} (CS). CS consists of the \texttt{camera unit} (CU), which is a collection of hardware necessary for capturing the images, manipulating the position of the camera and estimating the geographical coordinates of the CS (for detailed description see Chapter \ref{txt:camera_unit}), and the computation unit processing the data (a PC or other device). In general, the OLS is designed to work with an arbitrary number of CSs (of course, there must be at least two stations) and there are two types of CSs:
 
@@ -80,7 +94,7 @@ The main building block of the OLS system is a \texttt{camera station} (CS). CS 
 \paragraph{tracking station} All other stations become tracking stations which scan the surrounding environment, detect the aerial objects and perform tracking. All cameras are equipped with fixed focal length lenses. \\
 
 As for the network topology, the OLS is based on a star pattern where each tracking station communicates only with the overview station (see Section \ref{txt:hardware}). The positional organization of the CSs depends on the number of tracking stations, which should always be placed so that their positions projected to the horizontal plane would form a regular polygon with the overview unit in the center (see Figure \ref{fig:system_overview}), however, in more complex environments this condition does not have to strictly hold (see Figure \ref{fig:spilberk_camera_units}).
-	
+
 %% Schema of camera units organized in triangle.
 %% Use case of camera units - placed on map of Brno's Spilberk
 \begin{figure}[htb]
@@ -102,7 +116,31 @@ As for the network topology, the OLS is based on a star pattern where each track
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{System Pipeline}
+\section{Hardware Architecture}
+
+Considering the big picture of the system, OLS consists of four camera stations, a hardware devices necessary for network communication and the peripherals for manual control. There are two types of camera stations, a tracking station and an overview station (see Section~\ref{txt:system_overview}). All stations communicate with each other vie Ethernet switch. The peripheral devices (keyboard, joystick) allowing the operator to manually control the system are connected to the overview station (see Figure \ref{fig:hw_ols}).
+
+%% The big picture diagram of the hardware components of the OLS
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=9cm]{fig/hw_ols.pdf}
+	\caption{The big picture diagram of the main components of the OLS.}
+	\label{fig:hw_ols}
+\end{figure}
+
+A camera station itself consists of a camera unit (see Section \ref{txt:camera_unit}) and a computer running the OLS software. The camera unit is controlled by the controller \texttt{STM32F4007} which communicates with the manipulator \texttt{Flir PTU D46-70}, a GPS module and a zoom lens. The camera \texttt{Prosilica GT 1290C} is connected directly to a computer running OLS system (for more details see Figure \ref{fig:hw_camera_unit}).
+
+%% The diagram of the hardware components of the camera unit
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=9cm]{fig/hw_camera_unit.pdf}
+	\caption{The diagram of the hardware components of the camera unit depicting both the hardware devices and the communication standards.}
+	\label{fig:hw_camera_unit}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Software Architecture}
 
 Before the 3D location of the given target is estimated, the system must perform several operations. After powering on the system all camera stations start scanning the surrounding environment. The scanning process is autonomous, however, should the operator decide to interfere, the overview unit is used in order to control the camera (through the GUI and peripheral devices). 
 
@@ -110,11 +148,53 @@ Once any of the stations detects an aerial object, it saves the visual informati
 
 The other unit(s) must first detect the newly spotted object. If it succeeds it initiates the tracking. The overview unit then computes the triangulation and estimates the 3D location of the target.
 
+%=========================================================================
+%=========================================================================
+\chapter{Localisation Precision Analysis}
+\todo{Rozdelit typy chyb}
+\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
+\todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
+
+\vata[20]
 
 %=========================================================================
 %=========================================================================
-\chapter{Camera Unit} \label{txt:camera_unit}
-% 2 - 4 ns
+%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
+%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
+%
+%- vysvetleni typu chyb:
+%	- system error (systemova chyba)
+%		- nesoulad modelu CU s realnou konstrukci
+%		- nespravne mereni heading
+%		- detekce a tracking ?
+%	- uncertainty of the input of the system
+%		- GPS mereni
+%		- data inklinometru
+%	
+%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
+%
+%- rozdeleni na chybu rotace a translace
+%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
+%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
+%
+%- zdroj chyb:
+%	- detekce
+%	- tracking
+%	- GPS pozice
+%	- natoceni vuci severu
+%	- rozliseni PTU
+%	- model PTU - translace mezi klouby
+%	- model PTU - rotace mezi klouby
+%	- uchyceni kamery
+%		- rotace podle opticke osy
+%		- rotace podle osy azimutu
+%		- rotace podle osy elevace
+
+%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
+
+%=========================================================================
+%=========================================================================
+\chapter{Camera stations}
 
 Camera unit is one component of each camera station and it consists of hardware necessary to estimate the absolute geographical position of the station, absolute orientation, relative position and orientation with regards to the rest of the stations and hardware for positioning a camera and capturing the image stream (more in Section \ref{txt:devices}). 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a model corresponding to the real hardware must be designed (see Section \ref{txt:model}).
 
@@ -169,42 +249,7 @@ where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the
 
 %=========================================================================
 %=========================================================================
-%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
-%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
-%
-%- vysvetleni typu chyb:
-%	- system error (systemova chyba)
-%		- nesoulad modelu CU s realnou konstrukci
-%		- nespravne mereni heading
-%		- detekce a tracking ?
-%	- uncertainty of the input of the system
-%		- GPS mereni
-%		- data inklinometru
-%	
-%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
-%
-%- rozdeleni na chybu rotace a translace
-%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
-%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
-%
-%- zdroj chyb:
-%	- detekce
-%	- tracking
-%	- GPS pozice
-%	- natoceni vuci severu
-%	- rozliseni PTU
-%	- model PTU - translace mezi klouby
-%	- model PTU - rotace mezi klouby
-%	- uchyceni kamery
-%		- rotace podle opticke osy
-%		- rotace podle osy azimutu
-%		- rotace podle osy elevace
-		
-%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
-
-%=========================================================================
-%=========================================================================
-\chapter{Stationing and Rectification} \label{txt:stationing_and_rectification}
+\chapter{Stationing, Rectification and Calibration} \label{txt:stationing_and_rectification}
 % 2,5 - 3,5 ns
 
 The precision of the whole system is dependent on the uncertainty of the system input as well as on the imprecision of the camera unit construction. The process of stationing aims to alleviate the uncertainty of the system input while the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
@@ -339,6 +384,7 @@ offset &= pixel\_offset * pixel\_size
 	\label{fig:rect_pixel_offset}
 \end{figure}
 
+
 %.........................................................................
 %.........................................................................
 \subsection{Finding the Default Elevation Angle}
@@ -355,11 +401,13 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 	\label{fig:rect_default_elevation_angle}
 \end{figure}
 
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Calibration}
 
 %=========================================================================
 %=========================================================================
-\chapter{Detection and Tracking} \label{txt:detection_and_tracking}
-% 4,5 - 9 ns
+\chapter{Object Tracking in Multi-camera System}
 
 This section discusses the various approaches for detection and tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained, then the detection and tracking algorithms are described.
 
@@ -375,23 +423,23 @@ This category covers the use of points, geometric shapes, silhouettes and contou
 \paragraph{appearance representation} 
 The second category covers the use of templates, active appearance models and multiview appearance models. Active appearance models seem promising since they simultaneously model the object shape and appearance, however there is a need for an offline training phase. The templates combine the spatial and appearance information and can scale well to support varying object size (UAV approaching or flying away). A multiview appearance model might perform even better since it is designed to be robust against variation of the appearance of one object due to the change of its orientation.
 
+%%-------------------------------------------------------------------------
+%%-------------------------------------------------------------------------
+%\section{Detection}
+%
+%Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
+%
+%A couple of approaches can be distinguished among the detectors using natural appearance \cite{Yilmaz:2006:OTS:1177352.1177355}:
+%
+%\paragraph{detection of points} This approach goes with the shape representation of the object given by the keypoints. Among others the Harris corner detector or SIFT and SURF descriptors are widely used.
+%
+%\paragraph{background modeling} Under the assumption an observed scene does not change rapidly its appearance can be learned resulting in a background model. The task of the object detector is then to estimate for each subregion or even each pixel whether it belongs to a background or to a foreground (i.e. the object of interest). A widely used approach is to model each pixel as a mixture of Gaussians (in order to support a periodically changing background). Another possible solution is to model intensity variations of separate pixels as the states (including both \textit{background} and \textit{foreground} state) and then with the help of Hidden Markov Models to estimate the state a given pixel is currently in. Since it is possible to enhance these algorithms to allow for the camera motion (resulting in the change of the camera view) they seem suitable for the OLS system. 
+%
+%\paragraph{supervised classification} If the (coarse) class of the objects to be tracked is known beforehand and a proper dataset is available, a classifier can be trained to detect the objects. Among others, the neural networks or adaptive boosting methods are widely used. Since the OLS aims to localize UAVs, the utilization of a classifier seems like a suitable solution.
+
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Detection}
-
-Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
-
-A couple of approaches can be distinguished among the detectors using natural appearance \cite{Yilmaz:2006:OTS:1177352.1177355}:
-
-\paragraph{detection of points} This approach goes with the shape representation of the object given by the keypoints. Among others the Harris corner detector or SIFT and SURF descriptors are widely used.
-
-\paragraph{background modeling} Under the assumption an observed scene does not change rapidly its appearance can be learned resulting in a background model. The task of the object detector is then to estimate for each subregion or even each pixel whether it belongs to a background or to a foreground (i.e. the object of interest). A widely used approach is to model each pixel as a mixture of Gaussians (in order to support a periodically changing background). Another possible solution is to model intensity variations of separate pixels as the states (including both \textit{background} and \textit{foreground} state) and then with the help of Hidden Markov Models to estimate the state a given pixel is currently in. Since it is possible to enhance these algorithms to allow for the camera motion (resulting in the change of the camera view) they seem suitable for the OLS system. 
-
-\paragraph{supervised classification} If the (coarse) class of the objects to be tracked is known beforehand and a proper dataset is available, a classifier can be trained to detect the objects. Among others, the neural networks or adaptive boosting methods are widely used. Since the OLS aims to localize UAVs, the utilization of a classifier seems like a suitable solution.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Tracking}
+\section{Visual Tracking}
 
 The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame and regarding the approaches the trackers can be divided into three main categories \cite{Yilmaz:2006:OTS:1177352.1177355}:
 
@@ -441,30 +489,40 @@ The object itself is modeled as a set of patches, each patch being already learn
 
 \paragraph{Learning} Since the classifier used in the detection phase is initially trained using only one positive patch (the initial bounding box selected by a user) it tends to make errors as a video stream progress since the moving object of interest change its appearance due to the transformation caused by its motion. Therefore an online so called \texttt{P-N learning} component is incorporated in the system which gradually extends the training sets. Two experts are used, a \texttt{P-expert} identifies only false negatives while \texttt{N-expert} identifies only false positives. Once a wrongly classified patch is found, the experts extend the training set and the classifier is retrained (see Figure \ref{fig:tld_pn_learning_block_diagram}).
 
-%=========================================================================
-%=========================================================================
-%\chapter{Target localization} \label{txt:target_localization}
-%% 2,5 - 6 ns
-%
-%- triangulace
-%- === LOKALIZACE OBJEKTU VE VICEKAMEROVYCH SYSTEMECH ===
-%- === ALGORITMY VHODNE PRO RESENI ULOHY ===
-%
-%- Cameras are modeled as pinhole cameras. This is a simple model that describes the mathematical
-%relationship between the coordinates of a 3D point in the camera coordinate system and its
-%projection onto the image plane in an ideal camera without lenses through the expressions in 
-%
-%== (obrazek z rvizu (protnuti primek) ==
-%
-% Given  the  extrinsic  and  intrinsic  camera 
-% parameters,  each  image  point  defines  a  ray  in  three 
-% dimensional spaces, and in the absence of measurement errors, 
-% all  rays  from  different  cameras  intersect  in  the  same  object 
-% point. But actually the four rays may not intersect in the same 
-% point  due  to  the  low-quality  video  cameras  and  other 
-% complicated  reasons.
+%.........................................................................
+%.........................................................................
+\subsection{Tracking Using Background Modeling and Particle Filter}
  
+\vata[18]
+ 
+%=========================================================================
+%=========================================================================
+\chapter{Occlusion Detection Using 3D Environment Reconstruction}
 
+\vata[23]
+
+%=========================================================================
+%=========================================================================
+\chapter{Target Localization Using Triangulation}
+
+\todo{LOKALIZACE OBJEKTU VE VICEKAMEROVYCH SYSTEMECH}
+\todo{ALGORITMY VHODNE PRO RESENI ULOHY}
+
+- Cameras are modeled as pinhole cameras. This is a simple model that describes the mathematical
+relationship between the coordinates of a 3D point in the camera coordinate system and its
+projection onto the image plane in an ideal camera without lenses through the expressions in 
+
+\todo{== (obrazek z rvizu (protnuti primek) ==}
+
+ Given  the  extrinsic  and  intrinsic  camera 
+ parameters,  each  image  point  defines  a  ray  in  three 
+ dimensional spaces, and in the absence of measurement errors, 
+ all  rays  from  different  cameras  intersect  in  the  same  object 
+ point. But actually the four rays may not intersect in the same 
+ point  due  to  the  low-quality  video  cameras  and  other 
+ complicated  reasons.
+ 
+ \vata[28]
 
 %=========================================================================
 %=========================================================================
@@ -556,39 +614,8 @@ ROS provides a wide range of standard packages for interaction with various hard
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{System Architecture}
+\section{Nodes Interaction Design}
 
-Given the modular concept of the ROS it is most convenient to divide the whole system into autonomous subsystems represented by separate ROS packages. From the perspective of OLS this division of computation work among packages should loosely correspond to the hardware units used.
-
-%.........................................................................
-%.........................................................................
-\subsection{Hardware} \label{txt:hardware}
-
-Considering the big picture of the system, OLS consists of four camera stations, a hardware devices necessary for network communication and the peripherals for manual control. There are two types of camera stations, a tracking station and an overview station (see Section~\ref{txt:system_overview}). All stations communicate with each other vie Ethernet switch. The peripheral devices (keyboard, joystick) allowing the operator to manually control the system are connected to the overview station (see Figure \ref{fig:hw_ols}).
-
-%% The big picture diagram of the hardware components of the OLS
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=9cm]{fig/hw_ols.pdf}
-	\caption{The big picture diagram of the main components of the OLS.}
-	\label{fig:hw_ols}
-\end{figure}
-
-A camera station itself consists of a camera unit (see Section \ref{txt:camera_unit}) and a computer running the OLS software. The camera unit is controlled by the controller \texttt{STM32F4007} which communicates with the manipulator \texttt{Flir PTU D46-70}, a GPS module and a zoom lens. The camera \texttt{Prosilica GT 1290C} is connected directly to a computer running OLS system (for more details see Figure \ref{fig:hw_camera_unit}).
-
-%% The diagram of the hardware components of the camera unit
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=9cm]{fig/hw_camera_unit.pdf}
-	\caption{The diagram of the hardware components of the camera unit depicting both the hardware devices and the communication standards.}
-	\label{fig:hw_camera_unit}
-\end{figure}
-
-
-
-%.........................................................................
-%.........................................................................
-\subsection{Software} \label{txt:software}
 
 The system is divided into multiple ROS nodes (processes running in the operating system) with the aim to loosely resemble the hardware components. Five namespaces are used, one \texttt{master} namespace and four \texttt{camera\_unit\_N} namespaces, where $N \in \{0, 1, 2, 3\}$ identifies a unique camera unit. The overview of the system architecture from the perspective of the ROS namespaces, nodes, messages and services is depicted on Figure \ref{fig:sw_ols}.
 
@@ -603,6 +630,7 @@ The system is divided into multiple ROS nodes (processes running in the operatin
 The nodes running within the \texttt{master} namespace serve the purpose of the access point for an user (an operator) as well as the main controller of the whole system. The node \texttt{controls} keeps the information about the tracked targets and distributes the workload to the separate camera units based on their position and orientation with regards to the newly discovered target. The node \texttt{position\_estimation} calculates the triangulation and estimates the 3D position of the target. The node \texttt{GUI} implements the graphical user interface allowing the operator to control the system and the nodes \texttt{joy} and \texttt{keyboard} process the events from peripherals.
 
 Each of the namespaces \texttt{camera\_unit\_N} controls a separate camera unit. The namespace contains the standard node \texttt{avt\_vimba\_camera} processing the input image stream from Prosilica camera and it implements the node \texttt{manipulator}, which controls the manipulator and publishes its state, and the node \texttt{detection\_and\_tracking}, which performs the computationally most expensive tasks of the object detection, learning its appearance and tracking.
+
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -640,6 +668,11 @@ Besides the framework ROS a few other publicly available libraries are used with
 
 \paragraph{Serial} A cross-platform library Serial\footnote{The official website of Serial: \url{https://github.com/wjwwood/serial}} implemented in C++ provides the API for interfacing with RS-232 serial like ports. It is used to control the manipulator.
 
+%=========================================================================
+%=========================================================================
+\chapter{Experiemtnal Results}
+
+\vata[28]
 
 %=========================================================================
 %=========================================================================
@@ -651,3 +684,5 @@ This work presents a novel system for autonomous optical localization of aerial 
 As fo the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
 
 As far as the further development is concerned, the autonomous detection algorithm will be implemented and the tracking algorithm will be improved on since the OLS system expects a static background (as opposed to the TLD) so the background modeling could be incorporated to further improve the tracker performance. The subsystem for target handoff among the cameras will be designed and implemented and the localization algorithm will be improved on to reflect the uncertainty of the locations and orientations of the separate joints in the kinematic models and to provide the result in global geographical coordinates (most likely UTM). A proper dataset will be acquired and the system will be tested thoroughly.
+
+\vata[5]
