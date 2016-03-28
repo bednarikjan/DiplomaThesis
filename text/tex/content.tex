@@ -12,7 +12,8 @@
 %=========================================================================
 %=========================================================================
 \chapter{Introduction}
-% 1 - 2 ns
+ 
+ \todo{vhodne rozdelit na podkapitoly (aplikace systemu, historie, overview co system dela, ...)}
 
 In todays world the localization of the aerial objects is an essential component of two main domains, a public air traffic control (ATC) and a national defense. In both cases the main purpose of the system is to estimate the distance and the 3D position of a given airborne vehicle.
 
@@ -31,11 +32,37 @@ The principle of the optical localization of objects, which is based on triangul
 
 The OLS system aims to utilize the same principle as the old optical range finders. However, instead of an optical device requiring the operator to aim on the target manually the OLS takes advantage of the RGB cameras and the image processing techniques capable of detecting, tracking and localizing the target autonomously without the need for a human to interfere. Furthermore, with the use of sensors capable of finding a geographical position of each observer unit the OLS system estimates a global geographical position of a given target (not only the distance or relative position).
 
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Principle of Object Localisation}
+\todo{Obecne jak to funguje}
+
+\begin{figure*}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
+	\centering
+	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
+	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
+	\caption{\todo{Dodat caption}}
+	\label{fig:WidePicture}
+\end{figure*}
+
+\vata[4]
+
+%=========================================================================
+%=========================================================================
+\chapter{Related Work}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Related Work}
-% 1 - 2 ns
+\section{Detection}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Tracking}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Localisation using triangulation}
+
 
 Professional systems aiming on automatic localization of aerial (as well as terrestrial and underwater) targets mostly rely on active devices, such as radars or sonars and there is very little use of pure passive optical devices (such as RGB cameras, thermal imaging cameras, etc.). The reason might be the complexity of the whole solution or the operation constrained by the weather conditions.
 
@@ -46,12 +73,6 @@ One of the widely used approaches is to set up so called \textit{intelligent spa
 Even though all of the aforementioned approaches utilize the ordinary RGB cameras for detection and tracking and in general estimate the location of the object using the triangulation algorithm, they all assume the object moves strictly within the specified bounded region and they rely on fixed positions of the cameras. Thus, they do not have to deal with the imprecisions arose from the uncertainty of the current camera pose estimation and with the problems of handing off the target to other camera units once a target moves out of the operational range of the given camera. 
 
 As for the detection and tracking of the distant aerial targets, one of the most recent approaches was presented by Rozantsev et al. \cite{DBLP:journals/corr/RozantsevLF14}. The algorithm combines both the appearance and motion clues in order to distinguish the object from the complex background.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Thesis Organization}
-
-Chapter \ref{txt:system_overview} presents the general information about the system and describes its operation in a big picture. Chapter \ref{txt:camera_unit} analyzes the devices which make up a camera unit (a core hardware component of the system) and presents the corresponding model. The next Chapter~\ref{txt:stationing_and_rectification} explains the necessity of finding the precise position and orientation of the whole camera station as well as evaluating the deviations between the camera unit model and its real construction. Chapter \ref{txt:detection_and_tracking} discusses the core computer vision components of the system, the detection and tracking. Chapter \ref{txt:implementation} goes through the implementation details and the final Chapter \ref{txt:conclusion} concludes the work.
 
 
 %=========================================================================
