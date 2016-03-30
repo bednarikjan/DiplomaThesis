@@ -13,7 +13,9 @@
 %=========================================================================
 \chapter{Introduction}
  
- \todo{vhodne rozdelit na podkapitoly (aplikace systemu, historie, overview co system dela, ...)}
+\todo{aplikace systemu, vyhody, nevyhody}
+\todo{historie}
+\todo{overview co system dela}
 
 In todays world the localization of the aerial objects is an essential component of two main domains, a public air traffic control (ATC) and a national defense. In both cases the main purpose of the system is to estimate the distance and the 3D position of a given airborne vehicle.
 
@@ -26,15 +28,19 @@ In this work, I propose a fully autonomous passive multi-camera system for detec
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Background} \label{txt:background}
+%\section{Background} \label{txt:background}
+
+%%% Historie
 
 The principle of the optical localization of objects, which is based on triangulation, is well known for quite a long time. The first devices which were designed to allow an operator to estimate a distance to a given object using mechanical and optical principles --- optical range finders --- emerged in the second half of the 18th century \cite{bud1998instruments}. Ever since, the optical range finders had been mostly used for military operations in order to estimate the position of either naval, airborne or terrestrial targets until the World War II when radar was invented.
 
 The OLS system aims to utilize the same principle as the old optical range finders. However, instead of an optical device requiring the operator to aim on the target manually the OLS takes advantage of the RGB cameras and the image processing techniques capable of detecting, tracking and localizing the target autonomously without the need for a human to interfere. Furthermore, with the use of sensors capable of finding a geographical position of each observer unit the OLS system estimates a global geographical position of a given target (not only the distance or relative position).
 
+%%% Princip lokalizace
+
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Principle of Object Localisation}
+%\section{Principle of Object Localisation}
 \todo{Obecne jak to funguje}
 
 \begin{figure*}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
@@ -50,18 +56,122 @@ The OLS system aims to utilize the same principle as the old optical range finde
 %=========================================================================
 %=========================================================================
 \chapter{Related Work}
+%\todo{PID regulation}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Detection}
+\section{Moving Object Detection}
+
+Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
+
+A couple of approaches can be distinguished among the detectors using natural appearance \cite{Yilmaz:2006:OTS:1177352.1177355}:
+
+\paragraph{detection of points} This approach goes with the shape representation of the object given by the keypoints. Among others the Harris corner detector or SIFT and SURF descriptors are widely used.
+
+\paragraph{background modeling} Under the assumption an observed scene does not change rapidly its appearance can be learned resulting in a background model. The task of the object detector is then to estimate for each subregion or even each pixel whether it belongs to a background or to a foreground (i.e. the object of interest). A widely used approach is to model each pixel as a mixture of Gaussians (in order to support a periodically changing background). Another possible solution is to model intensity variations of separate pixels as the states (including both \textit{background} and \textit{foreground} state) and then with the help of Hidden Markov Models to estimate the state a given pixel is currently in. Since it is possible to enhance these algorithms to allow for the camera motion (resulting in the change of the camera view) they seem suitable for the OLS system. 
+
+\paragraph{supervised classification} If the (coarse) class of the objects to be tracked is known beforehand and a proper dataset is available, a classifier can be trained to detect the objects. Among others, the neural networks or adaptive boosting methods are widely used. Since the OLS aims to localize UAVs, the utilization of a classifier seems like a suitable solution.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Tracking}
+\subsection{Object Tracking}
+
+This section discusses the various approaches for detection and tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained, then the detection and tracking algorithms are described.
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\subsection{Object Model}
+
+Choosing a suitable representation of an object of interest is a first step when designing a tracker. It is a crucial task since the choice of the features determines the type of the final tracker due to the strong relationship between the algorithm and the representation of the object and it can significantly impact the overall performance of the tracker. There are two main representations, the \textit{shape} and the \textit{appearance} \cite{Yilmaz:2006:OTS:1177352.1177355}.
+
+\paragraph{shape representation} 
+This category covers the use of points, geometric shapes, silhouettes and contours, articulated models and skeletal models. The point representation is not suitable for OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points. The geometric shapes seem suitable as long as the aerial object is far enough so that it could be approximated by a primitive geometric shape. Silhouettes and contours are mostly used for tracking non rigid objects (which is not the case of OLS), neither articulated model is needed to describe an UAV. Considering the small size of the object of interest, a skeletal model would most probably degrade to a single line or a point.
+
+\paragraph{appearance representation} 
+The second category covers the use of templates, active appearance models and multiview appearance models. Active appearance models seem promising since they simultaneously model the object shape and appearance, however there is a need for an offline training phase. The templates combine the spatial and appearance information and can scale well to support varying object size (UAV approaching or flying away). A multiview appearance model might perform even better since it is designed to be robust against variation of the appearance of one object due to the change of its orientation.
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\subsection{Visual Tracking}
+
+The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame and regarding the approaches the trackers can be divided into three main categories \cite{Yilmaz:2006:OTS:1177352.1177355}:
+
+\paragraph{point tracking} 
+The tracker detects the keypoints in each frame, selects those representing the object and computes the transformation from the previous frame.
+
+\paragraph{kernel tracking} 
+This approach corresponds to a representation of an object using a template, where kernel is the description of both shape and appearance.
+
+\paragraph{silhouette tracking}
+Silhouettes representing the object can be tracked either by shape matching or contour evolution. \\
+
+Since the representation by a template (or multiple templates) suits conditions of the OLS the best, an approach Tracking Learning Detection belonging to the \textit{kernel tracking} category was chosen to perform the tracking of the object of interest. TLD is one of the best performing state-of-the-art algorithms developed for tracking general objects and its capabilities seem promising for the needs of OLS. For detailed description of the algorithm see Section \ref{txt:tracking_learning_detection}.
+
+%.........................................................................
+%.........................................................................
+\subsection{Tracking-Learning-Detection} \label{txt:tracking_learning_detection}
+
+The Tracking Learning Detection (TLD) \cite{Kalal:2012:TRA:2225045.2225082} is an algorithm designed for performing so called long-term tracking, a robust tracking of an object which might change its appearance, be temporarily occluded by closer objects or temporarily completely disappear from the scene. Since this task cannot be achieved solely neither by a tracker nor by a detector, the TLD aims to combine the strengths of the detection and tracking algorithms by combining their results. Furthermore the algorithm incorporates the online adaptation subsystem capable of learning the new appearances of the tracked object in the course of the tracking.
+
+A conceptual diagram of the TLD algorithm is shown in Figure \ref{fig:tld_block_diagram}. The \texttt{tracking} component tracks the object and for each frame produces the new position. It expects that object does not disappear (occlusion, out of FOV) from the scene and if it does, the tracker fails. The \texttt{detection} component performs full scanning of the image for each frame. It detects the object and if needed it reinitializes the tracker. The \texttt{learning} component is capable of generating new appearances of the tracked object and thus improving the performance of the detector. 
+
+The object itself is modeled as a set of patches, each patch being already learned appearance represented by the rectangular bounding box around the object rescaled to a normalized resolution of 15 x 15 pixels. The similarity of the patches is given by the normalized cross-correlation.
+
+%% TLD block diagram
+%% TLD PN learning block diagram
+\begin{figure}[htb]
+	\centering
+	\begin{minipage}{.34\textwidth}
+		\centering
+		\includegraphics[width=.99\linewidth]{fig/tld_block_diagram.png}
+		\captionof{figure}{A diagram of the main TLD components. Image is adopted from \cite{Kalal:2012:TRA:2225045.2225082}.}
+		\label{fig:tld_block_diagram}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.63\textwidth}
+		\centering
+		\includegraphics[width=.99\linewidth]{fig/tld_pn_learning_block_diagram.png}
+		\captionof{figure}{A diagram of the PN learning process. Image is adopted from \cite{Kalal:2012:TRA:2225045.2225082}.}
+		\label{fig:tld_pn_learning_block_diagram}
+	\end{minipage}
+\end{figure}
+
+\paragraph{Detection} Detector treats each frame as an independent one and scans a full image. A scanning window is used and it is gradually scaled (in order for the detector to achieve scale invariance) and iteratively shifted along a regular grid of candidate positions. Since this task is computationally intensive a cascade classifier is used so that the detector could quickly decide whether a given subregion contains the object. In case of TLD, the cascade classifier consists of three sequential stages specifically ordered so that earlier the stage is the more subregions it should reduce while being computationally less expensive. Should the subregion be rejected by any stage, later stages ignore it completely.
+
+\paragraph{Tracking} The tracking subsystem is based on the algorithm called the Median-Flow tracker. A $10 \times 10$ grid is used to select the positions within the bounding box representing the object. For each position a given point is tracked between the consecutive frames using pyramidal Lucas-Kanade tracker and eventually the tracker only accepts a 50\% of the most reliable displacements to estimate a new position of the target.
+
+\paragraph{Learning} Since the classifier used in the detection phase is initially trained using only one positive patch (the initial bounding box selected by a user) it tends to make errors as a video stream progress since the moving object of interest change its appearance due to the transformation caused by its motion. Therefore an online so called \texttt{P-N learning} component is incorporated in the system which gradually extends the training sets. Two experts are used, a \texttt{P-expert} identifies only false negatives while \texttt{N-expert} identifies only false positives. Once a wrongly classified patch is found, the experts extend the training set and the classifier is retrained (see Figure \ref{fig:tld_pn_learning_block_diagram}).
+
+%.........................................................................
+%.........................................................................
+\subsection{Tracking Using Background Modeling and Particle Filter}
+
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{3D Environment Reconstruction}
+\todo{vyuziti pro occlusion detection}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Localisation using triangulation}
+
+\todo{LOKALIZACE OBJEKTU VE VICEKAMEROVYCH SYSTEMECH}
+\todo{ALGORITMY VHODNE PRO RESENI ULOHY}
+
+- Cameras are modeled as pinhole cameras. This is a simple model that describes the mathematical
+relationship between the coordinates of a 3D point in the camera coordinate system and its
+projection onto the image plane in an ideal camera without lenses through the expressions in 
+
+\todo{== (obrazek z rvizu (protnuti primek) ==}
+
+Given  the  extrinsic  and  intrinsic  camera 
+parameters,  each  image  point  defines  a  ray  in  three 
+dimensional spaces, and in the absence of measurement errors, 
+all  rays  from  different  cameras  intersect  in  the  same  object 
+point. But actually the four rays may not intersect in the same 
+point  due  to  the  low-quality  video  cameras  and  other 
+complicated  reasons.
 
 
 Professional systems aiming on automatic localization of aerial (as well as terrestrial and underwater) targets mostly rely on active devices, such as radars or sonars and there is very little use of pure passive optical devices (such as RGB cameras, thermal imaging cameras, etc.). The reason might be the complexity of the whole solution or the operation constrained by the weather conditions.
@@ -75,9 +185,15 @@ Even though all of the aforementioned approaches utilize the ordinary RGB camera
 As for the detection and tracking of the distant aerial targets, one of the most recent approaches was presented by Rozantsev et al. \cite{DBLP:journals/corr/RozantsevLF14}. The algorithm combines both the appearance and motion clues in order to distinguish the object from the complex background.
 
 
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Optical Localisation Systems}
+
+
 %=========================================================================
 %=========================================================================
-\chapter{System Overview} \label{txt:system_overview}
+\chapter{Design of the Optical Localisation System} \label{txt:system_overview}
 
 This section presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. From the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will be used throughout the document (see Figure \ref{fig:frame_convention}).
 
@@ -89,20 +205,6 @@ This section presents the main hardware building blocks of the OLS, the camera s
 	\label{fig:frame_convention}
 \end{figure}
 
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Principle of Object Localisation}
-\todo{Obecne jak to funguje}
-
-\begin{figure*}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
-	\centering
-	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
-	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
-	\caption{\todo{Dodat caption}}
-	\label{fig:WidePicture}
-\end{figure*}
-
-\vata[4]
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -137,7 +239,7 @@ As for the network topology, the OLS is based on a star pattern where each track
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Hardware Architecture}
+\section{Hardware and Software Architecture}
 
 Considering the big picture of the system, OLS consists of four camera stations, a hardware devices necessary for network communication and the peripherals for manual control. There are two types of camera stations, a tracking station and an overview station (see Section~\ref{txt:system_overview}). All stations communicate with each other vie Ethernet switch. The peripheral devices (keyboard, joystick) allowing the operator to manually control the system are connected to the overview station (see Figure \ref{fig:hw_ols}).
 
@@ -159,24 +261,11 @@ A camera station itself consists of a camera unit (see Section \ref{txt:camera_u
 	\label{fig:hw_camera_unit}
 \end{figure}
 
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Software Architecture}
-
 Before the 3D location of the given target is estimated, the system must perform several operations. After powering on the system all camera stations start scanning the surrounding environment. The scanning process is autonomous, however, should the operator decide to interfere, the overview unit is used in order to control the camera (through the GUI and peripheral devices). 
 
 Once any of the stations detects an aerial object, it saves the visual information distinguishing the object and notifies the overview station. The overview station selects the best candidate(s) to track the newly discovered object and notifies the chosen unit with the essential data about the object (direction in which it was spotted, visual clues, global id, etc.).
 
 The other unit(s) must first detect the newly spotted object. If it succeeds it initiates the tracking. The overview unit then computes the triangulation and estimates the 3D location of the target.
-
-%=========================================================================
-%=========================================================================
-\chapter{Localisation Precision Analysis}
-\todo{Rozdelit typy chyb}
-\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
-\todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
-
-\vata[20]
 
 %=========================================================================
 %=========================================================================
@@ -213,15 +302,15 @@ The other unit(s) must first detect the newly spotted object. If it succeeds it 
 
 %- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
 
-%=========================================================================
-%=========================================================================
-\chapter{Camera stations}
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Camera station}
 
 Camera unit is one component of each camera station and it consists of hardware necessary to estimate the absolute geographical position of the station, absolute orientation, relative position and orientation with regards to the rest of the stations and hardware for positioning a camera and capturing the image stream (more in Section \ref{txt:devices}). 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a model corresponding to the real hardware must be designed (see Section \ref{txt:model}).
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Devices} \label{txt:devices}
+\subsection{Devices} \label{txt:devices}
 
 A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}) together with the LED target for stationing (see Section \ref{txt:stationing_and_rectification}) is mounted as well as all of the sensors (a GPS sensor, an inclinometer, a camera).
 
@@ -247,7 +336,7 @@ A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surve
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Model} \label{txt:model}
+\subsection{Model} \label{txt:model}
 
 The model of the camera unit is based on the kinematic chain consisting of six joints and five links corresponding to the distance between separate parts of the tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \texttt{ground} itself is dependent on the reference location (let us call it \texttt{world}) which represents the origin of the global coordinate frame. The transformation between the \texttt{world} and \texttt{ground} reflects the positioning and heading of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing_and_rectification}).
 
@@ -267,17 +356,31 @@ where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the
 	\label{fig:camera_unit_kinematic_chain}
 \end{figure}
 
+\section{Detection and Tracking}
+
+\todo{detection}
+\todo{tracking}
+\todo{occlusion prediciton using 3D reconstruction}
+\todo{regulation}
+
+\section{Localisation}
 
 %=========================================================================
 %=========================================================================
-\chapter{Stationing, Rectification and Calibration} \label{txt:stationing_and_rectification}
-% 2,5 - 3,5 ns
+\chapter{Precision of the Localization in Multi Camera System}
+\todo{Rozdelit typy chyb}
+\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
+\todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
 
-The precision of the whole system is dependent on the uncertainty of the system input as well as on the imprecision of the camera unit construction. The process of stationing aims to alleviate the uncertainty of the system input while the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
+\section{Precision Analysis}
+
+\vata[20]
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Stationing}
+
+The precision of the whole system is dependent on the uncertainty of the system input as well as on the imprecision of the camera unit construction. The process of stationing aims to alleviate the uncertainty of the system input while the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
 
 Since the stationing is considered to be already a working subsystem of the whole project (and thus is not dealt with within the scope of this work) only the main principle will be briefly described. The stationing is composed of two parts: finding the geographical north and finding the relative azimuthal and elevation angles between each pair of camera units.
 
@@ -424,126 +527,8 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Calibration}
+\section{Camera Calibration}
 
-%=========================================================================
-%=========================================================================
-\chapter{Object Tracking in Multi-camera System}
-
-This section discusses the various approaches for detection and tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained, then the detection and tracking algorithms are described.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Object Model}
-
-Choosing a suitable representation of an object of interest is a first step when designing a tracker. It is a crucial task since the choice of the features determines the type of the final tracker due to the strong relationship between the algorithm and the representation of the object and it can significantly impact the overall performance of the tracker. There are two main representations, the \textit{shape} and the \textit{appearance} \cite{Yilmaz:2006:OTS:1177352.1177355}.
-
-\paragraph{shape representation} 
-This category covers the use of points, geometric shapes, silhouettes and contours, articulated models and skeletal models. The point representation is not suitable for OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points. The geometric shapes seem suitable as long as the aerial object is far enough so that it could be approximated by a primitive geometric shape. Silhouettes and contours are mostly used for tracking non rigid objects (which is not the case of OLS), neither articulated model is needed to describe an UAV. Considering the small size of the object of interest, a skeletal model would most probably degrade to a single line or a point.
-
-\paragraph{appearance representation} 
-The second category covers the use of templates, active appearance models and multiview appearance models. Active appearance models seem promising since they simultaneously model the object shape and appearance, however there is a need for an offline training phase. The templates combine the spatial and appearance information and can scale well to support varying object size (UAV approaching or flying away). A multiview appearance model might perform even better since it is designed to be robust against variation of the appearance of one object due to the change of its orientation.
-
-%%-------------------------------------------------------------------------
-%%-------------------------------------------------------------------------
-%\section{Detection}
-%
-%Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
-%
-%A couple of approaches can be distinguished among the detectors using natural appearance \cite{Yilmaz:2006:OTS:1177352.1177355}:
-%
-%\paragraph{detection of points} This approach goes with the shape representation of the object given by the keypoints. Among others the Harris corner detector or SIFT and SURF descriptors are widely used.
-%
-%\paragraph{background modeling} Under the assumption an observed scene does not change rapidly its appearance can be learned resulting in a background model. The task of the object detector is then to estimate for each subregion or even each pixel whether it belongs to a background or to a foreground (i.e. the object of interest). A widely used approach is to model each pixel as a mixture of Gaussians (in order to support a periodically changing background). Another possible solution is to model intensity variations of separate pixels as the states (including both \textit{background} and \textit{foreground} state) and then with the help of Hidden Markov Models to estimate the state a given pixel is currently in. Since it is possible to enhance these algorithms to allow for the camera motion (resulting in the change of the camera view) they seem suitable for the OLS system. 
-%
-%\paragraph{supervised classification} If the (coarse) class of the objects to be tracked is known beforehand and a proper dataset is available, a classifier can be trained to detect the objects. Among others, the neural networks or adaptive boosting methods are widely used. Since the OLS aims to localize UAVs, the utilization of a classifier seems like a suitable solution.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Visual Tracking}
-
-The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame and regarding the approaches the trackers can be divided into three main categories \cite{Yilmaz:2006:OTS:1177352.1177355}:
-
-\paragraph{point tracking} 
-The tracker detects the keypoints in each frame, selects those representing the object and computes the transformation from the previous frame.
-
-\paragraph{kernel tracking} 
-This approach corresponds to a representation of an object using a template, where kernel is the description of both shape and appearance.
-
-\paragraph{silhouette tracking}
-Silhouettes representing the object can be tracked either by shape matching or contour evolution. \\
-
-Since the representation by a template (or multiple templates) suits conditions of the OLS the best, an approach Tracking Learning Detection belonging to the \textit{kernel tracking} category was chosen to perform the tracking of the object of interest. TLD is one of the best performing state-of-the-art algorithms developed for tracking general objects and its capabilities seem promising for the needs of OLS. For detailed description of the algorithm see Section \ref{txt:tracking_learning_detection}.
-
-%.........................................................................
-%.........................................................................
-\subsection{Tracking-Learning-Detection} \label{txt:tracking_learning_detection}
-
-The Tracking Learning Detection (TLD) \cite{Kalal:2012:TRA:2225045.2225082} is an algorithm designed for performing so called long-term tracking, a robust tracking of an object which might change its appearance, be temporarily occluded by closer objects or temporarily completely disappear from the scene. Since this task cannot be achieved solely neither by a tracker nor by a detector, the TLD aims to combine the strengths of the detection and tracking algorithms by combining their results. Furthermore the algorithm incorporates the online adaptation subsystem capable of learning the new appearances of the tracked object in the course of the tracking.
-
-A conceptual diagram of the TLD algorithm is shown in Figure \ref{fig:tld_block_diagram}. The \texttt{tracking} component tracks the object and for each frame produces the new position. It expects that object does not disappear (occlusion, out of FOV) from the scene and if it does, the tracker fails. The \texttt{detection} component performs full scanning of the image for each frame. It detects the object and if needed it reinitializes the tracker. The \texttt{learning} component is capable of generating new appearances of the tracked object and thus improving the performance of the detector. 
-
-The object itself is modeled as a set of patches, each patch being already learned appearance represented by the rectangular bounding box around the object rescaled to a normalized resolution of 15 x 15 pixels. The similarity of the patches is given by the normalized cross-correlation.
-
-%% TLD block diagram
-%% TLD PN learning block diagram
-\begin{figure}[htb]
-	\centering
-	\begin{minipage}{.34\textwidth}
-		\centering
-		\includegraphics[width=.99\linewidth]{fig/tld_block_diagram.png}
-		\captionof{figure}{A diagram of the main TLD components. Image is adopted from \cite{Kalal:2012:TRA:2225045.2225082}.}
-		\label{fig:tld_block_diagram}
-	\end{minipage}
-	\hfill
-	\begin{minipage}{.63\textwidth}
-		\centering
-		\includegraphics[width=.99\linewidth]{fig/tld_pn_learning_block_diagram.png}
-		\captionof{figure}{A diagram of the PN learning process. Image is adopted from \cite{Kalal:2012:TRA:2225045.2225082}.}
-		\label{fig:tld_pn_learning_block_diagram}
-	\end{minipage}
-\end{figure}
-
-\paragraph{Detection} Detector treats each frame as an independent one and scans a full image. A scanning window is used and it is gradually scaled (in order for the detector to achieve scale invariance) and iteratively shifted along a regular grid of candidate positions. Since this task is computationally intensive a cascade classifier is used so that the detector could quickly decide whether a given subregion contains the object. In case of TLD, the cascade classifier consists of three sequential stages specifically ordered so that earlier the stage is the more subregions it should reduce while being computationally less expensive. Should the subregion be rejected by any stage, later stages ignore it completely.
-
-\paragraph{Tracking} The tracking subsystem is based on the algorithm called the Median-Flow tracker. A $10 \times 10$ grid is used to select the positions within the bounding box representing the object. For each position a given point is tracked between the consecutive frames using pyramidal Lucas-Kanade tracker and eventually the tracker only accepts a 50\% of the most reliable displacements to estimate a new position of the target.
-
-\paragraph{Learning} Since the classifier used in the detection phase is initially trained using only one positive patch (the initial bounding box selected by a user) it tends to make errors as a video stream progress since the moving object of interest change its appearance due to the transformation caused by its motion. Therefore an online so called \texttt{P-N learning} component is incorporated in the system which gradually extends the training sets. Two experts are used, a \texttt{P-expert} identifies only false negatives while \texttt{N-expert} identifies only false positives. Once a wrongly classified patch is found, the experts extend the training set and the classifier is retrained (see Figure \ref{fig:tld_pn_learning_block_diagram}).
-
-%.........................................................................
-%.........................................................................
-\subsection{Tracking Using Background Modeling and Particle Filter}
- 
-\vata[18]
- 
-%=========================================================================
-%=========================================================================
-\chapter{Occlusion Detection Using 3D Environment Reconstruction}
-
-\vata[23]
-
-%=========================================================================
-%=========================================================================
-\chapter{Target Localization Using Triangulation}
-
-\todo{LOKALIZACE OBJEKTU VE VICEKAMEROVYCH SYSTEMECH}
-\todo{ALGORITMY VHODNE PRO RESENI ULOHY}
-
-- Cameras are modeled as pinhole cameras. This is a simple model that describes the mathematical
-relationship between the coordinates of a 3D point in the camera coordinate system and its
-projection onto the image plane in an ideal camera without lenses through the expressions in 
-
-\todo{== (obrazek z rvizu (protnuti primek) ==}
-
- Given  the  extrinsic  and  intrinsic  camera 
- parameters,  each  image  point  defines  a  ray  in  three 
- dimensional spaces, and in the absence of measurement errors, 
- all  rays  from  different  cameras  intersect  in  the  same  object 
- point. But actually the four rays may not intersect in the same 
- point  due  to  the  low-quality  video  cameras  and  other 
- complicated  reasons.
- 
- \vata[28]
 
 %=========================================================================
 %=========================================================================
