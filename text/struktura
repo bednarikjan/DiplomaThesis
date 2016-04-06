@@ -1,0 +1,21 @@
+1) Introduction
+
+2) Related Work
+
+3) Design of the Optical Localisation System
+- SW
+- HW
+- topology
+- camera stations
+
+4) Precision of the Localization in Multi Camera System
+- precision analysis
+- stationing
+- rectification
+- camera calibration
+
+5) Implementation
+
+6) Experimental Results
+
+7) Conclusion
