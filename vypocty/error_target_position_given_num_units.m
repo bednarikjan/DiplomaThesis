@@ -7,8 +7,12 @@
 % 
 % Error can be plotted for two or three camera units. To change this set
 % 'cameraUnitsCount' to 2 or 3. Two CUs form line, three CUs form rgular
-% triangle.
+% triangle. If 3 units are used, for each target position only 2 units
+% are selected to estimate position - those whose basis normal vector
+% yields highest dot product with direction vector to target.
 %
+% TODO - opravit! pri vypoctu, ktera baze se pouzije, se musi pouzivat
+% ruzne T! T musi byt smer mezi STREDEM BASELINE a CILEM!
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONSTANTS - only change these
@@ -25,7 +29,7 @@ yMax    =  500.0;
 yStep   =  30.0;
 zMax    =  75.0;
 
-cameraUnitsCount = 2;
+cameraUnitsCount = 3;
 
 % camera properties
 f               = 50e-3;    % focus [m]
@@ -67,13 +71,6 @@ end
 % Resulting error map
 errorMap = zeros(floor((yMax - yMin) / yStep), floor((xMax - xMin) / xStep));
 
-% Rotation matrices (clockwise and counter-clockwise) to create perturbed direction vectors.
-Rccw = [cos(delta) -sin(delta); ...
-        sin(delta)  cos(delta)];
-
-Rcw = [cos(-delta) -sin(-delta); ...
-       sin(-delta)  cos(-delta)];
-
 x = xMin:xStep:xMax;
 y = yMin:yStep:yMax;
    
@@ -84,35 +81,13 @@ for i = 1:length(y)
         T = [x(j), y(i)];
         
         % Select the base to compute target position                             
-        [~, idx] =  max(T * bd');
+        [~, idx] =  max(abs(T * bd'));
         
         % direction and corresponding normal vectors to GT target
         c1 = C(idx, :);
-        c2 = C(mod(idx, length(C)) + 1, :);
+        c2 = C(mod(idx, length(C)) + 1, :);          
         
-        u = T - c1;
-        v = T - c2;              
-
-        % Perturbed direction vectors.
-        eu1 = Rcw  * u';
-        eu2 = Rccw * u';
-        ev1 = Rcw  * v';
-        ev2 = Rccw * v';
-
-        % intersections
-        I1 = lines_intersection(c1, eu1, c2, ev1);
-        I2 = lines_intersection(c1, eu1, c2, ev2);
-        I3 = lines_intersection(c1, eu2, c2, ev1);
-        I4 = lines_intersection(c1, eu2, c2, ev2);
-
-        % distances between perturbed lines intersections and GT target position
-        distances = zeros(1, 4);
-        distances(1) = norm(T - I1);
-        distances(2) = norm(T - I2);
-        distances(3) = norm(T - I3);
-        distances(4) = norm(T - I4);
-
-        errorMap(i, j) = min(zMax, max(distances));       
+        errorMap(i, j) = min(zMax, worst_error(c1, c2, T, delta));       
     end
 end
 

@@ -18,7 +18,7 @@
 %
 
 B = 10:5:100;         % m
-D = 10:50:500;     % m
+D = 10:50:1000;     % m
 delta = 0.000750;    % rad
 
 e = bsxfun(@minus, bsxfun(@times, B', (tan(atan(D' * (1.0 ./ B)) + delta))'), D);
