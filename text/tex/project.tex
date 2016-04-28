@@ -2,30 +2,33 @@
 % Jan Bednarik
 % E-mail: jan.bednarik AT hotmail.cz
 %============================================================================
-% encoding: utf8 (change using iconv, recode nebo cstocs)
-%----------------------------------------------------------------------------
-% compile: make, make pdf, make desky, make clean
+% encoding: utf8
 %============================================================================
 
-\documentclass[english, cover]{fitthesis} % odevzdani do wisu - odkazy, na ktere se da klikat
-%\documentclass[cover,print]{fitthesis} % pro tisk - na odkazy se neda klikat
-%\documentclass[english,print]{fitthesis} % pro tisk - na odkazy se neda klikat
-%      \documentclass[english]{fitthesis}
+%\documentclass[]{fitthesis} % bez zadání - pro začátek práce, aby nebyl problém s překladem
+\documentclass[english]{fitthesis} % odevzdani do wisu - odkazy jsou barevné
+%\documentclass[zadani,print]{fitthesis} % pro tisk - odkazy jsou černé
+%\documentclass[english,print]{fitthesis} % pro tisk - odkazy jsou černé
 % * Je-li prace psana v anglickem jazyce, je zapotrebi u tridy pouzit 
 %   parametr english nasledovne:
 %      \documentclass[english]{fitthesis}
-% * Neprejete-li si vysazet na prvni strane dokumentu desky, zruste 
-%   parametr cover
 
-% zde zvolime kodovani, ve kterem je napsan text prace
-% "latin2" pro iso8859-2 nebo "cp1250" pro windows-1250, "utf8" pro "utf-8"
-%\usepackage{ucs}
-\usepackage[utf8]{inputenc}
-\usepackage[T1, IL2]{fontenc}
+\usepackage[czech,english]{babel}
+\usepackage[utf8]{inputenc} %kodovani
+\usepackage[T1]{fontenc}
+\usepackage{cmap}
 \usepackage{url}
 \DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
 
-%%%%%%% Vlastni balicky %%%%%%%%
+%zde muzeme vlozit vlastni balicky
+\usepackage{listings}
+\usepackage[toc,page,header]{appendix}
+\RequirePackage{titletoc}
+\ifczech
+  \usepackage{ae}
+\fi
+
+%%%%%%% My packages %%%%%%%%
 
 %% Lorem ipsum
 \usepackage{blindtext}
@@ -47,6 +50,17 @@
 \newcommand\todo[1]{\textcolor{red}{[[ #1 ]] \\}}
 \newcommand{\vata[1]}{\textcolor{gray}{\blindtext[#1]}}
 
+%---rm---------------
+\renewcommand{\rmdefault}{lmr}%zavede Latin Modern Roman jako rm
+%---sf---------------
+\renewcommand{\sfdefault}{qhv}%zavede TeX Gyre Heros jako sf
+%---tt------------
+\renewcommand{\ttdefault}{lmtt}% zavede Latin Modern tt jako tt
+
+% vypne funkci nové šablony, která automaticky nahrazuje uvozovky,
+% aby nebyly prováděny nevhodné náhrady v popisech API apod.
+\csdoublequotesoff
+
 % =======================================================================
 % balíček "hyperref" vytváří klikací odkazy v pdf, pokud tedy použijeme pdflatex
 % problém je, že balíček hyperref musí být uveden jako poslední, takže nemůže
@@ -55,7 +69,7 @@
 \ifx\pdfoutput\undefined % nejedeme pod pdflatexem
 \else
   \usepackage{color}
-  \usepackage[bookmarksdepth=1,unicode,colorlinks,hyperindex,plainpages=false,pdftex]{hyperref}
+  \usepackage[unicode,colorlinks,hyperindex,plainpages=false,pdftex]{hyperref}
   \definecolor{links}{rgb}{0.4,0.5,0}
   \definecolor{anchors}{rgb}{1,0,0}
   \def\AnchorColor{anchors}
@@ -63,41 +77,51 @@
   \def\pdfBorderAttrs{/Border [0 0 0] }  % bez okrajů kolem odkazů
   \pdfcompresslevel=9
 \fi
+\else % pro tisk budou odkazy, na které se dá klikat, černé
+\ifx\pdfoutput\undefined % nejedeme pod pdflatexem
+\else
+  \usepackage{color}
+  \usepackage[unicode,colorlinks,hyperindex,plainpages=false,pdftex,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+  \definecolor{links}{rgb}{0,0,0}
+  \definecolor{anchors}{rgb}{0,0,0}
+  \def\AnchorColor{anchors}
+  \def\LinkColor{links}
+  \def\pdfBorderAttrs{/Border [0 0 0] } % bez okrajů kolem odkazů
+  \pdfcompresslevel=9
+\fi
 \fi
 
-%Informace o praci/projektu
-%---------------------------------------------------------------------------
 \projectinfo{
-  %Prace
-  project=DP,            %typ prace BP/SP/DP/DR
-  year=2016,             %rok
-  date=\today,           %datum odevzdani
-  %Nazev prace
-  title.cs={Optická lokalizace velmi vzdálených cílů ve vícekamerovém systému},  %nazev prace v cestine
-  title.en={Optical Localization of Very Distant Targets in Multicamera Systems}, %nazev prace v anglictine
-  %Autor
-  author={Jan Bednařík},   %jmeno prijmeni autora
-  author.title.p=Bc., %titul pred jmenem (nepovinne)
-  %author.title.a=PhD, %titul za jmenem (nepovinne)
-  %Ustav
-  department=UPGM, % doplnte prislusnou zkratku: UPSY/UIFS/UITS/UPGM
-  %Skolitel
-  supervisor= Adam Herout, %jmeno prijmeni skolitele
-  supervisor.title.p=prof. Ing.,   %titul pred jmenem (nepovinne)
-  supervisor.title.a={Ph.D.},    %titul za jmenem (nepovinne)
-  %Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat 
-  %bud pomoci nasledujicich parametru nebo pomoci vyhrazenych maker (viz dale)
-  %===========================================================================
-  %Klicova slova
-  keywords.cs={Klíčová slova v českém jazyce.}, %klicova slova v ceskem jazyce
-  keywords.en={Klíčová slova v anglickém jazyce.}, %klicova slova v anglickem jazyce
-  %Abstract
-  abstract.cs={Výtah (abstrakt) práce v českém jazyce.}, % abstrakt v ceskem jazyce
-  abstract.en={Výtah (abstrakt) práce v anglickém jazyce.}, % abstrakt v anglickem jazyce
-  %Prohlaseni
-  declaration={Prohlašuji, že jsem tento semestrální projekt vypracoval samostatně pod vedením pana doc. Ing. Adama Herouta, Phd. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.},
-  %Podekovani (nepovinne)
-%  acknowledgment={Zde je možné uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc.} % nepovinne
+	%Prace
+	project=DP,            %typ prace BP/SP/DP/DR
+	year=2016,             %rok
+	date=\today,           %datum odevzdani
+	%Nazev prace
+	title.cs={Optická lokalizace velmi vzdálených cílů ve vícekamerovém systému},  %nazev prace v cestine
+	title.en={Optical Localization of Very Distant Targets in Multicamera Systems}, %nazev prace v anglictine
+	%Autor
+	author={Jan Bednařík},   %jmeno prijmeni autora
+	author.title.p=Bc., %titul pred jmenem (nepovinne)
+	%author.title.a=PhD, %titul za jmenem (nepovinne)
+	%Ustav
+	department=UPGM, % doplnte prislusnou zkratku: UPSY/UIFS/UITS/UPGM
+	%Skolitel
+	supervisor= Adam Herout, %jmeno prijmeni skolitele
+	supervisor.title.p=prof. Ing.,   %titul pred jmenem (nepovinne)
+	supervisor.title.a={Ph.D.},    %titul za jmenem (nepovinne)
+	%Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat 
+	%bud pomoci nasledujicich parametru nebo pomoci vyhrazenych maker (viz dale)
+	%===========================================================================
+	%Klicova slova
+	keywords.cs={Klíčová slova v českém jazyce.}, %klicova slova v ceskem jazyce
+	keywords.en={Klíčová slova v anglickém jazyce.}, %klicova slova v anglickem jazyce
+	%Abstract
+	abstract.cs={Výtah (abstrakt) práce v českém jazyce.}, % abstrakt v ceskem jazyce
+	abstract.en={Výtah (abstrakt) práce v anglickém jazyce.}, % abstrakt v anglickem jazyce
+	%Prohlaseni
+	declaration={Prohlašuji, že jsem tento semestrální projekt vypracoval samostatně pod vedením pana doc. Ing. Adama Herouta, Phd. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.},
+	%Podekovani (nepovinne)
+	%  acknowledgment={Zde je možné uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc.} % nepovinne
 }
 
 %Abstrakt (cesky, anglicky)
@@ -112,8 +136,8 @@
 \declaration{Prohlašuji, že jsem tuto bakalářskou práci vypracoval samostatně pod vedením pana prof. Ing. Adama Herouta, Ph.D. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.}
 
 %Podekovani (nepovinne)
-%\acknowledgment{V této sekci je možno uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc
-%(externí zadavatel, konzultant, apod.).}
+\acknowledgment{V této sekci je možno uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc
+(externí zadavatel, konzultant, apod.).}
 
 \begin{document}
   % Vysazeni titulnich stran
@@ -124,25 +148,54 @@
   \tableofcontents
   
   % Seznam obrazku a tabulek (pokud prace obsahuje velke mnozstvi obrazku, tak se to hodi)
+\ifczech
+  \renewcommand\listfigurename{Seznam obrázků}
+\fi
   % \listoffigures
+\ifczech
+  \renewcommand\listtablename{Seznam tabulek}
+\fi
   % \listoftables 
 
   % Text prace
   % ----------------------------------------------
-  \input{content} % viz. obsah.tex
+  \input{content} % viz. content.tex
 
   % Pouzita literatura
   % ----------------------------------------------
 \ifczech
+  \makeatletter
+  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literatura}}
+  \makeatother
   \bibliographystyle{czechiso}
 \else 
+  \makeatletter
+  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literature}}
+  \makeatother
   \bibliographystyle{plain}
 %  \bibliographystyle{alpha}
 \fi
   \begin{flushleft}
-  \bibliography{bibliography} % viz. bibliography.bib
+  \bibliography{bibliography} % viz. literatura.bib
   \end{flushleft}
+
+  % Prilohy
+  % ---------------------------------------------
   \appendix
-  
-  \input{appendicies} % viz. prilohy.tex
+\ifczech
+  \renewcommand{\appendixpagename}{Přílohy}
+  \renewcommand{\appendixtocname}{Přílohy}
+  \renewcommand{\appendixname}{Příloha}
+\fi
+  \appendixpage
+\ifczech
+  \section*{Seznam příloh}
+  \addcontentsline{toc}{section}{Seznam příloh}
+\else
+  \section*{List of Appendices}
+  \addcontentsline{toc}{section}{List of Appendices}
+\fi
+  \startcontents[chapters]
+  \printcontents[chapters]{l}{0}{\setcounter{tocdepth}{2}}
+  \input{appendix} % viz. appendix.tex
 \end{document}

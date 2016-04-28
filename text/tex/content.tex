@@ -12,7 +12,7 @@
 %=========================================================================
 %=========================================================================
 \chapter{Introduction}
- 
+
 \todo{aplikace systemu, vyhody, nevyhody}
 \todo{historie}
 \todo{overview co system dela}
@@ -345,7 +345,7 @@ The model of the camera unit is based on the kinematic chain consisting of six j
 The kinematic chain is designed as the composition of transformation matrices where a single joint can be located by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \texttt{camera} can be derived as:
 
 \begin{equation}
-M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
+	M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
 \end{equation}
 
 where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the joint \texttt{camera} is dependent on, and $T_{cam}$ and $R_{AXIS_{cam}}$ are transformation and rotation matrices describing transformation from the joint \texttt{ele} to the joint \texttt{camera}. 
@@ -496,10 +496,10 @@ The same target from the first part of the rectification is used, but two black 
 A military optical monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the manipulator. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis (represented by the digital crosshair) intersects the right cross on the target and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset expressed in pixels is recorded and transformed to the default angle $\beta$ expressed in milliradians (see Figure \ref{fig:rect_pixel_offset}) of rotation along Z-axis of the joint \texttt{camera} in the camera unit model (see Section \ref{txt:camera_unit}):
 
 \begin{equation*}
-\begin{aligned}
-\beta &= \arccos\frac{focal\_length}{offset}, \\
-offset &= pixel\_offset * pixel\_size
-\end{aligned}
+	\begin{aligned}
+		\beta &= \arccos\frac{focal\_length}{offset}, \\
+		offset &= pixel\_offset * pixel\_size
+	\end{aligned}
 \end{equation*}
 
 %% Geometry schema showing how to calculate angle beta - pixel offset
@@ -542,18 +542,18 @@ The whole system is built on the robotic framework Robot Operating System (for d
 As of writing this text a current state of the implementation mainly builds on the virtual environment provided by the physical simulator Gazebo (see Section \ref{txt:application_of_gazebo}). When confronted with the overview of all subsystems making up the whole system presented in Section \ref{txt:system_overview}, so far the following parts are already designed, implemented and/or integrated:
 
 \begin{itemize}
-\item manual control of the manipulator using peripheral devices
-\item manual selection of a target and distribution of its appearance to all CUs
-\item integration and utilization of a OpenTLD tracker
-\item the first prototype of triangulation of a 3D positions of a target within global frame
-\item integration of all subsystems
+	\item manual control of the manipulator using peripheral devices
+	\item manual selection of a target and distribution of its appearance to all CUs
+	\item integration and utilization of a OpenTLD tracker
+	\item the first prototype of triangulation of a 3D positions of a target within global frame
+	\item integration of all subsystems
 \end{itemize}
 
 Furthermore a few additional tools were utilized and/or implemented as the necessary building blocks allowing for further development and testing:
 
 \begin{itemize}
-\item a functional model of a whole system in Gazebo environment
-\item a standalone application for rectification
+	\item a functional model of a whole system in Gazebo environment
+	\item a standalone application for rectification
 \end{itemize}
 
 
@@ -574,123 +574,123 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 
 
 {\renewcommand{\arraystretch}{1.5}
-\begin{table}[htbp]
-	\centering
-	\caption{The table lists the most important requirements of the OLS and describes how the ROS framework addresses them.}
-	\begin{tabularx}{0.99\textwidth}{XX}
-		\toprule
-		\textbf{OLS requirements} & \textbf{ROS features} \\
-		\midrule
-		native support for hardware such as Prosilica camera, manipulator Flir PTU D46-70, joystick, keyboard & nodes implementing image capture from Prosilica cameras, capturing events from keyboards and joysticks \\
-		modularity and reusability of source code & each subsystem is represented by a separate process (node), straightforward reusability \\
-		distribution of computation among multiple computers & provides abstraction layer for distributing nodes across devices \\
-		simple data exchange among subsystems & the publisher/subscriber paradigm \cite{O'Kane201310}, support for custom message formats \\
-		real time performance & C++ implementation \\
-		modelling and simulating the robot & custom language \texttt{URDF}\footnotemark ~for robot modeling, integration with Gazebo \\
-		specifying a kinematic chain, heavy 3D transformation computation & native support for computing transformation between frames using package \texttt{tf} \\
-		complex visualization, debugging & a visualization tool \texttt{rviz}\footnotemark ~for visualizing frames, transformations, robot models, image streams etc. \\
-		physical simulation & integration with Gazebo \\
-		\bottomrule
-	\end{tabularx}
-	\label{tab:ols_requirements_ros_features}
-\end{table}}
-
-\footnotetext{Modeling language \texttt{URDF}: \url{http://wiki.ros.org/urdf}}
-\footnotetext{Vsisualization tool \texttt{rviz}: \url{http://wiki.ros.org/rviz}}
-
-%.........................................................................
-%.........................................................................
-\subsection{Standard ROS Packages}
-
-ROS provides a wide range of standard packages for interaction with various hardware devices and performing various computations. The implementation of OLS utilizes following packages:
-
-\begin{description}
-	\item[avt\_vimba\_camera]\footnote{Package avt\_vimba\_camera: \url{http://wiki.ros.org/avt_vimba_camera}} \hfill \\
-	This package wraps the Vimba GigE SDK provided by Allied Vision Technologies, the manufacturer of the Prosilica series cameras, and allows the programmer to subscribe to the topic \texttt{camera\textbackslash image\_raw} and easily access the image stream.
+	\begin{table}[htbp]
+		\centering
+		\caption{The table lists the most important requirements of the OLS and describes how the ROS framework addresses them.}
+		\begin{tabularx}{0.99\textwidth}{XX}
+			\toprule
+			\textbf{OLS requirements} & \textbf{ROS features} \\
+			\midrule
+			native support for hardware such as Prosilica camera, manipulator Flir PTU D46-70, joystick, keyboard & nodes implementing image capture from Prosilica cameras, capturing events from keyboards and joysticks \\
+			modularity and reusability of source code & each subsystem is represented by a separate process (node), straightforward reusability \\
+			distribution of computation among multiple computers & provides abstraction layer for distributing nodes across devices \\
+			simple data exchange among subsystems & the publisher/subscriber paradigm \cite{O'Kane201310}, support for custom message formats \\
+			real time performance & C++ implementation \\
+			modelling and simulating the robot & custom language \texttt{URDF}\footnotemark ~for robot modeling, integration with Gazebo \\
+			specifying a kinematic chain, heavy 3D transformation computation & native support for computing transformation between frames using package \texttt{tf} \\
+			complex visualization, debugging & a visualization tool \texttt{rviz}\footnotemark ~for visualizing frames, transformations, robot models, image streams etc. \\
+			physical simulation & integration with Gazebo \\
+			\bottomrule
+		\end{tabularx}
+		\label{tab:ols_requirements_ros_features}
+	\end{table}}
 	
-	\item[keyboard]\footnote{Package keyboard: \url{http://wiki.ros.org/keyboard}} \hfill \\
-	The package processes the keyboard events and exposes them via \texttt{keydown} and \texttt{keyup} topics.
+	\footnotetext{Modeling language \texttt{URDF}: \url{http://wiki.ros.org/urdf}}
+	\footnotetext{Vsisualization tool \texttt{rviz}: \url{http://wiki.ros.org/rviz}}
 	
-	\item[joy]\footnote{Package joy: \url{http://wiki.ros.org/joy}} \hfill \\
-	This package processes the events from a joystick and/or gamepad and exposes them via \texttt{joy} topic.
+	%.........................................................................
+	%.........................................................................
+	\subsection{Standard ROS Packages}
 	
-	\item[tf]\footnote{Package tf: \url{http://wiki.ros.org/tf}} \hfill \\
-	The package manages the distribution of the states of all joints within all robot models (in case of OLS the kinematic chains representing the camera units) among all nodes as well as it performs the transformation between given frames on demand \cite{tf}.
+	ROS provides a wide range of standard packages for interaction with various hardware devices and performing various computations. The implementation of OLS utilizes following packages:
 	
-\end{description}
+	\begin{description}
+		\item[avt\_vimba\_camera]\footnote{Package avt\_vimba\_camera: \url{http://wiki.ros.org/avt_vimba_camera}} \hfill \\
+		This package wraps the Vimba GigE SDK provided by Allied Vision Technologies, the manufacturer of the Prosilica series cameras, and allows the programmer to subscribe to the topic \texttt{camera\textbackslash image\_raw} and easily access the image stream.
+		
+		\item[keyboard]\footnote{Package keyboard: \url{http://wiki.ros.org/keyboard}} \hfill \\
+		The package processes the keyboard events and exposes them via \texttt{keydown} and \texttt{keyup} topics.
+		
+		\item[joy]\footnote{Package joy: \url{http://wiki.ros.org/joy}} \hfill \\
+		This package processes the events from a joystick and/or gamepad and exposes them via \texttt{joy} topic.
+		
+		\item[tf]\footnote{Package tf: \url{http://wiki.ros.org/tf}} \hfill \\
+		The package manages the distribution of the states of all joints within all robot models (in case of OLS the kinematic chains representing the camera units) among all nodes as well as it performs the transformation between given frames on demand \cite{tf}.
+		
+	\end{description}
 	
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Nodes Interaction Design}
-
-
-The system is divided into multiple ROS nodes (processes running in the operating system) with the aim to loosely resemble the hardware components. Five namespaces are used, one \texttt{master} namespace and four \texttt{camera\_unit\_N} namespaces, where $N \in \{0, 1, 2, 3\}$ identifies a unique camera unit. The overview of the system architecture from the perspective of the ROS namespaces, nodes, messages and services is depicted on Figure \ref{fig:sw_ols}.
-
-%% The diagram of the software components - ROS nodes - and ROS topics.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=14.5cm]{fig/sw_ols.pdf}
-	\caption{The diagram of the software components represented by the ROS nodes. The communication among topics is implemented using ROS topics (normal arrows) and ROS services (dashed arrows).}
-	\label{fig:sw_ols}
-\end{figure}
-
-The nodes running within the \texttt{master} namespace serve the purpose of the access point for an user (an operator) as well as the main controller of the whole system. The node \texttt{controls} keeps the information about the tracked targets and distributes the workload to the separate camera units based on their position and orientation with regards to the newly discovered target. The node \texttt{position\_estimation} calculates the triangulation and estimates the 3D position of the target. The node \texttt{GUI} implements the graphical user interface allowing the operator to control the system and the nodes \texttt{joy} and \texttt{keyboard} process the events from peripherals.
-
-Each of the namespaces \texttt{camera\_unit\_N} controls a separate camera unit. The namespace contains the standard node \texttt{avt\_vimba\_camera} processing the input image stream from Prosilica camera and it implements the node \texttt{manipulator}, which controls the manipulator and publishes its state, and the node \texttt{detection\_and\_tracking}, which performs the computationally most expensive tasks of the object detection, learning its appearance and tracking.
-
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Application of Gazebo} \label{txt:application_of_gazebo}
-
-Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a physical simulator developed by the OSRF\footnote{Open Source Robotic Foundation: \url{http://www.osrfoundation.org/}} providing the tools to model and simulate robots in both indoor and outdoor environment. The simulator has been developed since 2002 and today represents a mature system with wide penetration and support, while being distributed as open source and freeware. 
-
-Since the Gazebo is distributed also as one of the standard packages of the ROS framework it is straightforward to integrate the simulation environment with the already implemented ROS nodes. There are multiple advantages of using the simulator over a development using a real hardware, the main motivations were as follows:
-
-\paragraph{testing a tracker} The Gazebo provides the ROS plugin simulating an RGB camera, which captures the virtual scene and publishes a stream of rendered images. Thus it can be used to test an object tracking algorithm using arbitrarily complex environment and moving objects (see Figure \ref{fig:gazebo_camera_stream}).
-
-%% The screenshot of Gazebo scene and image streams from cameras.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=14.5cm]{fig/gazebo_camera_stream.png}
-	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (the gas station), a flying object (the red sphere) and four manipulators. All four virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
-	\label{fig:gazebo_camera_stream}
-\end{figure}
-
-\paragraph{testing a manipulator} It is a good practice to include a real hardware in the simulation during the development \cite{on_hw_in_the_loop}. Both actuators and sensors would be difficult to simulate properly, moreover a real manipulator is constrained in terms of the operational range (see Section \ref{txt:camera_unit}), maximum acceleration and speed and communication throughput so it is necessary to thoroughly test its performance. This so called hardware-in-the-loop simulation reveals whether the implementation of motion control is correct and whether the possibilities of the manipulator suffice to track arbitrarily fast (simulated) objects.
-
-\paragraph{testing a triangulation} Thanks to the Gazebo it is possible to simulate a flying object with a-priory set trajectory and evaluate the precision of a position estimation algorithm using comparison between the estimated target position and a ground-truth.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{External Libraries} \label{txt:external_libraries}
-
-Besides the framework ROS a few other publicly available libraries are used within the implementation.
-
-\paragraph{OpenCV} Open Source Computer Vision Library\footnote{The official website of OpenCV: \url{http://opencv.org}} is a free open source library providing algorithms for image processing, computer vision and machine learning. Version 2.4.11 is used as it is a component of ROS Indigo.
-
-\paragraph{Eigen} This open source C++ template library\footnote{The official website of Eigen: \url{http://eigen.tuxfamily.org}} implements the data structures and methods for fast and convenient solving of linear algebra problems.
-
-\paragraph{OpenTLD} The OpenTLD library\footnote{The official website of OpenTLD: \url{http://www.gnebehay.com/tld}} represents an open source C++ implementation the TLD tracking algorithm (see Section \ref{txt:detection_and_tracking}).	
-
-\paragraph{Serial} A cross-platform library Serial\footnote{The official website of Serial: \url{https://github.com/wjwwood/serial}} implemented in C++ provides the API for interfacing with RS-232 serial like ports. It is used to control the manipulator.
-
-%=========================================================================
-%=========================================================================
-\chapter{Experiemtnal Results}
-
-\vata[28]
-
-%=========================================================================
-%=========================================================================
-\chapter{Conclusion} \label{txt:conclusion}
-% 1 - 2 ns
-
-This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
-
-As fo the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
-
-As far as the further development is concerned, the autonomous detection algorithm will be implemented and the tracking algorithm will be improved on since the OLS system expects a static background (as opposed to the TLD) so the background modeling could be incorporated to further improve the tracker performance. The subsystem for target handoff among the cameras will be designed and implemented and the localization algorithm will be improved on to reflect the uncertainty of the locations and orientations of the separate joints in the kinematic models and to provide the result in global geographical coordinates (most likely UTM). A proper dataset will be acquired and the system will be tested thoroughly.
-
-\vata[5]
+	
+	%-------------------------------------------------------------------------
+	%-------------------------------------------------------------------------
+	\section{Nodes Interaction Design}
+	
+	
+	The system is divided into multiple ROS nodes (processes running in the operating system) with the aim to loosely resemble the hardware components. Five namespaces are used, one \texttt{master} namespace and four \texttt{camera\_unit\_N} namespaces, where $N \in \{0, 1, 2, 3\}$ identifies a unique camera unit. The overview of the system architecture from the perspective of the ROS namespaces, nodes, messages and services is depicted on Figure \ref{fig:sw_ols}.
+	
+	%% The diagram of the software components - ROS nodes - and ROS topics.
+	\begin{figure}[htb]
+		\centering
+		\includegraphics[width=14.5cm]{fig/sw_ols.pdf}
+		\caption{The diagram of the software components represented by the ROS nodes. The communication among topics is implemented using ROS topics (normal arrows) and ROS services (dashed arrows).}
+		\label{fig:sw_ols}
+	\end{figure}
+	
+	The nodes running within the \texttt{master} namespace serve the purpose of the access point for an user (an operator) as well as the main controller of the whole system. The node \texttt{controls} keeps the information about the tracked targets and distributes the workload to the separate camera units based on their position and orientation with regards to the newly discovered target. The node \texttt{position\_estimation} calculates the triangulation and estimates the 3D position of the target. The node \texttt{GUI} implements the graphical user interface allowing the operator to control the system and the nodes \texttt{joy} and \texttt{keyboard} process the events from peripherals.
+	
+	Each of the namespaces \texttt{camera\_unit\_N} controls a separate camera unit. The namespace contains the standard node \texttt{avt\_vimba\_camera} processing the input image stream from Prosilica camera and it implements the node \texttt{manipulator}, which controls the manipulator and publishes its state, and the node \texttt{detection\_and\_tracking}, which performs the computationally most expensive tasks of the object detection, learning its appearance and tracking.
+	
+	
+	%-------------------------------------------------------------------------
+	%-------------------------------------------------------------------------
+	\section{Application of Gazebo} \label{txt:application_of_gazebo}
+	
+	Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a physical simulator developed by the OSRF\footnote{Open Source Robotic Foundation: \url{http://www.osrfoundation.org/}} providing the tools to model and simulate robots in both indoor and outdoor environment. The simulator has been developed since 2002 and today represents a mature system with wide penetration and support, while being distributed as open source and freeware. 
+	
+	Since the Gazebo is distributed also as one of the standard packages of the ROS framework it is straightforward to integrate the simulation environment with the already implemented ROS nodes. There are multiple advantages of using the simulator over a development using a real hardware, the main motivations were as follows:
+	
+	\paragraph{testing a tracker} The Gazebo provides the ROS plugin simulating an RGB camera, which captures the virtual scene and publishes a stream of rendered images. Thus it can be used to test an object tracking algorithm using arbitrarily complex environment and moving objects (see Figure \ref{fig:gazebo_camera_stream}).
+	
+	%% The screenshot of Gazebo scene and image streams from cameras.
+	\begin{figure}[htb]
+		\centering
+		\includegraphics[width=14.5cm]{fig/gazebo_camera_stream.png}
+		\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (the gas station), a flying object (the red sphere) and four manipulators. All four virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
+		\label{fig:gazebo_camera_stream}
+	\end{figure}
+	
+	\paragraph{testing a manipulator} It is a good practice to include a real hardware in the simulation during the development \cite{on_hw_in_the_loop}. Both actuators and sensors would be difficult to simulate properly, moreover a real manipulator is constrained in terms of the operational range (see Section \ref{txt:camera_unit}), maximum acceleration and speed and communication throughput so it is necessary to thoroughly test its performance. This so called hardware-in-the-loop simulation reveals whether the implementation of motion control is correct and whether the possibilities of the manipulator suffice to track arbitrarily fast (simulated) objects.
+	
+	\paragraph{testing a triangulation} Thanks to the Gazebo it is possible to simulate a flying object with a-priory set trajectory and evaluate the precision of a position estimation algorithm using comparison between the estimated target position and a ground-truth.
+	
+	%-------------------------------------------------------------------------
+	%-------------------------------------------------------------------------
+	\section{External Libraries} \label{txt:external_libraries}
+	
+	Besides the framework ROS a few other publicly available libraries are used within the implementation.
+	
+	\paragraph{OpenCV} Open Source Computer Vision Library\footnote{The official website of OpenCV: \url{http://opencv.org}} is a free open source library providing algorithms for image processing, computer vision and machine learning. Version 2.4.11 is used as it is a component of ROS Indigo.
+	
+	\paragraph{Eigen} This open source C++ template library\footnote{The official website of Eigen: \url{http://eigen.tuxfamily.org}} implements the data structures and methods for fast and convenient solving of linear algebra problems.
+	
+	\paragraph{OpenTLD} The OpenTLD library\footnote{The official website of OpenTLD: \url{http://www.gnebehay.com/tld}} represents an open source C++ implementation the TLD tracking algorithm (see Section \ref{txt:detection_and_tracking}).	
+	
+	\paragraph{Serial} A cross-platform library Serial\footnote{The official website of Serial: \url{https://github.com/wjwwood/serial}} implemented in C++ provides the API for interfacing with RS-232 serial like ports. It is used to control the manipulator.
+	
+	%=========================================================================
+	%=========================================================================
+	\chapter{Experiemtnal Results}
+	
+	\vata[28]
+	
+	%=========================================================================
+	%=========================================================================
+	\chapter{Conclusion} \label{txt:conclusion}
+	% 1 - 2 ns
+	
+	This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
+	
+	As fo the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
+	
+	As far as the further development is concerned, the autonomous detection algorithm will be implemented and the tracking algorithm will be improved on since the OLS system expects a static background (as opposed to the TLD) so the background modeling could be incorporated to further improve the tracker performance. The subsystem for target handoff among the cameras will be designed and implemented and the localization algorithm will be improved on to reflect the uncertainty of the locations and orientations of the separate joints in the kinematic models and to provide the result in global geographical coordinates (most likely UTM). A proper dataset will be acquired and the system will be tested thoroughly.
+	
+	\vata[5]
