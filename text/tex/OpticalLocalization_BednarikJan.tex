@@ -50,6 +50,18 @@
 \newcommand\todo[1]{\textcolor{red}{[[ #1 ]] \\}}
 \newcommand{\vata[1]}{\textcolor{gray}{\blindtext[#1]}}
 
+%% Algorithms
+\usepackage[ruled, vlined, linesnumbered, nofillcomment]{algorithm2e}
+
+%%%% Custom commands
+% particle
+\newcommand{\particle}[2]{(\vec{x_{#1}^{#2}},w_{#1}^{#2})}
+
+\renewcommand{\floatpagefraction}{.9}
+
+% Matrix notation
+\newcommand{\matr}[1]{\mathbf{#1}}
+
 %---rm---------------
 \renewcommand{\rmdefault}{lmr}%zavede Latin Modern Roman jako rm
 %---sf---------------
