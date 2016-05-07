@@ -11,11 +11,17 @@
 
 %=========================================================================
 %=========================================================================
-\chapter{Introduction}
+\chapter{Introduction} \label{txt:introduction}
 
+\todo{Abstract by mel mit max 10 radku.}
+\todo{zasazení řešené problematiky do širšího kontextu}
+\todo{ávaznost diplomové práce na Semestrální projekt a vymezí objem prací, které byly do diplomové práce převzaty, včetně odkazů do kapitol diplomové práce ???}
 \todo{aplikace systemu, vyhody, nevyhody}
 \todo{historie}
 \todo{overview co system dela}
+\todo{uvest,z e cil muze byt pomerne maly v obraze (par pixelu)}
+\todo{pridat par paragraphs o hlavnich komponentach systemu}
+\todo{pridat tabulku requirements pro tracking}
 
 In todays world the localization of the aerial objects is an essential component of two main domains, a public air traffic control (ATC) and a national defense. In both cases the main purpose of the system is to estimate the distance and the 3D position of a given airborne vehicle.
 
@@ -24,6 +30,16 @@ In case of the ATC, the airports mainly rely on the multilateration systems whic
 Even though being widely used, radar based localization systems suffer from several drawbacks. Radar is a device based on the active emission of the radio signal \cite{toomay2012radar}. In order to localize distant objects, a huge amount of energy must be radiated to make sure it would return from the target and a small amount of energy returned might be easily disrupted \cite{Airtrafficmuseum}. What is more, in defense applications it is not desirable that the tracked object would find out that it is being tracked, which is the condition an actively radiating system, such as a radar, cannot achieve. Last but not least, the professional class radars in use by both public segment and military are in general expensive, large and heavy devices not suitable for mobile deployment.
 
 In this work, I propose a fully autonomous passive multi-camera system for detecting, tracking and localizing aerial objects which is based merely on ordinary RGB cameras --- the Optical Localization System (OLS). Since the system does not rely on active emission of a signal, but rather captures the optical information from the environment, it can be used for secret localization of aerial targets. The system is designed to be well suited for mobility and temporary deployment since each camera station used weigh no more than twenty kilograms and the whole system is relatively inexpensive as well.
+
+\paragraph{object tracking}
+Requirements: long-term tracking (partial occlusion, temporal disappearance from scene, ...), multi-hypothesis - possible simultaneous tracking of multiple targets, suitable representation of very small targets (which mich change over time), real-time (at least 10 FPS), moving cameras.
+
+\begin{figure}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
+	\centering
+	\includegraphics[width=0.45\linewidth, height=5cm]{fig/small_tracked_object.png}
+	\caption{\todo{Dodat caption}}
+	\label{fig:small_tracked_object}
+\end{figure}
 
 
 %-------------------------------------------------------------------------
@@ -56,66 +72,143 @@ The OLS system aims to utilize the same principle as the old optical range finde
 %=========================================================================
 %=========================================================================
 \chapter{Related Work}
-%\todo{PID regulation}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Moving Object Detection}
-
-Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
-
-A couple of approaches can be distinguished among the detectors using natural appearance \cite{Yilmaz:2006:OTS:1177352.1177355}:
-
-\paragraph{detection of points} This approach goes with the shape representation of the object given by the keypoints. Among others the Harris corner detector or SIFT and SURF descriptors are widely used.
-
-\paragraph{background modeling} Under the assumption an observed scene does not change rapidly its appearance can be learned resulting in a background model. The task of the object detector is then to estimate for each subregion or even each pixel whether it belongs to a background or to a foreground (i.e. the object of interest). A widely used approach is to model each pixel as a mixture of Gaussians (in order to support a periodically changing background). Another possible solution is to model intensity variations of separate pixels as the states (including both \textit{background} and \textit{foreground} state) and then with the help of Hidden Markov Models to estimate the state a given pixel is currently in. Since it is possible to enhance these algorithms to allow for the camera motion (resulting in the change of the camera view) they seem suitable for the OLS system. 
-
-\paragraph{supervised classification} If the (coarse) class of the objects to be tracked is known beforehand and a proper dataset is available, a classifier can be trained to detect the objects. Among others, the neural networks or adaptive boosting methods are widely used. Since the OLS aims to localize UAVs, the utilization of a classifier seems like a suitable solution.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\subsection{Object Tracking}
-
-This section discusses the various approaches for detection and tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained, then the detection and tracking algorithms are described.
+%\section{Moving Object Detection}
+%
+%Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
+%
+%A couple of approaches can be distinguished among the detectors using natural appearance \cite{Yilmaz:2006:OTS:1177352.1177355}:
+%
+%\paragraph{detection of points} This approach goes with the shape representation of the object given by the keypoints. Among others the Harris corner detector or SIFT and SURF descriptors are widely used.
+%
+%\paragraph{background modeling} Under the assumption an observed scene does not change rapidly its appearance can be learned resulting in a background model. The task of the object detector is then to estimate for each subregion or even each pixel whether it belongs to a background or to a foreground (i.e. the object of interest). A widely used approach is to model each pixel as a mixture of Gaussians (in order to support a periodically changing background). Another possible solution is to model intensity variations of separate pixels as the states (including both \textit{background} and \textit{foreground} state) and then with the help of Hidden Markov Models to estimate the state a given pixel is currently in. Since it is possible to enhance these algorithms to allow for the camera motion (resulting in the change of the camera view) they seem suitable for the OLS system. 
+%
+%\paragraph{supervised classification} If the (coarse) class of the objects to be tracked is known beforehand and a proper dataset is available, a classifier can be trained to detect the objects. Among others, the neural networks or adaptive boosting methods are widely used. Since the OLS aims to localize UAVs, the utilization of a classifier seems like a suitable solution.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\subsection{Object Model}
+\section{Object Tracking}
 
-Choosing a suitable representation of an object of interest is a first step when designing a tracker. It is a crucial task since the choice of the features determines the type of the final tracker due to the strong relationship between the algorithm and the representation of the object and it can significantly impact the overall performance of the tracker. There are two main representations, the \textit{shape} and the \textit{appearance} \cite{Yilmaz:2006:OTS:1177352.1177355}.
+This section discusses the various approaches to tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained and the properties of various object models as well as their advantages and disadvantages with regards to the requirements of the OLS system are discussed. Different categories of tracking algorithms are then described and two specific approaches which are most appropriate for OLS -- the \textit{TLD tracker} and the \textit{foreground-background tracker based on the particle filter framework} -- are explained in more detail.
+
+%.........................................................................
+%.........................................................................
+\subsection{Object Model} \label{txt:object_model}
+
+The choice of how the targets are represented determines the domain of approaches used for visual detection and/or tracking due to the strong relationship between the algorithm and the object model. Neither of the stat-of-the-art approaches is universal enough to cope with all the difficulties and disturbances, such as the illumination change, occlusion, cluttered background, motion blurring, appearance change due to deformation and/or transformation of the object \cite{Li:2013:SAM:2508037.2508039}, which might occur over the course of tracking. Therefore, the model should suit a priori known tracking conditions (e.g. size, speed, rigidity and motion model of a target, number of targets, camera motion, background model etc.). Yilmaz et al. classified the model representations into two categories in their review \cite{Yilmaz:2006:OTS:1177352.1177355} -- the \textit{shape} and the \textit{appearance}. 
+
+%Beyond these two classes, a few categories of widely used image features can be distinguished, e.g. \textit{gradient, texture or spatio-temporal features}, with some of them being specifically developed for tracking certain classes of objects, such as pedestrians or cars \cite{Yang20113823}.
 
 \paragraph{shape representation} 
-This category covers the use of points, geometric shapes, silhouettes and contours, articulated models and skeletal models. The point representation is not suitable for OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points. The geometric shapes seem suitable as long as the aerial object is far enough so that it could be approximated by a primitive geometric shape. Silhouettes and contours are mostly used for tracking non rigid objects (which is not the case of OLS), neither articulated model is needed to describe an UAV. Considering the small size of the object of interest, a skeletal model would most probably degrade to a single line or a point.
+A \textit{shape} model encompasses points \cite{Tomasi91detectionand}, contours \cite{Kass88snakes:active, ActiveContour-BasedVisualTracking} or articulated models \cite{Delamarre2001328, conf/isvc/MigniotA13} (see Figure \ref{fig:object_models}). The point representation is not suitable for OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points (see Figure \ref{fig:small_tracked_object}. Both contours and articulated models are mostly used for tracking non-rigid deformable objects which is not the main concern of OLS. Additinally the accuracy of fitting a contour to a target strongly depends on the convergence criteria of the energy minimization function, thus they might be computationally expensive.
 
 \paragraph{appearance representation} 
-The second category covers the use of templates, active appearance models and multiview appearance models. Active appearance models seem promising since they simultaneously model the object shape and appearance, however there is a need for an offline training phase. The templates combine the spatial and appearance information and can scale well to support varying object size (UAV approaching or flying away). A multiview appearance model might perform even better since it is designed to be robust against variation of the appearance of one object due to the change of its orientation.
+An \textit{appearance} model is represented either by rectangular template \cite{ProbabilisticVisualTrackingTemplate, ObjectTrackinginMonochromaticVideo} or a weighted kernel \cite{Comaniciu:2003:KOT:776753.776799, MultipleCollaborativeKernelTracking} (see Figure \ref{fig:object_models}). The main advantage of both representations is the fact they contain both the spatial and appearance information, additionally they scale well to varying object size (approaching and receding object). The appearance model seem to suit the requirements of OLS, thus the tracking approaches based on the variants of both template and kernel model will be used (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}).
 
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\subsection{Visual Tracking}
+%% Object models - shape and appearance representation.
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.7\textwidth]{fig/object_model.png}
+	\caption{Various approaches to tracked object modeling. (a) Keypoints, (b) contour and (c) articulated model fall into the \textit{shape representation} category whereas (d) template and (e) kernel belong to the \textit{appearance representation} category. The intensity of a red color in case (e) denotes the weight of the given pixel in the given (ellipse shaped) kernel.}
+	\label{fig:object_models}
+\end{figure}
 
-The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame and regarding the approaches the trackers can be divided into three main categories \cite{Yilmaz:2006:OTS:1177352.1177355}:
+%.........................................................................
+%.........................................................................
+\subsection{Tracking approaches}
 
-\paragraph{point tracking} 
-The tracker detects the keypoints in each frame, selects those representing the object and computes the transformation from the previous frame.
+The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame. There is a wide range of approaches to visual tracking and since they usually combine multiple various methods in order to reinforce the tracker robustness they cannot be really divided into distinct categories in a straightforward manner. However, the approaches can be coarsely categorized by the selection of the object representation.
 
-\paragraph{kernel tracking} 
-This approach corresponds to a representation of an object using a template, where kernel is the description of both shape and appearance.
+ To reinforce the tracker robustness, the motion models are often used, Kalman filter and particle filter being the most popular ones \cite{cuevas2005kalman, ObjectTrackinginMonochromaticVideo}.
 
-\paragraph{silhouette tracking}
-Silhouettes representing the object can be tracked either by shape matching or contour evolution. \\
 
-Since the representation by a template (or multiple templates) suits conditions of the OLS the best, an approach Tracking Learning Detection belonging to the \textit{kernel tracking} category was chosen to perform the tracking of the object of interest. TLD is one of the best performing state-of-the-art algorithms developed for tracking general objects and its capabilities seem promising for the needs of OLS. For detailed description of the algorithm see Section \ref{txt:tracking_learning_detection}.
+\subsubsection*{Keypoint Tracking} 
+Keypoint tracking represents one of the most common approaches \cite{Tomasi91detectionand,Nebehay2014WACV}. The \textit{keypoint} is understood to be a single point in a an image, which represents a small image region -- a \textit{point descriptor} -- which should be highly discriminative and invariant to various image transformations. There are many widely used keypoint detectors/descriptors e.g. SIFT, SURF, ORB, FREAK, etc. \cite{sift, Bay:2008:SRF:1370312.1370556, Rublee:2011:OEA:2355573.2356268, Ortiz:2012:FFR:2354409.2354903} and they differ mainly in the means of matching precision and computation speed \cite{Schaeffer_acomparison, conf/icpr/MiksikM12}. What the tracker does is that it detects the keypoints and their descriptors in each frame, selects those representing the object, finds the correspondences and computes the transformation from the previous frame. Even though the keypoint tracking is well established approach, it cannot be used in OLS due to the insufficient size of the tracked objects, as was explained in Section \ref{txt:object_model}.
+
+\subsubsection*{Kernel Tracking}
+Kernel approaches are based on a so-called \textit{kernel}. Basically, the feature target representation is spatially masked with an isotropic kernel (for illustration see Figure \ref{fig:object_models} (e)), which assigns the largest weights to the pixels in the middle while the weights decay in the directions towards the edges of the kernel. This enables a spatially-smooth similarity function to be defined. Consequently, this function can be optimized in the means of target position using traditional gradient based methods such as gradient descent \cite{Comaniciu:2003:KOT:776753.776799}. To boost the robustness of the tracker multiple collaborative kernels might be used \cite{MultipleCollaborativeKernelTracking, Multi-kernelCorrelationFilterForVisualTracking}. The notion of distinguishing which pixels in the kernel/template are more or less reliable is also utilized in one of the approaches the OLS is based on -- the background/foreground tracker (see Section \ref{txt:bgfg_tracker}).
+
+\subsubsection*{Tracking-by-Detection}
+This class of approaches heavily utilize the detection principles in combination with motion based approaches to localize the object \cite{eth_biwi_00633, Kalal:2012:TRA:2225045.2225082}. Depending on the object model, the detection might be performed either by detecting keypoints and matching them against the pretrained model \cite{FastKeypointRecognitionInTenLinesOfCode, DBLP:journals/corr/abs-1211-5829}, or by dividing the image into individual patches in which the object is searched for. For each patch, the template matching is performed \cite{AFastTemplateMatchingAlgorithm, ObjectTrackinginMonochromaticVideo} (using SSD\footnote{Sum of Squared Differences.}, SAD\footnote{Sum of Absolute Differences.} or NCC\footnote{Normalized Cross Correlation.} as a similarity measure) or feature set is extracted; consequently, the model presence probability is evaluated using the generative or the discriminative classifier \cite{EnhancedGaussianMixtureModels, EfficientScan-windowGPGPU}. Since the exhaustive search within the whole image is computationally expensive, the cascade classifiers might be applied \cite{violaJones, RobustObjectDetectionViaSoftCascade}. The TLD approach, which is used in OLS, utilizes the object detector in order to correct and/or reinitialize the tracker (see Section \ref{txt:tracking_learning_detection}).
+
+\subsubsection*{Motion Based Tracking}
+This category of approaches attempts to extract the motion occurring between the consecutive images. The \textit{optical flow} method which in general attempts to find the motion of individual pixels in the image can be used to track the keypoints \cite{Bouguet00pyramidalimplementation} or to produce the binary feature images and consequently the blobs corresponding to moving objects \cite{aslani2013optical}. Alternatively, the moving object can be detected in the image regions yielding the highest response of \textit{frame differencing} (known also as \textit{background subtraction}) \cite{Noh2013, Movingobjectdetection}. The background/foreground tracker which OLS uses is based on the frame differencing to estimate the appearance model and most likely location of the tracked object (see Section \ref{txt:bgfg_tracker}).
+
+\subsubsection*{Motion Modeling}
+The tracking can be approached through the model of a discrete-time dynamic system, where the aim is to estimate the current state for each incoming frame \cite{Comaniciu:2003:KOT:776753.776799}. The state can be represented as a mere 2D position of a target (in pixel-coordinates) or other parameters such as a velocity or an acceleration of a target can be modeled a well. Thanks to the motion model the (computationally expensive) exhaustive search for the object can be reduced to the vicinity of the current target position estimate.
+
+\paragraph{Kalman filter} 
+Kalman filtering is one of the widely used technique for recursively evaluating the current state of a target given the measurement corrupted by the measurement noise and the prediction of the next state corrupted by the process noise \cite{Welch:1995:IKF:897831, cuevas2005kalman}. It is based on the assumption that the state posterior density is Gaussian and thus can be parametrized by means and covariances. However, this assumption might not hold. In case of OLS a camera used for tracking is often in motion and the sensory data about its position which could be used to stabilize the motion might be imprecise or not available at all (for illustration see Figure \ref{fig:kalman}). Consequently, the position of a tracked object can change rapidly from frame to frame and thus to defy the assumption of the Gaussian distribution of the state posterior density. Furthermore the basic Kalman filter is based on a unimodal Gaussian distribution which prevents it from keeping multiple hypothesis for a single target.
+
+%% Kalman filter illustration
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.95\textwidth]{fig/kalman.pdf}
+	\caption{The evolution of the measurement and prediction probability density of the tracked target in the Kalman filter framework. The target apparently moves along a line with constant velocity, however, in frame $k = 4$ it suddenly changes its position due to the rapid camera movement which si something that Kalman filter cannot cope with.}
+	\label{fig:kalman}
+\end{figure}
+
+\paragraph{particle filter} 
+The particle filter represents the most general class of filters which can cope with non-Gaussian state and measurement processes as well as with tracking multiple hypothesis \cite{journals/cviu/BimboD11}. Current state of the system is represented as a \textit{particle} $\particle{t}{i}$ -- a vector of parameters ${\vec{x_{t}^{i}}}$ describing the properties of tracked object (e.g. position, velocity, acceleration, etc.) and assigned scalar weight $w_{t}^{i}$. The suitable \textit{fitness function} must be proposed which evaluates how well a particle fits to the observed data. Using finite number of particles the particle filter basically samples the fitness function (which might be arbitrarily complex and non-differentiable) in an attempt to find the optimum. A bootstrap particle filter (BPF) is a variant of particle filter widely used for visual tracking \cite{Isard98condensation}. It follows the sequential importance sampling principle -- in each iteration the particles with higher weights are duplicated while the particles with lower weights are discarded \cite{doucet2001sequential}. This enables higher resolution sampling of the fitness function only in the parts which are likely to contain the (local) optimum. The BPF iteratively performs four main steps -- \textit{resampling}, \textit{prediction}, \textit{update} and \textit{weights normalization}. The detailed breakdown of all steps is depicted in Algorithm \ref{alg:tracking}. Note that the function $predict()$ in \textit{update} step should correspond to the required motion model of the tracked object (a normal distribution $\mathcal{N}(\mu, \sigma)$ is given as an example) and it can be designed to allow for the rapid camera motion which suits the needs of OLS. Therefore, the tracker based on BPF is utilized (see Section \ref{txt:bgfg_tracker}).
+
+\begin{algorithm}
+	\SetAlgoNoLine	
+	\KwIn{A measurements $M$, a set of particles $P = \{\particle{t}{1}, \particle{t}{2}, ..., \particle{t}{n_{p}}\}$}
+	\KwOut{The particle $\particle{t}{i_{bestParticle}}$ representing the state estimation with best weight $w_{t}^{i}$}
+	\DontPrintSemicolon
+	\SetCommentSty{textsc}
+	
+	\BlankLine
+	
+	\tcc{Resampling (importance sampling)}
+		$resampleParticles()$\;
+	
+	\BlankLine
+	\tcc{Prediction}
+	\ForEach{$\particle{t}{i} \in P$}
+	{
+		\ForEach{parameter $k_{j}$ of ${x_{t}^{i}}$}
+		{		
+			$predict(k_{j})$ /* (e.g. $k_{j} = k_{j} + x, ~ x \sim \mathcal{N}(\mu_{j}, \sigma_{j})$) */ \;
+		}
+	}
+	
+	\BlankLine
+	\tcc{Update}
+	\ForEach{$\particle{t}{i} \in P$}
+	{
+		$w_{t}^{i} = fitnessFunction(M, \particle{t}{i})$\;
+	}
+	
+	\BlankLine
+	\tcc{Estimate final state e.g. using MAP}
+	$\particle{t}{i_{bestParticle}} = \particle{t}{i} \in P : !\exists ~ \particle{t}{j} \in P : w_{t}^{j} > w_{t}^{i}$\;
+	
+	\BlankLine	
+	\tcc{Weights normalization}
+	\ForEach{$\particle{t}{i} \in P$}
+	{
+		$w_{t}^{i} = \frac{w_{t}^{i}}{\sum_{j = 1}^{n_{p}}w_{t}^{j}}$
+	}
+	
+	
+	\caption{Tracking using BPF}
+	\label{alg:tracking}
+\end{algorithm}
 
 %.........................................................................
 %.........................................................................
 \subsection{Tracking-Learning-Detection} \label{txt:tracking_learning_detection}
 
-The Tracking Learning Detection (TLD) \cite{Kalal:2012:TRA:2225045.2225082} is an algorithm designed for performing so called long-term tracking, a robust tracking of an object which might change its appearance, be temporarily occluded by closer objects or temporarily completely disappear from the scene. Since this task cannot be achieved solely neither by a tracker nor by a detector, the TLD aims to combine the strengths of the detection and tracking algorithms by combining their results. Furthermore the algorithm incorporates the online adaptation subsystem capable of learning the new appearances of the tracked object in the course of the tracking.
+The Tracking Learning Detection (TLD) \cite{Kalal:2012:TRA:2225045.2225082} is an algorithm designed for performing so called long-term tracking -- a robust tracking of an object which might change its appearance, be temporarily occluded by closer objects or temporarily completely disappear from the scene. TLD is based on the appearance representation of the target, specifically a set of templates is stored and continuously updated. Additionally, TLD can be implemented to run in real-time. Such properties meet the requirements of OLS (see Section \ref{txt:introduction}, object tracking), thus TLD is incorporated in OLS as one of the visual trackers and this section explains its design in more detail.
+
+Since a long-term tracking cannot be easily achieved neither by a mere tracker nor by a detector, the TLD aims to combine the strengths of the detection and tracking algorithms by combining their results. Furthermore the algorithm incorporates the online adaptation subsystem capable of learning the new appearances of the tracked object in the course of the tracking.
 
 A conceptual diagram of the TLD algorithm is shown in Figure \ref{fig:tld_block_diagram}. The \texttt{tracking} component tracks the object and for each frame produces the new position. It expects that object does not disappear (occlusion, out of FOV) from the scene and if it does, the tracker fails. The \texttt{detection} component performs full scanning of the image for each frame. It detects the object and if needed it reinitializes the tracker. The \texttt{learning} component is capable of generating new appearances of the tracked object and thus improving the performance of the detector. 
 
-The object itself is modeled as a set of patches, each patch being already learned appearance represented by the rectangular bounding box around the object rescaled to a normalized resolution of 15 x 15 pixels. The similarity of the patches is given by the normalized cross-correlation.
+The object itself is modeled as a set of patches, each patch being already learned appearance represented by the rectangular bounding box around the object rescaled to a normalized resolution of 15 x 15 pixels. The similarity of the patches is given by NCC.
 
 %% TLD block diagram
 %% TLD PN learning block diagram
@@ -144,69 +237,197 @@ The object itself is modeled as a set of patches, each patch being already learn
 
 %.........................................................................
 %.........................................................................
-\subsection{Tracking Using Background Modeling and Particle Filter}
+\subsection{Tracking Using Background/Foreground Modeling and Particle Filter} \label{txt:bgfg_tracker}
 
+The autonomous tracking uses the implementation of the visual tracker combining the background subtraction, motion model and object model in the particle filter framework  proposed in \cite{ObjectTrackinginMonochromaticVideo}. Thanks to both particle filter and inter frames homography computation this approach can even cope with the moving cameras. Partial occlusion is handled using foreground modeling and the tracker is capable of running in real-time. Therefore, this approach si suitable for OLS as well and it is used as an alternative to TLD. The operation of the tracker is described below.
 
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{3D Environment Reconstruction}
-\todo{vyuziti pro occlusion detection}
+The target is represented as a rectangular template (consisting of gray-scale intensity values), which is normalized to the size $24\times24$ pixels. The template is created only once during the initialization, and thus the tracker could fail if the target changed its appearance significantly during the course of tracking. However, in case of very distant targets only a slight change occurs.
 
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Localisation using triangulation}
+The Bootstrap particle filter (BPF) \cite{Isard98condensation} is used to generate and evaluate candidate positions of the target. Each particle (i.e. the state of the system) is represented as $\vec{x_{n}} = (x, y, v_{x}, v_{y}, h, w)$, where $(x, y)$ represents the 2D position of the target, $(v_{x}, v_{y})$ represents the estimated speed of the target and $(h, w)$ represents the bounding box size. 
 
-\todo{LOKALIZACE OBJEKTU VE VICEKAMEROVYCH SYSTEMECH}
-\todo{ALGORITMY VHODNE PRO RESENI ULOHY}
+The perturbations in the observed position of the target caused by the moving camera are alleviated using the motion model which is applied in the \textit{prediction} step of the BPF:
+\begin{align}
+	pos_{n+1} &= pos_{n} + vel_{n} + \gamma_{pos} \sim \mathcal{N}(\mu, \sigma),\\
+	vel_{n+1} &= vel_{n} + \gamma_{vel} \sim \mathcal{N}(\mu, \sigma),\\
+	bb_{n+1} &= bb_{n} + \gamma_{bb} \sim \mathcal{N}(\mu, \sigma),	
+\end{align}
+where scalar $pos_{n}$ is the $x$ or $y$ position, scalar $vel_{n}$ is the $x$ or $y$ velocity, scalar $bb_{n}$ is the $w$ or $h$ size of the bounding box in time $n$, and $\gamma$ is the noise drawn from the Gaussian distribution $\mathcal{N}(\mu, \sigma)$, where scalars $\mu$ and $\sigma$ parameters are set empirically for each parameter.
 
-- Cameras are modeled as pinhole cameras. This is a simple model that describes the mathematical
-relationship between the coordinates of a 3D point in the camera coordinate system and its
-projection onto the image plane in an ideal camera without lenses through the expressions in 
+In the \textit{update} step, each particle is assigned a new weight $w$ using the objective function reflecting the similarity of the template and the candidate patch, The function serves the purpose of the similarity measure and it is based on a SSD:
+\begin{align}
+	w = \sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}(1 - |I_{t}^{(x,y)} - I_{c}^{(x,y)}|)^{2}},
+\end{align}
+where $M_{t}$ and $M_{c}$ are the foreground masks (FM) of the template and the current candidate respectively, $I$ is the image, $t, c$ subscripts denote template and candidate patch respectively, and $(x,y)$ superscript denotes indexing 2D array (an image). The FMs are estimated by subtraction of the two images where the bounding boxes denoting the position of the target do not overlap (the FM $M_{t}$ is estimated only once). The resulting estimate of the target position is chosen using the Maximum a posteriori approach.
 
-\todo{== (obrazek z rvizu (protnuti primek) ==}
+In order to enable the motion of the camera, the transformation between each pair of adjacent frames is estimated by detecting and tracking the keypoints using KLT tracker \cite{Tomasi91detectionand} and then estimating the homography using the RANSAC algorithm \cite{Hartley:2003:MVG:861369}.
 
-Given  the  extrinsic  and  intrinsic  camera 
-parameters,  each  image  point  defines  a  ray  in  three 
-dimensional spaces, and in the absence of measurement errors, 
-all  rays  from  different  cameras  intersect  in  the  same  object 
-point. But actually the four rays may not intersect in the same 
-point  due  to  the  low-quality  video  cameras  and  other 
-complicated  reasons.
-
-
-Professional systems aiming on automatic localization of aerial (as well as terrestrial and underwater) targets mostly rely on active devices, such as radars or sonars and there is very little use of pure passive optical devices (such as RGB cameras, thermal imaging cameras, etc.). The reason might be the complexity of the whole solution or the operation constrained by the weather conditions.
-
-On the other hand since the application of multiple view geometry has been one of hot topics in the computer vision during the past decade, many R\&D groups (specializing mostly on robotics) attempt to base their solutions on multi-camera optical localization.
-
-One of the widely used approaches is to set up so called \textit{intelligent space} \cite{intelligentSpace}, the bounded area under surveillance of multiple cameras reporting to the the central system. In \cite{Multi-Camera_Sensor_System_for_3D_Segmentation} multiple terrestrial robots are detected, tracked and localized by the multi-camera system. For all cameras, the intrinsics and extrinsics are known beforehand and do not change over time.  A similar approach is used also in \cite{Localization_and_Geometric_Reconstruction_of_Mobile_Robots} but this system uses the robot's odometers as well in order to improve the resulting position estimated by the optical system. The system presented in \cite{A_3D_visual_localization} then relies on four ordinary RGB cameras with known parameters (intrinsics, extrinsics) to estimate the position of the easy to detect and static object using the Perpendicular Foot Method algorithm.
-
-Even though all of the aforementioned approaches utilize the ordinary RGB cameras for detection and tracking and in general estimate the location of the object using the triangulation algorithm, they all assume the object moves strictly within the specified bounded region and they rely on fixed positions of the cameras. Thus, they do not have to deal with the imprecisions arose from the uncertainty of the current camera pose estimation and with the problems of handing off the target to other camera units once a target moves out of the operational range of the given camera. 
-
-As for the detection and tracking of the distant aerial targets, one of the most recent approaches was presented by Rozantsev et al. \cite{DBLP:journals/corr/RozantsevLF14}. The algorithm combines both the appearance and motion clues in order to distinguish the object from the complex background.
-
-
+%\section{Motion Predicition and Regulation}
+%
+%%.........................................................................
+%%.........................................................................
+%\subsection{2D and 3D Position Prediction}
+%\todo{moving average}
+%\todo{linearni regrese}
+%\todo{RANSAC}
+%
+%%.........................................................................
+%%.........................................................................
+%\subsection{Hardware Regulation}
+%\todo{PID}
+%\todo{funkcni zavislost rychlosti na vzdalenosti cile od stredu}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Optical Localisation Systems}
+\section{Multi-Camera Target Localization}
 
-The system presented in \cite{A_3D_visual_localization} then relies on four ordinary RGB cameras with known parameters (intrinsics, extrinsics) to estimate the position of the easy to detect and static object using the Perpendicular Foot Method algorithm. 
+This section introduces the problematics of estimating the location of a target in 3-space given the arbitrary number of corresponding image points in 2-space. First the suitable camera model is described, then the standard stereo setups are examined, next the notion of triangulation with noisy measurements is presented and finally the existing approaches to target location estimation as well as their suitability for OLS are discussed.
 
+\subsection{Camera Model}
 
-%=========================================================================
-%=========================================================================
-\chapter{Design of the Optical Localisation System} \label{txt:system_overview}
+Localization of a target corresponds to a process of mapping image locations of a target in 2-space from multiple cameras to a location in 3-space. Thus it is necessary to define a model of a camera first. The \textit{Finite pinhole camera} based on the \textit{central projection} is a standard approach to model cameras with CCD like sensors \cite{Hartley:2003:MVG:861369}. and it is used to model hardware cameras in OLS as well. Finite pinhole cameras use projection matrix $P$ which maps a point $\vec{X}$ in 3-space to an image location $\vec{x}$ in 2-space (see Figure \ref{fig:pinhole_camera}):
 
-This section presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. From the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will be used throughout the document (see Figure \ref{fig:frame_convention}).
+\begin{align*}
+	\vec{x} &= P\vec{X},\\
+	P &= KR[I|-C],\\
+\end{align*}
+where $I$ is the identity matrix, $R$ and $C$ are the rotation and translation matrices representing the orientation and position of the camera frame with respect to the world frame and $K$ is the \textit{intrinsics matrix} (or \textit{camera calibration matrix}) consisting of a focal length $f$, coordinates of the principal point $PP = (x_{0}, y_{0})^{T}$ and skew parameter $s$:
+\begin{align*}
+	K = \begin{bmatrix}
+		\alpha_{x} & s          & x_{0} \\
+		0          & \alpha_{y} & y_{0} \\
+		0          & 0			& 1
+	\end{bmatrix}.
+\end{align*}
 
-%% ROS frame conventions
-\begin{figure}[htb]
+%% Pinhole camera
+\begin{figure}[tbh]
 	\centering
-	\includegraphics[width=4cm]{fig/frame_convention.pdf}
-	\caption{Frame orientation convention adopted from ROS which will be used throughout the work --- a right handed coordinate system with X axis aiming forward, Y axis left and Z axis up.}
-	\label{fig:frame_convention}
+	\includegraphics[width=0.60\textwidth]{fig/pinhole_camera.pdf}
+	\caption{Perspective projection of point $T$ in 3-space to point $t$ in 2-space located on the image plane in a finite pinhole camera model.}
+	\label{fig:pinhole_camera}
 \end{figure}
 
+\subsection{Stereo Setups}
+
+With two calibrated cameras (i.e. $K$, $R$ and $C$ matrices are known) observing the same portion of the environment it is possible to estimate the location of a given point/object in 3-space. The \textit{Canonical stereoscopic system} is one of the widely used setup capable of estimating the depth of points in the scene \cite{Cyganek:2007:ICV:1214366}. The optical axes of both cameras are collinear and the notion of \textit{disparity} is introduced. Disparity refers to the difference in the image location of the same 3D point when projected under perspective to two different cameras \cite{Stockman:2001:CV:558008} and the coordinates of a point in 3-space can derived using following equations (see Figure \ref{fig:canonical_vs_general_stereo}):
+
+\begin{align*}
+	z &= fb/(x_{l} - x_{r}) = fb/d,\\
+	x &= x_{l}z/f = b + x_{r}z/f,\\
+	y &= y_{l}z/f = y_{r}z/f,
+\end{align*}
+where $f$ is a focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, OLS cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:system_overview}).
+
+%% Canonical stereo setup vs general stereo setup
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.8\textwidth]{fig/canonical_stereo_vs_general_stereo.pdf}
+	\caption{In canonical stereo setup (left) the 3D coordinates of a given point can be computed using the notion od disparity. On the other hand, in case of general stereo setup (right) the intersection of lines in 3-space defined by the target projected to the image space of each camera must be found.}
+	\label{fig:canonical_vs_general_stereo}
+\end{figure}
+
+In \textit{general stereo setup} the collinearity of the optical axes is not required. However, location of a point in 3-space cannot be simply estimated through triangle similarity. On each camera a line in 3-space mapping to a point $\vec{p_{i}}$ in 2-space has to be first computed using \textit{back-projection} (see Figure \ref{fig:canonical_vs_general_stereo}):
+\begin{align*}
+	X(\lambda) = P^{+}\vec{x} + \lambda C,
+\end{align*}
+where $P^{+}$ is the pseudo-inverse of $P$ ($P^{+} = P^{T}(PP^{T})^{-1}$). The location of the target in 3-space is then given as an intersection of all back-projected lines. Given its nature, OLS can be modeled as a general stereo setup extended to use arbitrary number of cameras (instead of only two cameras).
+
+\subsection{Triangulation with Noisy Measurements}
+
+The process of finding the location of a target in 3-space as an intersection of back-projected lines is called \textit{triangulation}. In ideal case the projection matrices $P_{i}$ and calibration parameters are known precisely for both cameras and the lines in 3-space intersect. However, in real world the system is subject to both systematic and random error (see Chapter \ref{txt:precision_of_the_localization}), consequently the lines in 3-space might become skew (i.e. they are not guaranteed to intersect anymore) since the stereo system does not satisfy the epipolar constraint \cite{Hartley:2003:MVG:861369} (more detailed explanation can be found in Section \ref{txt:3d_environment_reconstruction}):
+\begin{align*}
+	\vec{x'}^{T}F\vec{x} \neq 0.
+\end{align*}
+
+In general, the same problem holds within each pair of cameras in N-view setup. Instead of the intersection the minimum distance between each pair of skew lines might be found as a line segment perpendicular to both skew lines (see Figure \ref{fig:multi_view_intersection}) via following equation \cite{Forsyth:2002:CVM:580035}:
+\begin{align*}
+	z_{ij}\vec{p_{i}} &= \vec{T_{ij}} + z_{ij}R_{ij}\vec{p_{j}} + \lambda_{ij}(\vec{p_{i}} \times R_{ij}\vec{p_{j}})\\
+	for~i,j           &= 1,2,...,N \land i \neq j,
+\end{align*}
+where $\vec{p_{i}}$ is the direction of back-projected line in camera $i$, $z_{ij}$ gives the scale of vector ${p_{i}}$ so as to define a point $P_{ij}$ which is the closest to the line back-projected from camera $j$, $T_{ij}$ and $R_{ij}$ are the translation and rotation of the coordinate frame of the camera $j$ with respect to the coordinate frame of the camera $i$ and $\lambda_{ij}$ defines the length of the line segment connecting both back-projected skew lines.
+
+A similar approach to finding the closest distance between each pair of cameras is used in OLS (see Section \ref{txt:localization}).
+
+%% Skew lines in multi view scenario
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.9\textwidth]{fig/multi_view_intersection.pdf}
+	\caption{An example of a 3-view setup and the target location estimation using triangulation. Since all cameras are subject to systematic and random error the back-projected lines are skew, thus there is no intersection. The closest distance between each pair of liness is given by the line segment perpendicular to both lines.}
+	\label{fig:multi_view_intersection}
+\end{figure}
+
+\subsection{Estimation of Target Location}
+
+Since the back-projected lines are skew, there is not the only correct solution to the localization problem. Contrarily, the position of the target must be estimated. Hartley and Zisserman \cite{Hartley:2003:MVG:861369} propose a couple of methods where the approaches used basically boil down either to solving the overdetermined system of linear equations or to minimization of the geometric error. Both approaches are briefly described below.
+
+\paragraph{Direct Linear Transformation (DLT)} The DLT algorithm is based on the assumption that an overdetermined system of linear equations in the form $\matr{A}\vec{x} = \vec{0}$ (where $\matr{A}$ is the matrix of coefficients, $\vec{x}$ is the vector of unknowns and $\vec{0}$ is the zero vector) is available and that given the noise there is no exact solution. In case of a stereo setup where the image points $\vec{t_{1}}$ and $\vec{t_{2}}$ in 2-space on each camera correspond to a target $\vec{T}$ in 3-space the overdetermined system of linear equations can be defined with vector $\vec{x} = (t_{1}^{x}, t_{1}^{y}, t_{2}^{x}, t_{2}^{y})$ and matrix $\matr{A}$:
+\begin{align*}
+	A = \begin{bmatrix}
+			t_{1}^{x}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{1}}^{T} \\
+			t_{1}^{y}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{2}}^{T} \\
+			t_{2}^{x}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{1}}^{T} \\
+			t_{2}^{y}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{2}}^{T} \\
+		\end{bmatrix},
+\end{align*}
+where $\vec{p_{cam}^{r}}$ is the $rth$ row of the projection matrix $\matr{P_{cam}}$ of the camera $cam$. The ultimate solution is found using the SVD\footnote{Singular Value Decomposition} as the singular vector corresponding to the smallest singular value of $\matr{A}$.
+
+\paragraph{Reprojection Error Minimization} Similarly as DLT this method assumes that the correspondence between image points $\vec{t_{1}}$ and $\vec{t_{2}}$ does not meet the epipolar constraint. The aim thus is to estimate the position of the target $\vec{T}$ in 3-space which projects to image points $\vec{t_{1}'}$ and $\vec{t_{2}'}$ satisfying the epipolar constraint and which at the same time minimizes the reprojection error function $ref$:
+\begin{align*}
+	ref(\vec{t_{1}}, \vec{t_{2}}) = d(\vec{t_{1}}, \vec{t_{1}'})^{2} + d(\vec{t_{2}}, \vec{t_{2}'})^{2},
+\end{align*}
+where $d(\vec{x}, \vec{x'})$ is the Euclidean distance between the measurement $\vec{x}$ and reprojected image point $\vec{x'}$ (see Figure \ref{fig:reprojection}). The reprojection error function can be either minimized using any optimization method or the minimum can even be found non-iteratively in closed form.
+ 
+%% Reprojection
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.6\textwidth]{fig/reprojection.pdf}
+	\caption{The demonstration of reprojection error in a stereo setup where $e_{i}$ is the epipole, $el_{i}$ is current estimation of epipolar line and $d_{i}$ is the Euclidean distance between the initial noisy measurement $t_{i}$ and the reprojection of the target estimate $t_{i}'$ in the camera $i$.}
+	\label{fig:reprojection}
+\end{figure}
+
+Even though both DLT and reprojection error minimization could be extended so as to support multiple-view setup, neither of these approaches is suitable for OLS since they do not consider any a priori known information about the reliability of the back-projected line in each camera. It has been shown that in OLS the precision of target location estimation strongly depends on the mutual position of the target and the baseline of given camera pair (see Chapter \ref{txt:precision_of_the_localization}). Furthermore, it is possible to obtain the belief from individual visual trackers (i.e. the confidence that the object is tracked correctly). In order to exploit these prior information a specific location estimation method was proposed for OLS (see Section~\ref{txt:localization}).
+
+%\subsection{Existing Multi-Camera Localization Systems}
+%
+%Professional systems aiming on automatic localization of aerial (as well as terrestrial and underwater) targets mostly rely on active devices, such as radars or sonars and there is very little use of pure passive optical devices (such as RGB cameras, thermal imaging cameras, etc.). The reason might be the complexity of the whole solution or the operation constrained by the weather conditions.
+%
+%On the other hand since the application of multiple view geometry has been one of hot topics in the computer vision during the past decade, many R\&D groups (specializing mostly on robotics) attempt to base their solutions on multi-camera optical localization.
+%
+%Professional systems aiming on automatic localization of aerial, terrestrial and/or underwater targets mostly rely on active devices, such as radars or sonars and there is very little use of pure passive optical devices (such as RGB cameras, thermal imaging cameras, etc.). As of today the multi-camera optical localization systems are mostly used for R\&D purposes and mainly in robotics. A common approaches is to set up so called \textit{intelligent space} \cite{intelligentSpace}, the bounded area under surveillance of multiple cameras reporting to the the central system. 
+%
+%In \cite{Multi-Camera_Sensor_System_for_3D_Segmentation} multiple terrestrial robots are detected, tracked and localized by the multi-camera system. For all cameras, the intrinsics and extrinsics are known beforehand and do not change over time.  A similar approach is used also in \cite{Localization_and_Geometric_Reconstruction_of_Mobile_Robots} but this system uses the robot's odometers as well in order to improve the resulting position estimated by the optical system. The system presented in \cite{A_3D_visual_localization} then relies on four ordinary RGB cameras with known parameters (intrinsics, extrinsics) to estimate the position of the easy to detect and static object using the Perpendicular Foot Method algorithm.
+%
+%Even though all of the aforementioned approaches utilize the ordinary RGB cameras for detection and tracking and in general estimate the location of the object using the triangulation algorithm, they all assume the object moves strictly within the specified bounded region and they rely on fixed positions of the cameras. Thus, they do not have to deal with the imprecisions arose from the uncertainty of the current camera pose estimation and with the problems of handing off the target to other camera units once a target moves out of the operational range of the given camera. 
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{3D Environment Reconstruction} \label{txt:3d_environment_reconstruction}
+\todo{vyuziti pro occlusion detection}
+
+- canonical stereo setup (?)
+- epipolar geometry (?)
+
+%.........................................................................
+%.........................................................................
+\subsection{Bundle Adjustment}
+\todo{SFM}
+
+%.........................................................................
+%.........................................................................
+\subsection{CMVS, PMVS}
+
+%%-------------------------------------------------------------------------
+%%-------------------------------------------------------------------------
+%\section{Optical Localisation Systems}
+%
+%The system presented in \cite{A_3D_visual_localization} then relies on four ordinary RGB cameras with known parameters (intrinsics, extrinsics) to estimate the position of the easy to detect and static object using the Perpendicular Foot Method algorithm. 
+
+%=========================================================================
+%=========================================================================
+\chapter{Precision of the Localization in Multi Camera System} \label{txt:precision_of_the_localization}
+\todo{Rozdelit typy chyb}
+\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
+\todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -238,141 +459,6 @@ As for the network topology, the OLS is based on a star pattern where each track
 		\label{fig:spilberk_camera_units}
 	\end{minipage}
 \end{figure}
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Hardware and Software Architecture}
-
-Considering the big picture of the system, OLS consists of four camera stations, a hardware devices necessary for network communication and the peripherals for manual control. There are two types of camera stations, a tracking station and an overview station (see Section~\ref{txt:system_overview}). All stations communicate with each other vie Ethernet switch. The peripheral devices (keyboard, joystick) allowing the operator to manually control the system are connected to the overview station (see Figure \ref{fig:hw_ols}).
-
-%% The big picture diagram of the hardware components of the OLS
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=9cm]{fig/hw_ols.pdf}
-	\caption{The big picture diagram of the main components of the OLS.}
-	\label{fig:hw_ols}
-\end{figure}
-
-A camera station itself consists of a camera unit (see Section \ref{txt:camera_unit}) and a computer running the OLS software. The camera unit is controlled by the controller \texttt{STM32F4007} which communicates with the manipulator \texttt{Flir PTU D46-70}, a GPS module and a zoom lens. The camera \texttt{Prosilica GT 1290C} is connected directly to a computer running OLS system (for more details see Figure \ref{fig:hw_camera_unit}).
-
-%% The diagram of the hardware components of the camera unit
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=9cm]{fig/hw_camera_unit.pdf}
-	\caption{The diagram of the hardware components of the camera unit depicting both the hardware devices and the communication standards.}
-	\label{fig:hw_camera_unit}
-\end{figure}
-
-Before the 3D location of the given target is estimated, the system must perform several operations. After powering on the system all camera stations start scanning the surrounding environment. The scanning process is autonomous, however, should the operator decide to interfere, the overview unit is used in order to control the camera (through the GUI and peripheral devices). 
-
-Once any of the stations detects an aerial object, it saves the visual information distinguishing the object and notifies the overview station. The overview station selects the best candidate(s) to track the newly discovered object and notifies the chosen unit with the essential data about the object (direction in which it was spotted, visual clues, global id, etc.).
-
-The other unit(s) must first detect the newly spotted object. If it succeeds it initiates the tracking. The overview unit then computes the triangulation and estimates the 3D location of the target.
-
-%=========================================================================
-%=========================================================================
-%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
-%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
-%
-%- vysvetleni typu chyb:
-%	- system error (systemova chyba)
-%		- nesoulad modelu CU s realnou konstrukci
-%		- nespravne mereni heading
-%		- detekce a tracking ?
-%	- uncertainty of the input of the system
-%		- GPS mereni
-%		- data inklinometru
-%	
-%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
-%
-%- rozdeleni na chybu rotace a translace
-%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
-%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
-%
-%- zdroj chyb:
-%	- detekce
-%	- tracking
-%	- GPS pozice
-%	- natoceni vuci severu
-%	- rozliseni PTU
-%	- model PTU - translace mezi klouby
-%	- model PTU - rotace mezi klouby
-%	- uchyceni kamery
-%		- rotace podle opticke osy
-%		- rotace podle osy azimutu
-%		- rotace podle osy elevace
-
-%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Camera station}
-
-Camera unit is one component of each camera station and it consists of hardware necessary to estimate the absolute geographical position of the station, absolute orientation, relative position and orientation with regards to the rest of the stations and hardware for positioning a camera and capturing the image stream (more in Section \ref{txt:devices}). 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a model corresponding to the real hardware must be designed (see Section \ref{txt:model}).
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\subsection{Devices} \label{txt:devices}
-
-A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}) together with the LED target for stationing (see Section \ref{txt:stationing_and_rectification}) is mounted as well as all of the sensors (a GPS sensor, an inclinometer, a camera).
-
-%% A photo of a camera unit and an rviz model.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=10cm]{fig/camera_unit_photo_model.jpg}
-	\caption{A photograph of the upper part of the camera unit consisting of a manipulator Flir PTU-D46-70 with the aluminum mount carrying a camera Prosilica GT 1290C (left) and a corresponding 3D model created for Gazebo simulator (right, see Section \ref{txt:application_of_gazebo}).}
-	\label{fig:camera_unit_photo_model}
-\end{figure}
-
-\paragraph{manipulator Flir PTU-D46-70} A professional manipulator PTU-D46-70\footnote{A website of product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by a well established manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is an entry level device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed 4.08 kg \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position. 
-
-\paragraph{camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{A website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the Allied Vision company (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is a color camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the PTP protocol for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}.
-
-%% Photos of Flir and Prosilica.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=10cm]{fig/prosilica_gt1290c_flir_ptud4670.jpg}
-	\caption{Photographs of the manipulator Flir PTU D46-70 (left) and the camera Prosilica GT 1290C (right).}
-	\label{fig:prosilica_gt1290c_flir_ptud4670}
-\end{figure}
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\subsection{Model} \label{txt:model}
-
-The model of the camera unit is based on the kinematic chain consisting of six joints and five links corresponding to the distance between separate parts of the tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \texttt{ground} itself is dependent on the reference location (let us call it \texttt{world}) which represents the origin of the global coordinate frame. The transformation between the \texttt{world} and \texttt{ground} reflects the positioning and heading of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing_and_rectification}).
-
-The kinematic chain is designed as the composition of transformation matrices where a single joint can be located by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \texttt{camera} can be derived as:
-
-\begin{equation}
-	M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
-\end{equation}
-
-where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the joint \texttt{camera} is dependent on, and $T_{cam}$ and $R_{AXIS_{cam}}$ are transformation and rotation matrices describing transformation from the joint \texttt{ele} to the joint \texttt{camera}. 
-
-%% A schema of the camera unit - kinematic chain.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=14cm]{fig/camera_unit_kinematic_chain.pdf}
-	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles with black crosses. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \texttt{camera} and \texttt{focus} overlap as they both lie on the optical axis (the joint \texttt{focus} has a lower value of the Z coordinate).}
-	\label{fig:camera_unit_kinematic_chain}
-\end{figure}
-
-\section{Detection and Tracking}
-
-\todo{detection}
-\todo{tracking}
-\todo{occlusion prediciton using 3D reconstruction}
-\todo{regulation}
-
-\section{Localisation}
-
-%=========================================================================
-%=========================================================================
-\chapter{Precision of the Localization in Multi Camera System}
-\todo{Rozdelit typy chyb}
-\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
-\todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
 
 \section{Precision Analysis}
 
@@ -534,6 +620,157 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 
 %=========================================================================
 %=========================================================================
+\chapter{Design of the Optical Localisation System} \label{txt:system_overview}
+
+This section presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. From the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will be used throughout the document (see Figure \ref{fig:frame_convention}).
+
+%% ROS frame conventions
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=4cm]{fig/frame_convention.pdf}
+	\caption{Frame orientation convention adopted from ROS which will be used throughout the work --- a right handed coordinate system with X axis aiming forward, Y axis left and Z axis up.}
+	\label{fig:frame_convention}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Hardware and Software Architecture}
+
+Considering the big picture of the system, OLS consists of four camera stations, a hardware devices necessary for network communication and the peripherals for manual control. There are two types of camera stations, a tracking station and an overview station (see Section~\ref{txt:system_overview}). All stations communicate with each other vie Ethernet switch. The peripheral devices (keyboard, joystick) allowing the operator to manually control the system are connected to the overview station (see Figure \ref{fig:hw_ols}).
+
+%% The big picture diagram of the hardware components of the OLS
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=9cm]{fig/hw_ols.pdf}
+	\caption{The big picture diagram of the main components of the OLS.}
+	\label{fig:hw_ols}
+\end{figure}
+
+A camera station itself consists of a camera unit (see Section \ref{txt:camera_unit}) and a computer running the OLS software. The camera unit is controlled by the controller \texttt{STM32F4007} which communicates with the manipulator \texttt{Flir PTU D46-70}, a GPS module and a zoom lens. The camera \texttt{Prosilica GT 1290C} is connected directly to a computer running OLS system (for more details see Figure \ref{fig:hw_camera_unit}).
+
+%% The diagram of the hardware components of the camera unit
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=9cm]{fig/hw_camera_unit.pdf}
+	\caption{The diagram of the hardware components of the camera unit depicting both the hardware devices and the communication standards.}
+	\label{fig:hw_camera_unit}
+\end{figure}
+
+Before the 3D location of the given target is estimated, the system must perform several operations. After powering on the system all camera stations start scanning the surrounding environment. The scanning process is autonomous, however, should the operator decide to interfere, the overview unit is used in order to control the camera (through the GUI and peripheral devices). 
+
+Once any of the stations detects an aerial object, it saves the visual information distinguishing the object and notifies the overview station. The overview station selects the best candidate(s) to track the newly discovered object and notifies the chosen unit with the essential data about the object (direction in which it was spotted, visual clues, global id, etc.).
+
+The other unit(s) must first detect the newly spotted object. If it succeeds it initiates the tracking. The overview unit then computes the triangulation and estimates the 3D location of the target.
+
+\section{Tracking}
+The homography might not be found, which often occurs if the airborne target with the uniform background of the sky is tracked or if the manipulator moves the camera too harshly. To deal with such cases in OLS, the tracker was adjusted so that in a \textit{prediction} step of the BPF a small subset of particles would be forced to take the image positions yielding the highest response of adjacent frame differencing which is expected to contain the moving target of interest.
+
+%=========================================================================
+%=========================================================================
+%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
+%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
+%
+%- vysvetleni typu chyb:
+%	- system error (systemova chyba)
+%		- nesoulad modelu CU s realnou konstrukci
+%		- nespravne mereni heading
+%		- detekce a tracking ?
+%	- uncertainty of the input of the system
+%		- GPS mereni
+%		- data inklinometru
+%	
+%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
+%
+%- rozdeleni na chybu rotace a translace
+%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
+%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
+%
+%- zdroj chyb:
+%	- detekce
+%	- tracking
+%	- GPS pozice
+%	- natoceni vuci severu
+%	- rozliseni PTU
+%	- model PTU - translace mezi klouby
+%	- model PTU - rotace mezi klouby
+%	- uchyceni kamery
+%		- rotace podle opticke osy
+%		- rotace podle osy azimutu
+%		- rotace podle osy elevace
+
+%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Camera station}
+
+Camera unit is one component of each camera station and it consists of hardware necessary to estimate the absolute geographical position of the station, absolute orientation, relative position and orientation with regards to the rest of the stations and hardware for positioning a camera and capturing the image stream (more in Section \ref{txt:devices}). 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a model corresponding to the real hardware must be designed (see Section \ref{txt:model}).
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\subsection{Devices} \label{txt:devices}
+
+A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}) together with the LED target for stationing (see Section \ref{txt:stationing_and_rectification}) is mounted as well as all of the sensors (a GPS sensor, an inclinometer, a camera).
+
+%% A photo of a camera unit and an rviz model.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{fig/camera_unit_photo_model.jpg}
+	\caption{A photograph of the upper part of the camera unit consisting of a manipulator Flir PTU-D46-70 with the aluminum mount carrying a camera Prosilica GT 1290C (left) and a corresponding 3D model created for Gazebo simulator (right, see Section \ref{txt:application_of_gazebo}).}
+	\label{fig:camera_unit_photo_model}
+\end{figure}
+
+\paragraph{manipulator Flir PTU-D46-70} A professional manipulator PTU-D46-70\footnote{A website of product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by a well established manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is an entry level device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed 4.08 kg \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position. 
+
+\paragraph{camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{A website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the Allied Vision company (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is a color camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the PTP protocol for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}.
+
+%% Photos of Flir and Prosilica.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{fig/prosilica_gt1290c_flir_ptud4670.jpg}
+	\caption{Photographs of the manipulator Flir PTU D46-70 (left) and the camera Prosilica GT 1290C (right).}
+	\label{fig:prosilica_gt1290c_flir_ptud4670}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\subsection{Model} \label{txt:model}
+
+The model of the camera unit is based on the kinematic chain consisting of six joints and five links corresponding to the distance between separate parts of the tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \texttt{ground} itself is dependent on the reference location (let us call it \texttt{world}) which represents the origin of the global coordinate frame. The transformation between the \texttt{world} and \texttt{ground} reflects the positioning and heading of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing_and_rectification}).
+
+The kinematic chain is designed as the composition of transformation matrices where a single joint can be located by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \texttt{camera} can be derived as:
+
+\begin{equation}
+	M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
+\end{equation}
+
+where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the joint \texttt{camera} is dependent on, and $T_{cam}$ and $R_{AXIS_{cam}}$ are transformation and rotation matrices describing transformation from the joint \texttt{ele} to the joint \texttt{camera}. 
+
+%% A schema of the camera unit - kinematic chain.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=14cm]{fig/camera_unit_kinematic_chain.pdf}
+	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles with black crosses. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \texttt{camera} and \texttt{focus} overlap as they both lie on the optical axis (the joint \texttt{focus} has a lower value of the Z coordinate).}
+	\label{fig:camera_unit_kinematic_chain}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Detection and Tracking}
+
+\todo{detection}
+\todo{tracking}
+\todo{occlusion prediciton using 3D reconstruction}
+\todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Localisation} \label{txt:localization}
+
+In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators.
+
+%=========================================================================
+%=========================================================================
 \chapter{Implementation} \label{txt:implementation}
 % 2 - 4 ns
 
@@ -686,6 +923,11 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 	%=========================================================================
 	\chapter{Conclusion} \label{txt:conclusion}
 	% 1 - 2 ns
+	
+	\todo{zhodnocení z pohledu dalšího vývoje projektu}
+	\todo{student uvede rovněž návaznosti na právě dokončené projekty (řešené v rámci ostatních diplomových prací v daném roce nebo na projekty řešené na externích pracovištích).}
+	\todo{zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem diplomanta}
+
 	
 	This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
 	
