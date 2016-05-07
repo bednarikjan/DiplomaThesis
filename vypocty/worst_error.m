@@ -6,7 +6,7 @@
 %
 % T - target positions (2-vector)
 % C1, C2 - camera units positions (2-vectors)
-% delta - error angle
+% delta - error angle [rad]
 %
 
 function [err] = worst_error(C1, C2, T, delta)
