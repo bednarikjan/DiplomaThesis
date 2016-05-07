@@ -1,3 +1,10 @@
+poznamky:
+- aspon 1/3 by melo byt jadro prace, vastni prinos studenta
+- v related work musim vsude nejak popsat, proc dany problem rozebiram, jak jsem ho pouzil nebo vyzkousel, kde co fungovalo/nefungovalo, pripadne pokud jsem to nezkousel, dat odkaz na literaturu, kde je sepise, proc to pro me neni vhodny pristup.
+
+====================================================================
+STRUTKTURA
+
 1) Introduction
 
 2) Related Work
@@ -19,3 +26,118 @@
 6) Experimental Results
 
 7) Conclusion
+
+====================================================================
+TODO - co se nestihlo a mozna stihne
+
+Related Work
+	= Tracking approaches
+		- pridat obrazek detekci keypoints ruznymi deksriptory na obrazku velmi maleho letadla -> melo by se najit velmi malo bodu
+	= TLD nebo BGFG tracker
+		- pridat vysvetleni a obrazvkoe srovnani, ze TLD selhaval pri partial oclusion a BGFG se drzel, Naopak BGFG hodne zakmitaav kvuli PF, proto je nekdy lepsi TLD - priday nejaky graf mereni apod.
+	= motion prediction and regulation - pridat tuto kapitolu
+
+Seznam zkratek
+	- NCC - normalised cross-correlation
+	- SSD - sum of squared differences
+
+====================================================================
+STRUTKTURA DETAILNE
+
+1) Introduction [1.5 s]
+	- castecne system overview, rozdeleni na funkcni celky, requirements
+
+2) Related Work [10.0 s]
+	= Object detection (?)
+	= Object tracking [3.0+ s]
+		- object model
+		- rozdeleni na typy -> proc nektere nelze pouzit
+			- template matching
+			- kalman filter, mozna vzorec?
+			- particle filter -> algoritmus
+		- TLD
+			-- neni robustni proti okluzi (ukazka z draku) - proto neni pouzito
+		- BG/FG tracker
+			-- popsat homografii?
+	= Motion Prediction and Regulation (?) [1.0+]
+		- motion prediction - averaging, linear regression, RANSAC (?)
+		- regulace PID
+	= 3D Environment Reconstruction [2.0 s]
+		- SFM
+		- bundle-adjustment
+		- CMVS, PMVS
+		- VisualSFM
+	= Multi-Camera Target Localization [2.0+ s]
+		- canonical stereo-setup
+		- epipolarni geometrie -> neni potreba, znam intrinsics/extrinsics kamer
+		- DLT -> nelze, mam malo kamer
+	= Optical Localization Systems (?) [1.5 s]
+		- inteligent space
+		- clanek o inexpensive camera localization -> algoritmus PFM
+
+3) Precision of the Localization in Multi Camera System [9.0 s]
+	= System Topology [1.0 s]
+	= Preision Analysis [2.5+ s]
+	= Stationing [5.5 s vvv]
+	= Rectification
+	= Camera Calibration (?)
+
+4) Design of the Optical Localisation System [8.0 s]
+	= Camera Station [1.5 s]
+		- kinematic chain
+	= Detection and Tracking [2.0 s]
+		- uprava PF
+		- belief -> NCC
+		- motion prediction a regulace pomoci RANSAC
+	= Target Localisation Using Triangulation [2.0 s]
+		- muj algoritmus (beliefs)
+	= Occlusion prediction [1.0 s]
+		- pouziti SFM
+	= HW and SW architecture [1.5 s]
+
+5) Implementation [5.0]
+	= ROS
+		- nodes diagram
+		- messages, synchronization
+		- manipulator_iface -> jako bychom byli v terenu
+	= Gazebo
+		- model of the multi camera scenario, camera modeling
+		- hardware-in-the-loop
+		- ground truth tracker - test regulace (delay)
+	= External libraries
+		- opencvx (?)
+		- PCL, Eigen, OpenCV (calibration)
+		- VimbaSDK, Flir
+
+6) Experimental Results [5.0]
+	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chya se deli na dve rotace)
+	- testovani pro staticke a dynamicke cile
+		- Zebetin
+		- VUT stadion -> TODO
+	- testovani regulace v zavislosti na ?
+	- test presnosti vice kamer vs 2 kamery - simulator
+
+7) Conclusion [1.0]
+
+Appendix
+	- clanek a poster z Excelu
+	
+	
+	
+	
+OLD
+============
+
+- pinhole camera model, projective matrix, back-projection
+- obr. pinhole camera [DONE]
+- --vzorec-- matice intrinsics, extrinsics [DONE] 
+- canonical stereo setup - vypocet hloubky a lokalizace bodu (shapiro comp§uter vision str. 398) [DONE]
+- obr. canon. stereo vs. general stero setup - prusecik [DONE]
+- -- vzorec -- vypocet hloubky, pozice ((shapiro computer vision str. 398)) [DONE]
+- non-canonical setup - backprojection, nalezeni prusrciku [DONE]
+- -- vzorec back-projection -- [DONE]
+- zminit problem, ze se paprsky v prostoru neprotnou (zisserman knizka - kapit. 10) - does not follow epipolar constraint. vypocet pruseciku, vypocet kolmice na oba paprsky (shapiro computer vision str. 429) [DONE]
+- problem pro 3 kamery (CV a modern approach forsyth str. 231) [DONE]
+- obr. mimobezek [DONE]
+- -- vzorec epipolar constraint -- [DONE]
+- -- vzorec vypocet kolmice mezi dvojicemi -- [DONE]
