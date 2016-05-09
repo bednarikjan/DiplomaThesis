@@ -73,8 +73,10 @@ The OLS system aims to utilize the same principle as the old optical range finde
 %=========================================================================
 \chapter{Related Work}
 
+Being a complex and semi-autonomously working system, the multi-camera optical localization system comprises problematics ranging over several different areas. Most importantly, robust visual tracking capable of long-term tracking of arbitrary target which might exhibit time varying appearance and which might move in a cluttered environment must be employed. Furthermore, a suitable approach for estimating the position of the target in 3-space given noisy measurements must be proposed. Finally a possible extension of occlusion prediction using 3D environment reconstruction. The overview of visual tracking approaches and the discussion of their suitability for OLS is given in Section~\ref{txt:object_tracking}, the most widely used methods for localization in 3-space given projective geometry are described in Section~\ref{txt:multi_camera_target_localization} and the problematics of 3D envrironment reconstruction is introduced in Section~\ref{txt:3d_environment_reconstruction}.
+
 %-------------------------------------------------------------------------
-%------------s-------------------------------------------------------------
+%-------------------------------------------------------------------------
 %\section{Moving Object Detection}
 %
 %Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
@@ -89,7 +91,7 @@ The OLS system aims to utilize the same principle as the old optical range finde
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Object Tracking}
+\section{Object Tracking} \label{txt:object_tracking}
 
 This section discusses the various approaches to tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained and the properties of various object models as well as their advantages and disadvantages with regards to the requirements of the OLS system are discussed. Different categories of tracking algorithms are then described and two specific approaches which are most appropriate for OLS -- the \textit{TLD tracker} and the \textit{foreground-background tracker based on the particle filter framework} -- are explained in more detail.
 
@@ -278,7 +280,7 @@ In order to enable the motion of the camera, the transformation between each pai
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Multi-Camera Target Localization}
+\section{Multi-Camera Target Localization} \label{txt:multi_camera_target_localization}
 
 This section introduces the problematics of estimating the location of a target in 3-space given the arbitrary number of corresponding image points in 2-space. First the suitable camera model is described, then the standard stereo setups are examined, next the notion of triangulation with noisy measurements is presented and finally the existing approaches to target location estimation as well as their suitability for OLS are discussed.
 
