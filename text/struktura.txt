@@ -63,6 +63,8 @@ STRUTKTURA DETAILNE
 		- motion prediction - averaging, linear regression, RANSAC (?)
 		- regulace PID
 	= 3D Environment Reconstruction [2.0 s]
+		- uvod s vysvetlenim, proc o tom pisu
+		- epipolar geometry
 		- SFM
 		- bundle-adjustment
 		- CMVS, PMVS
@@ -110,12 +112,13 @@ STRUTKTURA DETAILNE
 		- VimbaSDK, Flir
 
 6) Experimental Results [5.0]
-	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chya se deli na dve rotace)
+	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chyba se deli na dve rotace)
 	- testovani pro staticke a dynamicke cile
 		- Zebetin
 		- VUT stadion -> TODO
 	- testovani regulace v zavislosti na ?
 	- test presnosti vice kamer vs 2 kamery - simulator
+	- test predikce okluze u 3 jednotek -> vzdy pouze 2 vidi cil (simulator), synteticka prekazka - s vs. bez predikce
 
 7) Conclusion [1.0]
 

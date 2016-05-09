@@ -286,18 +286,18 @@ This section introduces the problematics of estimating the location of a target 
 
 Localization of a target corresponds to a process of mapping image locations of a target in 2-space from multiple cameras to a location in 3-space. Thus it is necessary to define a model of a camera first. The \textit{Finite pinhole camera} based on the \textit{central projection} is a standard approach to model cameras with CCD like sensors \cite{Hartley:2003:MVG:861369}. and it is used to model hardware cameras in OLS as well. Finite pinhole cameras use projection matrix $P$ which maps a point $\vec{X}$ in 3-space to an image location $\vec{x}$ in 2-space (see Figure \ref{fig:pinhole_camera}):
 
-\begin{align*}
+\begin{align}
 	\vec{x} &= P\vec{X},\\
 	P &= KR[I|-C],\\
-\end{align*}
+\end{align}
 where $I$ is the identity matrix, $R$ and $C$ are the rotation and translation matrices representing the orientation and position of the camera frame with respect to the world frame and $K$ is the \textit{intrinsics matrix} (or \textit{camera calibration matrix}) consisting of a focal length $f$, coordinates of the principal point $PP = (x_{0}, y_{0})^{T}$ and skew parameter $s$:
-\begin{align*}
+\begin{align}
 	K = \begin{bmatrix}
 		\alpha_{x} & s          & x_{0} \\
 		0          & \alpha_{y} & y_{0} \\
 		0          & 0			& 1
 	\end{bmatrix}.
-\end{align*}
+\end{align}
 
 %% Pinhole camera
 \begin{figure}[tbh]
@@ -311,11 +311,11 @@ where $I$ is the identity matrix, $R$ and $C$ are the rotation and translation m
 
 With two calibrated cameras (i.e. $K$, $R$ and $C$ matrices are known) observing the same portion of the environment it is possible to estimate the location of a given point/object in 3-space. The \textit{Canonical stereoscopic system} is one of the widely used setup capable of estimating the depth of points in the scene \cite{Cyganek:2007:ICV:1214366}. The optical axes of both cameras are collinear and the notion of \textit{disparity} is introduced. Disparity refers to the difference in the image location of the same 3D point when projected under perspective to two different cameras \cite{Stockman:2001:CV:558008} and the coordinates of a point in 3-space can derived using following equations (see Figure \ref{fig:canonical_vs_general_stereo}):
 
-\begin{align*}
+\begin{align}
 	z &= fb/(x_{l} - x_{r}) = fb/d,\\
 	x &= x_{l}z/f = b + x_{r}z/f,\\
 	y &= y_{l}z/f = y_{r}z/f,
-\end{align*}
+\end{align}
 where $f$ is a focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, OLS cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:system_overview}).
 
 %% Canonical stereo setup vs general stereo setup
@@ -327,23 +327,23 @@ where $f$ is a focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the ho
 \end{figure}
 
 In \textit{general stereo setup} the collinearity of the optical axes is not required. However, location of a point in 3-space cannot be simply estimated through triangle similarity. On each camera a line in 3-space mapping to a point $\vec{p_{i}}$ in 2-space has to be first computed using \textit{back-projection} (see Figure \ref{fig:canonical_vs_general_stereo}):
-\begin{align*}
+\begin{align}
 	X(\lambda) = P^{+}\vec{x} + \lambda C,
-\end{align*}
+\end{align}
 where $P^{+}$ is the pseudo-inverse of $P$ ($P^{+} = P^{T}(PP^{T})^{-1}$). The location of the target in 3-space is then given as an intersection of all back-projected lines. Given its nature, OLS can be modeled as a general stereo setup extended to use arbitrary number of cameras (instead of only two cameras).
 
 \subsection{Triangulation with Noisy Measurements}
 
 The process of finding the location of a target in 3-space as an intersection of back-projected lines is called \textit{triangulation}. In ideal case the projection matrices $P_{i}$ and calibration parameters are known precisely for both cameras and the lines in 3-space intersect. However, in real world the system is subject to both systematic and random error (see Chapter \ref{txt:precision_of_the_localization}), consequently the lines in 3-space might become skew (i.e. they are not guaranteed to intersect anymore) since the stereo system does not satisfy the epipolar constraint \cite{Hartley:2003:MVG:861369} (more detailed explanation can be found in Section \ref{txt:3d_environment_reconstruction}):
-\begin{align*}
+\begin{align}
 	\vec{x'}^{T}F\vec{x} \neq 0.
-\end{align*}
+\end{align}
 
 In general, the same problem holds within each pair of cameras in N-view setup. Instead of the intersection the minimum distance between each pair of skew lines might be found as a line segment perpendicular to both skew lines (see Figure \ref{fig:multi_view_intersection}) via following equation \cite{Forsyth:2002:CVM:580035}:
-\begin{align*}
+\begin{align}
 	z_{ij}\vec{p_{i}} &= \vec{T_{ij}} + z_{ij}R_{ij}\vec{p_{j}} + \lambda_{ij}(\vec{p_{i}} \times R_{ij}\vec{p_{j}})\\
 	for~i,j           &= 1,2,...,N \land i \neq j,
-\end{align*}
+\end{align}
 where $\vec{p_{i}}$ is the direction of back-projected line in camera $i$, $z_{ij}$ gives the scale of vector ${p_{i}}$ so as to define a point $P_{ij}$ which is the closest to the line back-projected from camera $j$, $T_{ij}$ and $R_{ij}$ are the translation and rotation of the coordinate frame of the camera $j$ with respect to the coordinate frame of the camera $i$ and $\lambda_{ij}$ defines the length of the line segment connecting both back-projected skew lines.
 
 A similar approach to finding the closest distance between each pair of cameras is used in OLS (see Section \ref{txt:localization}).
@@ -361,20 +361,20 @@ A similar approach to finding the closest distance between each pair of cameras 
 Since the back-projected lines are skew, there is not the only correct solution to the localization problem. Contrarily, the position of the target must be estimated. Hartley and Zisserman \cite{Hartley:2003:MVG:861369} propose a couple of methods where the approaches used basically boil down either to solving the overdetermined system of linear equations or to minimization of the geometric error. Both approaches are briefly described below.
 
 \paragraph{Direct Linear Transformation (DLT)} The DLT algorithm is based on the assumption that an overdetermined system of linear equations in the form $\matr{A}\vec{x} = \vec{0}$ (where $\matr{A}$ is the matrix of coefficients, $\vec{x}$ is the vector of unknowns and $\vec{0}$ is the zero vector) is available and that given the noise there is no exact solution. In case of a stereo setup where the image points $\vec{t_{1}}$ and $\vec{t_{2}}$ in 2-space on each camera correspond to a target $\vec{T}$ in 3-space the overdetermined system of linear equations can be defined with vector $\vec{x} = (t_{1}^{x}, t_{1}^{y}, t_{2}^{x}, t_{2}^{y})$ and matrix $\matr{A}$:
-\begin{align*}
+\begin{align}
 	A = \begin{bmatrix}
 			t_{1}^{x}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{1}}^{T} \\
 			t_{1}^{y}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{2}}^{T} \\
 			t_{2}^{x}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{1}}^{T} \\
 			t_{2}^{y}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{2}}^{T} \\
 		\end{bmatrix},
-\end{align*}
+\end{align}
 where $\vec{p_{cam}^{r}}$ is the $rth$ row of the projection matrix $\matr{P_{cam}}$ of the camera $cam$. The ultimate solution is found using the SVD\footnote{Singular Value Decomposition} as the singular vector corresponding to the smallest singular value of $\matr{A}$.
 
 \paragraph{Reprojection Error Minimization} Similarly as DLT this method assumes that the correspondence between image points $\vec{t_{1}}$ and $\vec{t_{2}}$ does not meet the epipolar constraint. The aim thus is to estimate the position of the target $\vec{T}$ in 3-space which projects to image points $\vec{t_{1}'}$ and $\vec{t_{2}'}$ satisfying the epipolar constraint and which at the same time minimizes the reprojection error function $ref$:
-\begin{align*}
+\begin{align}
 	ref(\vec{t_{1}}, \vec{t_{2}}) = d(\vec{t_{1}}, \vec{t_{1}'})^{2} + d(\vec{t_{2}}, \vec{t_{2}'})^{2},
-\end{align*}
+\end{align}
 where $d(\vec{x}, \vec{x'})$ is the Euclidean distance between the measurement $\vec{x}$ and reprojected image point $\vec{x'}$ (see Figure \ref{fig:reprojection}). The reprojection error function can be either minimized using any optimization method or the minimum can even be found non-iteratively in closed form.
  
 %% Reprojection
@@ -402,25 +402,79 @@ Even though both DLT and reprojection error minimization could be extended so as
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{3D Environment Reconstruction} \label{txt:3d_environment_reconstruction}
-\todo{vyuziti pro occlusion detection}
 
-- canonical stereo setup (?)
-- epipolar geometry (?)
+One of the most challenging and still not fully solved problems of visual tracking algorithms is the occlusion \cite{Zhang:2010:RVT:1937728.1937766, conf/iccv/KwakNHH11}, i.e. the case where the tracked object becomes partially or fully overlapped by another object. Even though both visual trackers the OLS is based on (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}) are robust against partial occlusion and to the limited extent even against full occlusion, it is necessary to detect the occlusion using the visual clues which might not be reliable. 
 
-%.........................................................................
-%.........................................................................
-\subsection{Bundle Adjustment}
-\todo{SFM}
+However, if the 3D model of the surrounding scene is known and motion model in 3-space of the tracked target is estimated, it is possible to predict both start and end of full occlusion occurrence in advance and consequently to adjust the tracking algorithm temporarily so that it would not fail. If the 3D model of the environment is not known beforehand it can be reconstructed using mere visual information obtained from cameras.
+
+Therefore, this section introduces the problematics of 3D reconstruction using visual cues in multi-camera system, namely the basics of epipolar geometry, the notion of bundle adjustment and a popular tool for performing both sparse and dense reconstruction in multiple-camera setup -- VisualSFM. A proposed algorithm of occlusion prediction based on the knowledge of sparse 3D model of the environment is presented in Section \ref{txt:occlusion_prediction}. 
 
 %.........................................................................
 %.........................................................................
-\subsection{CMVS, PMVS}
+\subsection{Reconstruction Pipeline} \label{txt:reconstruction_pipeline}
 
-%%-------------------------------------------------------------------------
-%%-------------------------------------------------------------------------
-%\section{Optical Localisation Systems}
-%
-%The system presented in \cite{A_3D_visual_localization} then relies on four ordinary RGB cameras with known parameters (intrinsics, extrinsics) to estimate the position of the easy to detect and static object using the Perpendicular Foot Method algorithm. 
+Assuming the most general scenario where multiple images of the scene taken from multiple uncalibrated cameras are available, a 3D reconstruction pipeline based on the \textit{iterative bundle adjustment} can be utilized \cite{Snavely:2006:PTE:1179352.1141964} (see Figure \ref{fig:3d_reconstruction_pipeline}).
+
+%% 3D reconstruction pipeline
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.8\textwidth]{fig/3d_reconstruction_pipeline.pdf}
+	\caption{A 3D reconstruction pipeline taking multiple images taken from uncalibrated cameras and producing estimated camera parameters and locations of matched points in 3-space.}
+	\label{fig:3d_reconstruction_pipeline}
+\end{figure}
+
+The algorithm takes arbitrary number of images on the input performs \textit{SIFT keypoint detection} as the first step. Next, individual keypoints are matched across all images creating the \textit{tracks}. A \textit{fundamental matrix $\matr{F}$} is estimated for each pair of images (see Section \ref{txt:epipolar_geometry}) and those matches which are outliers with regards to $\matr{F}$ are removed. Finally, the \textit{iterative sparse bundle adjustment} is run (see Section \ref{txt:bundle_adjustment}) which produces the estimates of camera parameters (both intrinsics and extrinsics) and 3D locations of matched points.
+
+In case of OLS both extrinsics and intrinsics are known. However, they are correct only up to a systematic and random error caused by imprecise stationing and rectification (see Chapter \ref{txt:precision_of_the_localization}) and a noise which the P\&T orientation measurements are subject to. Therefore in order to achieve a 3D reconstruction of the surrounding environment it is still reasonable to employ the bundle adjustment technique. In order to exploit the a priori known information, for instance the bundle adjustment might be initialized with known camera calibration and pose parameters so as to make the optimization algorithm more likely to find the global optimum.
+
+%.........................................................................
+%.........................................................................
+\subsection{Epipolar Geometry} \label{txt:epipolar_geometry}
+
+Epipolar geometry represents the relation between two projective pinhole cameras observing the same point (points) in 3-space \cite{Cyganek:2007:ICV:1214366} (see Figure \ref{fig:epipolar_geometry}). The line between both camera centers $\vec{C_{i}}$ is called the \textit{baseline} and it delimits the \textit{epipole} $ \vec{e_{i}}$ in each projective plane $Im_{i}$. The projection of target $\vec{T}$ to both image planes defines image points $\vec{t_{i}}$ which in return backproject to lines in 3-space. The line $el_{i}$ lying in image plane $Im_{i}$ connecting $\vec{e_{i}}$ and ${\vec{t_{i}}}$ is called \textit{epipolar line}.
+
+What the epipolar geometry relation says is that the observed target $\vec{T}$ must lie only in the plane $Ep$ defined by the baseline and both backprojected lines (from camera center $\vec{C_{i}}$ through image point $\vec{t_{i}}$). Alternatively, the epipolar line $el_{i}$ is the projection of back-projected line $\vec{C_{j}}\vec{t_{j}}$ to the projection plane $Im_{i}$.
+
+%% Epipolar geometry
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.7\textwidth]{fig/epipolar_geometry.pdf}
+	\caption{The epipolar geometry.}
+	\label{fig:epipolar_geometry}
+\end{figure}
+
+Ultimately, the \textit{epipolar constraint} is defined as following: \textit{Each image point $\vec{t_{i}}$ of a space point $\vec{T}$ lies in the image plane only on the corresponding epipolar line}. This can be stated numerically using the \textit{fundamental matrix} $\matr{F}$:
+\begin{align}
+	\vec{t_{1}}^{T}\matr{F}\vec{t_{2}} = 0
+\end{align}
+
+Fundamental matrix $\matr{F}$ can be estimated from mere image correspondences for instance using normalized 8-point algorithm within RANSAC framework \cite{Hartley:2003:MVG:861369, Cyganek:2007:ICV:1214366}.
+
+%.........................................................................
+%.........................................................................
+\subsection{Bundle Adjustment} \label{txt:bundle_adjustment}
+
+Bundle adjustment is the approach which aims to simultaneously refine the parameters of all involved cameras (intrinsics and extrinsics) and to minimize the reprojection error between the initially measured image point and reprojected target. The non-linear least squares error function $E$ can be defined as \cite{Forsyth:2002:CVM:580035}:
+\begin{align}
+	E = \frac{1}{mn}\sum_{i,j}{[(x_{ij} - \frac{\vec{p_{i1}}\vec{T_{j}}}{\vec{p_{i3}}\vec{T_{j}}})^{2} + (y_{ij} - \frac{\vec{p_{i2}}\vec{T_{j}}}{\vec{p_{i3}}\vec{T_{j}}})^{2}]},
+\end{align}
+where $m$ is the number of cameras, $n$ is the number of target points in 3-space, $(x_{ij}, y_{ij})$ is the initially measured location of the projection of target $T_{j}$ to the projective plane of camera $i$ and $\vec{p_{ir}}$ is the rth row of projection matrix $P_{i}$. As for the minimization, \textit{Levenberg-Marquardt} algorithm is mostly used. 
+
+In case of reconstruction approach proposed by Snavely, Seitz and Szeliski \cite{Snavely:2006:PTE:1179352.1141964} (see Section \ref{txt:reconstruction_pipeline}) the iterative version of bundle adjustment is used. In this case a most suitable image pair, which has enough matches and large baseline is selected and the camera parameters as well as the 3D locations of matched points are estimated. In each next iteration a new camera is added to the optimization algorithm.
+
+%.........................................................................
+%.........................................................................
+\subsection{VisualSFM}
+
+VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index.html}} is a well established application for end-to-end scene reconstruction using multiple cameras which follows the standard pipeline described in Section \ref{fig:3d_reconstruction_pipeline} and adds another method for dense reconstruction. For sparse reconstruction the application uses parallel implementation of bundle adjustment \cite{ChangchangWu:2011:MBA:2191740.2191945} and for dense reconstruction the Patch-based Multi-view Stereo Software (PMVS) approach is utilized \cite{Furu:2010:PMVS}. The demonstration of dense reconstruction is depicted in Figure \ref{fig:visualsfm_tower}. Upon successful reconstruction the VisualSFM enables the 3D point cloud to be exported in standard PLY format which can be easily imported to OLS for instance with the use of Point Cloud Library (see Section \ref{txt:occlusion_prediction}).
+
+%% Visual SFM tower
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=0.9\textwidth]{fig/visualsfm_tower.png}
+	\caption{The 3D reconstruction performed by VisualSFM from only two photographs taken by the same camera in neighborhood Štýřice, Brno. Note that even mere two views suffice to reconstruct the church tower, however, the output data include a lot of noise.}
+	\label{fig:visualsfm_tower}
+\end{figure}
 
 %=========================================================================
 %=========================================================================
@@ -466,7 +520,7 @@ As for the network topology, the OLS is based on a star pattern where each track
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Stationing}
+\section{Stationing} \label{txt:stationing}
 
 The precision of the whole system is dependent on the uncertainty of the system input as well as on the imprecision of the camera unit construction. The process of stationing aims to alleviate the uncertainty of the system input while the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
 
@@ -513,7 +567,7 @@ Since the camera unit is expected to be placed in an unknown outdoor terrain, it
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Rectification}
+\section{Rectification} \label{txt:rectification}
 
 The process of rectification serves the purpose of reducing the system error caused by the imprecise attachment of the camera to the manipulator. The model of the camera unit assumes that the camera is precisely attached to the manipulator so that the camera image sensor is positioned perpendicular to the azimuthal axis and the rows of the image sensor are parallel to the elevation axis (i.e. the camera is not rotated along the optical axis).
 
@@ -762,6 +816,15 @@ where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the
 \todo{tracking}
 \todo{occlusion prediciton using 3D reconstruction}
 \todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Occlusion Prediction} \label{txt:occlusion_prediction}
+- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
+- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
+- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
+- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
+	- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
