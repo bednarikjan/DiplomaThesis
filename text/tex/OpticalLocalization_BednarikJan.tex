@@ -1,19 +1,33 @@
 %============================================================================
-% Jan Bednarik
+% Author: Jan Bednarik
 % E-mail: jan.bednarik AT hotmail.cz
 %============================================================================
 % encoding: utf8
 %============================================================================
-
+%============================================================================
+% tento soubor pouzijte jako zaklad
+% (c) 2008 Michal Bidlo
+% E-mail: bidlom AT fit vutbr cz
+%============================================================================
+% kodovaní: UTF-8 (zmena prikazem iconv, recode nebo cstocs)
+%----------------------------------------------------------------------------
+% zpracování: make, make pdf, make desky, make clean
+%============================================================================
+% Šablonu upravil: Ing. Jaroslav Dytrych, idytrych@fit.vutbr.cz
+%============================================================================
 %\documentclass[]{fitthesis} % bez zadání - pro začátek práce, aby nebyl problém s překladem
-\documentclass[english]{fitthesis} % odevzdani do wisu - odkazy jsou barevné
+\documentclass[english]{fitthesis}
+%\documentclass[zadani]{fitthesis} % odevzdani do wisu - odkazy jsou barevné
 %\documentclass[zadani,print]{fitthesis} % pro tisk - odkazy jsou černé
 %\documentclass[english,print]{fitthesis} % pro tisk - odkazy jsou černé
 % * Je-li prace psana v anglickem jazyce, je zapotrebi u tridy pouzit 
 %   parametr english nasledovne:
 %      \documentclass[english]{fitthesis}
+% * Je-li prace psana ve slovenskem jazyce, je zapotrebi u tridy pouzit 
+%   parametr slovak nasledovne:
+%      \documentclass[slovak]{fitthesis}
 
-\usepackage[czech,english]{babel}
+\usepackage[czech,slovak,english]{babel}
 \usepackage[utf8]{inputenc} %kodovani
 \usepackage[T1]{fontenc}
 \usepackage{cmap}
@@ -62,12 +76,7 @@
 % Matrix notation
 \newcommand{\matr}[1]{\mathbf{#1}}
 
-%---rm---------------
-\renewcommand{\rmdefault}{lmr}%zavede Latin Modern Roman jako rm
-%---sf---------------
-\renewcommand{\sfdefault}{qhv}%zavede TeX Gyre Heros jako sf
-%---tt------------
-\renewcommand{\ttdefault}{lmtt}% zavede Latin Modern tt jako tt
+\input{fonts.tex}
 
 % vypne funkci nové šablony, která automaticky nahrazuje uvozovky,
 % aby nebyly prováděny nevhodné náhrady v popisech API apod.
@@ -103,53 +112,58 @@
 \fi
 \fi
 
+%Informace o praci/projektu
+%---------------------------------------------------------------------------
 \projectinfo{
-	%Prace
-	project=DP,            %typ prace BP/SP/DP/DR
-	year=2016,             %rok
-	date=\today,           %datum odevzdani
-	%Nazev prace
-	title.cs={Optická lokalizace velmi vzdálených cílů ve vícekamerovém systému},  %nazev prace v cestine
-	title.en={Optical Localization of Very Distant Targets in Multicamera Systems}, %nazev prace v anglictine
-	%Autor
-	author={Jan Bednařík},   %jmeno prijmeni autora
-	author.title.p=Bc., %titul pred jmenem (nepovinne)
-	%author.title.a=PhD, %titul za jmenem (nepovinne)
-	%Ustav
-	department=UPGM, % doplnte prislusnou zkratku: UPSY/UIFS/UITS/UPGM
-	%Skolitel
-	supervisor= Adam Herout, %jmeno prijmeni skolitele
-	supervisor.title.p=prof. Ing.,   %titul pred jmenem (nepovinne)
-	supervisor.title.a={Ph.D.},    %titul za jmenem (nepovinne)
-	%Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat 
-	%bud pomoci nasledujicich parametru nebo pomoci vyhrazenych maker (viz dale)
-	%===========================================================================
-	%Klicova slova
-	keywords.cs={Klíčová slova v českém jazyce.}, %klicova slova v ceskem jazyce
-	keywords.en={Klíčová slova v anglickém jazyce.}, %klicova slova v anglickem jazyce
-	%Abstract
-	abstract.cs={Výtah (abstrakt) práce v českém jazyce.}, % abstrakt v ceskem jazyce
-	abstract.en={Výtah (abstrakt) práce v anglickém jazyce.}, % abstrakt v anglickem jazyce
-	%Prohlaseni
-	declaration={Prohlašuji, že jsem tento semestrální projekt vypracoval samostatně pod vedením pana doc. Ing. Adama Herouta, Phd. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.},
-	%Podekovani (nepovinne)
-	%  acknowledgment={Zde je možné uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc.} % nepovinne
+  %Prace
+  project=DP,            %typ prace BP/SP/DP/DR
+  year=2016,             %rok
+  date=\today,           %datum odevzdani
+  %Nazev prace
+  title.cs={Optická lokalizace velmi vzdálených cílů ve vícekamerovém systému},  %nazev prace v cestine ci slovenstine
+  title.en={Optical Localization of Very Distant Targets in Multicamera Systems}, %nazev prace v anglictine
+  %Autor
+  author={Jan Bednařík},   %cele jmeno a prijmeni autora
+  author.name={Jan},   %jmeno autora (pro citaci)
+  author.surname={Bednařík},   %prijmeni autora (pro citaci)
+  author.title.p=Bc., %titul pred jmenem (nepovinne)
+  %author.title.a=PhD, %titul za jmenem (nepovinne)
+  %Ustav
+  department=UPGM, % doplnte prislusnou zkratku dle ustavu na zadani: UPSY/UIFS/UITS/UPGM
+  %Skolitel
+  supervisor=Adam Herout, %cele jmeno a prijmeni skolitele
+  supervisor.name={Adam},   %jmeno skolitele (pro citaci)
+  supervisor.surname={Herout},   %prijmeni skolitele (pro citaci)
+  supervisor.title.p=prof. Ing.,   %titul pred jmenem (nepovinne)
+  supervisor.title.a={Ph.D.},    %titul za jmenem (nepovinne)
+  %Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat 
+  %bud pomoci nasledujicich parametru nebo pomoci vyhrazenych maker (viz dale)
+  %===========================================================================
+  %Klicova slova
+  %keywords.cs={Klíčová slova v českém jazyce.}, %klicova slova v ceskem ci slovenskem jazyce
+  %keywords.en={Klíčová slova v anglickém jazyce.}, %klicova slova v anglickem jazyce
+  %Abstract
+  %abstract.cs={Výtah (abstrakt) práce v českém jazyce.}, % abstrakt v ceskem ci slovenskem jazyce
+  %abstract.en={Výtah (abstrakt) práce v anglickém jazyce.}, % abstrakt v anglickem jazyce
+  %Prohlaseni
+  %declaration={Prohlašuji, že jsem tuto bakalářskou práci vypracoval samostatně pod vedením pana ...},
+  %Podekovani (nepovinne)
+  %acknowledgment={Zde je možné uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc.} % nepovinne
 }
 
-%Abstrakt (cesky, anglicky)
+%Abstrakt (cesky, slovensky ci anglicky)
 \abstract[cs]{Tato práce popisuje návrh pasivního systému pro optickou lokalizaci leteckých objektů ve vícekamerovém systému schopném autonomně určit globální geografickou pozici sledovaného objektu. Systém staví na využití několika stanic s pozicovatelnými kamerami, přičemž jsou stanice vhodně rozmístěny v daném prostředí. Každá kamerová jednotka provádí detekci a sledování a zasílá data ostatním jednotkám, díky čemuž je možné triangulovat pozici sledovaného objektu. V práci je popsán navržený model kamerové jednotky, rovněž je vysvětlen a proveden proces rektifikace, jehož účelem je redukovat odchylku mezi modelem a reálnou konstrukcí kamerové jednotky. Diskutovány jsou rovněž různé techniky pro vizuální detekci a sledování objektů a jsou vybrány nejvhodnější z nich z hlediska potřeb navrhovaného systému. Dále je popsán návrh, částečná implementace a simulace systému ve fyzikálním simulátoru. V závěru jsou shrnuty další kroky nezbytné pro úspěšný vývoj systému.}
 \abstract[en]{This work presents the passive multi-camera optical localization system suitable for autonomous estimation of the global geographical position of the aerial objects. The system utilizes multiple stations with positionable cameras properly placed within the environment. Each camera unit performs detection and tracking and exchanges the information with each other in order to triangulate the target. In the work the proposed model of the camera unit was described and a rectification process reducing the deviation between the model and the construction of the unit was explained and performed. Various visual detection and tracking approaches were discussed and the most suitable ones were proposed for the final solution. The system was designed, partially implemented and simulated in a physical simulator. The next steps necessary for the successful development of the system were eventually summarized.}
 
-%Klicova slova (cesky, anglicky)
+%Klicova slova (cesky, slovensky ci anglicky)
 \keywords[cs]{optická lokalizace, lokalizace více kamerami, stereovize, detekce objektů, sledování objektů, triangulace, letecké objekty, UAV, fyzikální simuace, ROS, Gazebo, kinematický řetězec, rektifikace kamery}
 \keywords[en]{optical localization, mutli camera localization, stereovision, object detection, object tracking, triangulation, aerial objects, UAV, physical simulation, ROS, Gazebo, kinematic chain, camera rectification}
 
-%Prohlaseni
-\declaration{Prohlašuji, že jsem tuto bakalářskou práci vypracoval samostatně pod vedením pana prof. Ing. Adama Herouta, Ph.D. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.}
+%Prohlaseni (u anglicky psane prace anglicky, u slovensky psane prace slovensky)
+\declaration{TODO -> napsat anglicky! Prohlašuji, že jsem tuto bakalářskou práci vypracoval samostatně pod vedením pana prof. Ing. Adama Herouta, Ph.D. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.}
 
-%Podekovani (nepovinne)
-\acknowledgment{V této sekci je možno uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc
-(externí zadavatel, konzultant, apod.).}
+%Podekovani (nepovinne, nejlepe v jazyce prace)
+\acknowledgment{TODO -> napsat anglicky! V této sekci je možno uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc (externí zadavatel, konzultant, apod.).}
 
 \begin{document}
   % Vysazeni titulnich stran
@@ -163,29 +177,44 @@
 \ifczech
   \renewcommand\listfigurename{Seznam obrázků}
 \fi
+\ifslovak
+  \renewcommand\listfigurename{Zoznam obrázkov}
+\fi
+
   % \listoffigures
 \ifczech
   \renewcommand\listtablename{Seznam tabulek}
 \fi
+\ifslovak
+  \renewcommand\listtablename{Zoznam tabuliek}
+\fi
+
   % \listoftables 
 
   % Text prace
   % ----------------------------------------------
-  \input{content} % viz. content.tex
+  \input{content} % viz. obsah.tex
 
   % Pouzita literatura
   % ----------------------------------------------
-\ifczech
+\ifslovak
   \makeatletter
-  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literatura}}
+  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literatúra}}
   \makeatother
   \bibliographystyle{czechiso}
-\else 
-  \makeatletter
-  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literature}}
-  \makeatother
-  \bibliographystyle{plain}
-%  \bibliographystyle{alpha}
+\else
+  \ifczech
+    \makeatletter
+    \def\@openbib@code{\addcontentsline{toc}{chapter}{Literatura}}
+    \makeatother
+    \bibliographystyle{czechiso}
+  \else 
+    \makeatletter
+    \def\@openbib@code{\addcontentsline{toc}{chapter}{Bibliography}}
+    \makeatother
+    \bibliographystyle{plain}
+  %  \bibliographystyle{alpha}
+  \fi
 \fi
   \begin{flushleft}
   \bibliography{bibliography} % viz. literatura.bib
@@ -199,15 +228,26 @@
   \renewcommand{\appendixtocname}{Přílohy}
   \renewcommand{\appendixname}{Příloha}
 \fi
+\ifslovak
+  \renewcommand{\appendixpagename}{Prílohy}
+  \renewcommand{\appendixtocname}{Prílohy}
+  \renewcommand{\appendixname}{Príloha}
+\fi
   \appendixpage
-\ifczech
-  \section*{Seznam příloh}
-  \addcontentsline{toc}{section}{Seznam příloh}
+
+\ifslovak
+  \section*{Zoznam príloh}
+  \addcontentsline{toc}{section}{Zoznam príloh}
 \else
-  \section*{List of Appendices}
-  \addcontentsline{toc}{section}{List of Appendices}
+  \ifczech
+    \section*{Seznam příloh}
+    \addcontentsline{toc}{section}{Seznam příloh}
+  \else
+    \section*{List of Appendices}
+    \addcontentsline{toc}{section}{List of Appendices}
+  \fi
 \fi
   \startcontents[chapters]
   \printcontents[chapters]{l}{0}{\setcounter{tocdepth}{2}}
-  \input{appendix} % viz. appendix.tex
+  \input{appendix} % viz. prilohy.tex
 \end{document}

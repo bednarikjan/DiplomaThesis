@@ -74,7 +74,7 @@ The OLS system aims to utilize the same principle as the old optical range finde
 \chapter{Related Work}
 
 %-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
+%------------s-------------------------------------------------------------
 %\section{Moving Object Detection}
 %
 %Before a tracking of the object can be initiated, the object of interest must first be discovered, which is the main task of object detectors. Even though the OLS allows a human operator to interfere and manually select an object for tracking, the system should be able to perform fully autonomously as well. The approaches to detect an object can be divided into two categories based on the appearance of the object, where the first group covers the cases where the system already posses a strong information about the objects since they incorporate artificial landmarks, while the second group relies merely on the natural appearance and has only limited or no prior knowledge about the objects \cite{Multi-Camera_Sensor_System_for_3D_Segmentation}. Since the OLS aims on tracking unknown UAVs the first group of approaches is out of question.
@@ -121,7 +121,7 @@ An \textit{appearance} model is represented either by rectangular template \cite
 
 The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame. There is a wide range of approaches to visual tracking and since they usually combine multiple various methods in order to reinforce the tracker robustness they cannot be really divided into distinct categories in a straightforward manner. However, the approaches can be coarsely categorized by the selection of the object representation.
 
- To reinforce the tracker robustness, the motion models are often used, Kalman filter and particle filter being the most popular ones \cite{cuevas2005kalman, ObjectTrackinginMonochromaticVideo}.
+To reinforce the tracker robustness, the motion models are often used, Kalman filter and particle filter being the most popular ones \cite{cuevas2005kalman, ObjectTrackinginMonochromaticVideo}.
 
 
 \subsubsection*{Keypoint Tracking} 
@@ -163,7 +163,7 @@ The particle filter represents the most general class of filters which can cope 
 	\BlankLine
 	
 	\tcc{Resampling (importance sampling)}
-		$resampleParticles()$\;
+	$resampleParticles()$\;
 	
 	\BlankLine
 	\tcc{Prediction}
@@ -363,11 +363,11 @@ Since the back-projected lines are skew, there is not the only correct solution 
 \paragraph{Direct Linear Transformation (DLT)} The DLT algorithm is based on the assumption that an overdetermined system of linear equations in the form $\matr{A}\vec{x} = \vec{0}$ (where $\matr{A}$ is the matrix of coefficients, $\vec{x}$ is the vector of unknowns and $\vec{0}$ is the zero vector) is available and that given the noise there is no exact solution. In case of a stereo setup where the image points $\vec{t_{1}}$ and $\vec{t_{2}}$ in 2-space on each camera correspond to a target $\vec{T}$ in 3-space the overdetermined system of linear equations can be defined with vector $\vec{x} = (t_{1}^{x}, t_{1}^{y}, t_{2}^{x}, t_{2}^{y})$ and matrix $\matr{A}$:
 \begin{align}
 	A = \begin{bmatrix}
-			t_{1}^{x}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{1}}^{T} \\
-			t_{1}^{y}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{2}}^{T} \\
-			t_{2}^{x}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{1}}^{T} \\
-			t_{2}^{y}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{2}}^{T} \\
-		\end{bmatrix},
+		t_{1}^{x}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{1}}^{T} \\
+		t_{1}^{y}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{2}}^{T} \\
+		t_{2}^{x}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{1}}^{T} \\
+		t_{2}^{y}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{2}}^{T} \\
+	\end{bmatrix},
 \end{align}
 where $\vec{p_{cam}^{r}}$ is the $rth$ row of the projection matrix $\matr{P_{cam}}$ of the camera $cam$. The ultimate solution is found using the SVD\footnote{Singular Value Decomposition} as the singular vector corresponding to the smallest singular value of $\matr{A}$.
 
@@ -376,7 +376,7 @@ where $\vec{p_{cam}^{r}}$ is the $rth$ row of the projection matrix $\matr{P_{ca
 	ref(\vec{t_{1}}, \vec{t_{2}}) = d(\vec{t_{1}}, \vec{t_{1}'})^{2} + d(\vec{t_{2}}, \vec{t_{2}'})^{2},
 \end{align}
 where $d(\vec{x}, \vec{x'})$ is the Euclidean distance between the measurement $\vec{x}$ and reprojected image point $\vec{x'}$ (see Figure \ref{fig:reprojection}). The reprojection error function can be either minimized using any optimization method or the minimum can even be found non-iteratively in closed form.
- 
+
 %% Reprojection
 \begin{figure}[tbh]
 	\centering
@@ -824,7 +824,7 @@ where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the
 - zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
 - zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
 - popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
-	- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
+- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -990,7 +990,7 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 	\todo{zhodnocení z pohledu dalšího vývoje projektu}
 	\todo{student uvede rovněž návaznosti na právě dokončené projekty (řešené v rámci ostatních diplomových prací v daném roce nebo na projekty řešené na externích pracovištích).}
 	\todo{zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem diplomanta}
-
+	
 	
 	This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
 	
