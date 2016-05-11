@@ -112,12 +112,12 @@ STRUTKTURA DETAILNE
 		- VimbaSDK, Flir
 
 6) Experimental Results [5.0]
-	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chyba se deli na dve rotace)
-	- testovani pro staticke a dynamicke cile
+	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chyba se deli na dve rotace) [1.0]
+	- testovani pro staticke a dynamicke cile [2.0]
 		- Zebetin
 		- VUT stadion -> TODO
-	- testovani regulace v zavislosti na ?
-	- test presnosti vice kamer vs 2 kamery - simulator
+	- testovani regulace v zavislosti na ? [0.75]
+	- test presnosti vice kamer vs 2 kamery - simulator [0.75]
 	- test predikce okluze u 3 jednotek -> vzdy pouze 2 vidi cil (simulator), synteticka prekazka - s vs. bez predikce
 
 7) Conclusion [1.0]

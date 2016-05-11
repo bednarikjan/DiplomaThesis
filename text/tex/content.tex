@@ -489,11 +489,7 @@ VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index
 %-------------------------------------------------------------------------
 \section{System Topology}
 
-The main building block of the OLS system is a \texttt{camera station} (CS). CS consists of the \texttt{camera unit} (CU), which is a collection of hardware necessary for capturing the images, manipulating the position of the camera and estimating the geographical coordinates of the CS (for detailed description see Chapter \ref{txt:camera_unit}), and the computation unit processing the data (a PC or other device). In general, the OLS is designed to work with an arbitrary number of CSs (of course, there must be at least two stations) and there are two types of CSs:
-
-\paragraph{overview station} Only one of the CSs is selected to become the overview station. Its main objective is to scan the surrounding environment, discover the aerial objects, distribute the information to the tracking stations and prospectively take part in the tracking phase. The station disposes of the camera equipped with the zooming lens allowing for scanning greater distances and the PC serving the purpose of the main entry point for the human operator (see Section \ref{txt:hardware}).
-
-\paragraph{tracking station} All other stations become tracking stations which scan the surrounding environment, detect the aerial objects and perform tracking. All cameras are equipped with fixed focal length lenses. \\
+The main building block of the OLS system is a \texttt{camera station} (CS). CS consists of the \texttt{camera unit} (CU), which is a collection of hardware necessary for capturing the images, manipulating the position of the camera and estimating the geographical coordinates of the CS (for detailed description see Chapter \ref{txt:camera_unit}), and the computation unit processing the data (a PC or other device). In general, the OLS is designed to work with an arbitrary number of CSs (of course, there must be at least two stations).
 
 As for the network topology, the OLS is based on a star pattern where each tracking station communicates only with the overview station (see Section \ref{txt:hardware}). The positional organization of the CSs depends on the number of tracking stations, which should always be placed so that their positions projected to the horizontal plane would form a regular polygon with the overview unit in the center (see Figure \ref{fig:system_overview}), however, in more complex environments this condition does not have to strictly hold (see Figure \ref{fig:spilberk_camera_units}).
 
@@ -516,7 +512,45 @@ As for the network topology, the OLS is based on a star pattern where each track
 	\end{minipage}
 \end{figure}
 
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
 \section{Precision Analysis}
+
+
+%=========================================================================
+%=========================================================================
+%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
+%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
+%
+%- vysvetleni typu chyb:
+%	- system error (systemova chyba)
+%		- nesoulad modelu CU s realnou konstrukci
+%		- nespravne mereni heading
+%		- detekce a tracking ?
+%	- uncertainty of the input of the system
+%		- GPS mereni
+%		- data inklinometru
+%	
+%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
+%
+%- rozdeleni na chybu rotace a translace
+%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
+%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
+%
+%- zdroj chyb:
+%	- detekce
+%	- tracking
+%	- GPS pozice
+%	- natoceni vuci severu
+%	- rozliseni PTU
+%	- model PTU - translace mezi klouby
+%	- model PTU - rotace mezi klouby
+%	- uchyceni kamery
+%		- rotace podle opticke osy
+%		- rotace podle osy azimutu
+%		- rotace podle osy elevace
+
+%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
 
 \vata[20]
 
@@ -677,16 +711,105 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 %=========================================================================
 %=========================================================================
 \chapter{Design of the Optical Localisation System} \label{txt:system_overview}
+\todo{prepsat uvod kapitoly}
 
-This section presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. From the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will be used throughout the document (see Figure \ref{fig:frame_convention}).
+This chapter presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. 
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Camera Unit} \label{txt:camera_unit}
+
+The main building block of the OLS is a camera station (CS), a standalone unit consisting of hardware modules necessary for capturing the images, manipulating the pose of the camera and estimating absolute geographical position and orientation of the station as well as relative position and orientation with regards to the rest of the stations.
+
+There are two type of CSs. The \textit{overview station} is designed to be controlled manually by the human operator and is equipped with the zooming lens that allows achieving both a wider scanning range and a more detailed view of the farther objects. The \textit{tracking station} consists of the fixed lens and takes part in the autonomous tracking of the moving objects and continuous reporting of the estimated directions towards the target.
+
+The hardware components used for tracking stations are described in greater detail in Section \ref{txt:devices}. In order to triangulate the target, the 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a suitable model corresponding to the real hardware mus be designed. Proposed model based on the kinematic chain is introduced in Section \ref{txt:model}.
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\subsection{Devices and Components} \label{txt:devices}
+
+A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}), a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted.
+
+%% A photo of a camera unit and an rviz model.
+\begin{figure}[tbh]
+	\centering
+	\includegraphics[width=10cm]{fig/camera_unit_photo_model.jpg}
+	\caption{A photograph (left) of the upper part of the camera unit consisting of a manipulator Flir PTU-D46-70 with the aluminum mount carrying a camera Prosilica GT 1290C and a corresponding 3D model (right) created for \textit{rviz} and \textit{Gazebo} simulator (see Section~\ref{txt:application_of_gazebo}).}
+	\label{fig:camera_unit_photo_model}
+\end{figure}
+
+\paragraph{Manipulator Flir PTU-D46-70} A manipulator PTU D46-70\footnote{Website of product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is a lower middle class device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed $4.08~kg$ \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position.
+
+\paragraph{Camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{Website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the company Allied Vision (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is an RGB camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the PTP protocol for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}. The manufacturer claims that Prosilica GT 1290C achieves the synchronization precision of $1~\mu s$.
+
+\paragraph{Lense Computar M5018-MP2} Each camera mounted on a tracking unit is equipped with a fixed-focus lense Computar M5018-MP2\footnote{Webiste of product Computar M5018-MP2: \url{http://computar.com/product/556/M5018-MP2}} (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). The focal length $50~mm$ was chosen as a most suitable trade-off between the wide field of view and capability of imaging distant targets. Given the camera sensor type 1/3'' the effective horizontal field of view $fov_{h}$ is approximately $5.5^{\circ}$.
+
+%% Photos of Flir and Prosilica.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.9\linewidth]{fig/prosilica_gt1290c_flir_ptud4670_computar.png}
+	\caption{Product pictures of manipulator Flir PTU D46-70 (left), camera Prosilica GT 1290C (middle) and lense Computar M5018-MP2 (right).}
+	\label{fig:prosilica_gt1290c_flir_ptud4670}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\subsection{Model} \label{txt:model}
+
+The model of the camera unit is based on the kinematic chain consisting of six joints and five links corresponding to the distance between separate parts of the surveying tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \textsc{ground} itself is dependent on the reference location (let us call it \textsc{origin}) which represents the origin of the global coordinate frame. The transformation between \textsc{origin} and \textsc{ground} reflects the position and orientation of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing}).
+
+The kinematic chain is designed as the composition of transformation matrices where a single joint can be located as a solution to the forward kinematics problem, i.e. by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \textsc{camera} can be derived as:
+
+\begin{equation}
+M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
+\end{equation}
+where $M_{ele}$ is the transformation matrix of the joint \textsc{ele} which the joint \textsc{camera} is dependent on, and $T_{cam}$ and $R_{AXIS_{cam}}$ are transformation and rotation matrices describing transformation from the joint \textsc{ele} to the joint \textsc{camera}. 
+
+Note that from the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will is used throughout the document (see Figure \ref{fig:frame_convention}).
 
 %% ROS frame conventions
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=4cm]{fig/frame_convention.pdf}
-	\caption{Frame orientation convention adopted from ROS which will be used throughout the work --- a right handed coordinate system with X axis aiming forward, Y axis left and Z axis up.}
+	\includegraphics[width=0.2\linewidth]{fig/frame_convention.pdf}
+	\caption{Frame orientation convention which is used throughout the work --- a right handed coordinate system with X axis aiming forward, Y axis aiming left and Z axis aiming up.}
 	\label{fig:frame_convention}
 \end{figure}
+
+%% A schema of the camera unit - kinematic chain.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.6\linewidth]{fig/camera_unit_kinematic_chain.pdf}
+	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles with black crosses. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \texttt{camera} and \texttt{focus} overlap as they both lie on the optical axis (the joint \texttt{focus} has a lower value of the Z coordinate).}
+	\label{fig:camera_unit_kinematic_chain}
+\end{figure}
+
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Visual Tracking}
+
+\todo{detection}
+\todo{tracking}
+\todo{occlusion prediciton using 3D reconstruction}
+\todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
+
+The homography might not be found, which often occurs if the airborne target with the uniform background of the sky is tracked or if the manipulator moves the camera too harshly. To deal with such cases in OLS, the tracker was adjusted so that in a \textit{prediction} step of the BPF a small subset of particles would be forced to take the image positions yielding the highest response of adjacent frame differencing which is expected to contain the moving target of interest.
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Target Localization Using Triangulation} \label{txt:localization}
+
+In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators.
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Occlusion Prediction} \label{txt:occlusion_prediction}
+- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
+- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
+- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
+- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
+- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -718,121 +841,7 @@ Once any of the stations detects an aerial object, it saves the visual informati
 
 The other unit(s) must first detect the newly spotted object. If it succeeds it initiates the tracking. The overview unit then computes the triangulation and estimates the 3D location of the target.
 
-\section{Tracking}
-The homography might not be found, which often occurs if the airborne target with the uniform background of the sky is tracked or if the manipulator moves the camera too harshly. To deal with such cases in OLS, the tracker was adjusted so that in a \textit{prediction} step of the BPF a small subset of particles would be forced to take the image positions yielding the highest response of adjacent frame differencing which is expected to contain the moving target of interest.
 
-%=========================================================================
-%=========================================================================
-%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
-%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
-%
-%- vysvetleni typu chyb:
-%	- system error (systemova chyba)
-%		- nesoulad modelu CU s realnou konstrukci
-%		- nespravne mereni heading
-%		- detekce a tracking ?
-%	- uncertainty of the input of the system
-%		- GPS mereni
-%		- data inklinometru
-%	
-%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
-%
-%- rozdeleni na chybu rotace a translace
-%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
-%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
-%
-%- zdroj chyb:
-%	- detekce
-%	- tracking
-%	- GPS pozice
-%	- natoceni vuci severu
-%	- rozliseni PTU
-%	- model PTU - translace mezi klouby
-%	- model PTU - rotace mezi klouby
-%	- uchyceni kamery
-%		- rotace podle opticke osy
-%		- rotace podle osy azimutu
-%		- rotace podle osy elevace
-
-%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Camera station}
-
-Camera unit is one component of each camera station and it consists of hardware necessary to estimate the absolute geographical position of the station, absolute orientation, relative position and orientation with regards to the rest of the stations and hardware for positioning a camera and capturing the image stream (more in Section \ref{txt:devices}). 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a model corresponding to the real hardware must be designed (see Section \ref{txt:model}).
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\subsection{Devices} \label{txt:devices}
-
-A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}) together with the LED target for stationing (see Section \ref{txt:stationing_and_rectification}) is mounted as well as all of the sensors (a GPS sensor, an inclinometer, a camera).
-
-%% A photo of a camera unit and an rviz model.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=10cm]{fig/camera_unit_photo_model.jpg}
-	\caption{A photograph of the upper part of the camera unit consisting of a manipulator Flir PTU-D46-70 with the aluminum mount carrying a camera Prosilica GT 1290C (left) and a corresponding 3D model created for Gazebo simulator (right, see Section \ref{txt:application_of_gazebo}).}
-	\label{fig:camera_unit_photo_model}
-\end{figure}
-
-\paragraph{manipulator Flir PTU-D46-70} A professional manipulator PTU-D46-70\footnote{A website of product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by a well established manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is an entry level device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed 4.08 kg \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position. 
-
-\paragraph{camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{A website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the Allied Vision company (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is a color camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the PTP protocol for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}.
-
-%% Photos of Flir and Prosilica.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=10cm]{fig/prosilica_gt1290c_flir_ptud4670.jpg}
-	\caption{Photographs of the manipulator Flir PTU D46-70 (left) and the camera Prosilica GT 1290C (right).}
-	\label{fig:prosilica_gt1290c_flir_ptud4670}
-\end{figure}
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\subsection{Model} \label{txt:model}
-
-The model of the camera unit is based on the kinematic chain consisting of six joints and five links corresponding to the distance between separate parts of the tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \texttt{ground} itself is dependent on the reference location (let us call it \texttt{world}) which represents the origin of the global coordinate frame. The transformation between the \texttt{world} and \texttt{ground} reflects the positioning and heading of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing_and_rectification}).
-
-The kinematic chain is designed as the composition of transformation matrices where a single joint can be located by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \texttt{camera} can be derived as:
-
-\begin{equation}
-	M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
-\end{equation}
-
-where $M_{ele}$ is the transformation matrix of the joint \texttt{ele} which the joint \texttt{camera} is dependent on, and $T_{cam}$ and $R_{AXIS_{cam}}$ are transformation and rotation matrices describing transformation from the joint \texttt{ele} to the joint \texttt{camera}. 
-
-%% A schema of the camera unit - kinematic chain.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=14cm]{fig/camera_unit_kinematic_chain.pdf}
-	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles with black crosses. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \texttt{camera} and \texttt{focus} overlap as they both lie on the optical axis (the joint \texttt{focus} has a lower value of the Z coordinate).}
-	\label{fig:camera_unit_kinematic_chain}
-\end{figure}
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Detection and Tracking}
-
-\todo{detection}
-\todo{tracking}
-\todo{occlusion prediciton using 3D reconstruction}
-\todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Occlusion Prediction} \label{txt:occlusion_prediction}
-- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
-- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
-- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
-- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
-- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Localisation} \label{txt:localization}
-
-In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators.
 
 %=========================================================================
 %=========================================================================
