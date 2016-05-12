@@ -719,9 +719,9 @@ This chapter presents the main hardware building blocks of the OLS, the camera s
 %-------------------------------------------------------------------------
 \section{Camera Unit} \label{txt:camera_unit}
 
-The main building block of the OLS is a camera station (CS), a standalone unit consisting of hardware modules necessary for capturing the images, manipulating the pose of the camera and estimating absolute geographical position and orientation of the station as well as relative position and orientation with regards to the rest of the stations.
+The main building block of the OLS is a camera unit (CU) consisting of hardware modules necessary for capturing the images, manipulating the pose of the camera, estimating absolute geographical position and orientation of the station as well as relative position and orientation with regards to the rest of the stations and running the OLS software.
 
-There are two type of CSs. The \textit{overview station} is designed to be controlled manually by the human operator and is equipped with the zooming lens that allows achieving both a wider scanning range and a more detailed view of the farther objects. The \textit{tracking station} consists of the fixed lens and takes part in the autonomous tracking of the moving objects and continuous reporting of the estimated directions towards the target.
+There are two type of CUs. The \textit{overview unit} is designed to be controlled manually by the human operator and is equipped with the zooming lens that allows achieving both a wider scanning range and a more detailed view of the farther objects. The \textit{tracking unit} consists of the fixed lens and takes part in the autonomous tracking of the moving objects and continuous reporting of the estimated directions towards the target.
 
 The hardware components used for tracking stations are described in greater detail in Section \ref{txt:devices}. In order to triangulate the target, the 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a suitable model corresponding to the real hardware mus be designed. Proposed model based on the kinematic chain is introduced in Section \ref{txt:model}.
 
@@ -729,7 +729,7 @@ The hardware components used for tracking stations are described in greater deta
 %-------------------------------------------------------------------------
 \subsection{Devices and Components} \label{txt:devices}
 
-A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}), a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted.
+A CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}), a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted. Each CU is equipped with its own desktop computer for processing the image data and calculating the 3D position estimates.
 
 %% A photo of a camera unit and an rviz model.
 \begin{figure}[tbh]
@@ -741,7 +741,7 @@ A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surve
 
 \paragraph{Manipulator Flir PTU-D46-70} A manipulator PTU D46-70\footnote{Website of product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is a lower middle class device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed $4.08~kg$ \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position.
 
-\paragraph{Camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{Website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the company Allied Vision (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is an RGB camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the PTP protocol for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}. The manufacturer claims that Prosilica GT 1290C achieves the synchronization precision of $1~\mu s$.
+\paragraph{Camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{Website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the company Allied Vision (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is an RGB camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the Precision Time Protocol (PTP) for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}. The manufacturer claims that Prosilica GT 1290C achieves the synchronization precision of $1~\mu s$.
 
 \paragraph{Lense Computar M5018-MP2} Each camera mounted on a tracking unit is equipped with a fixed-focus lense Computar M5018-MP2\footnote{Webiste of product Computar M5018-MP2: \url{http://computar.com/product/556/M5018-MP2}} (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). The focal length $50~mm$ was chosen as a most suitable trade-off between the wide field of view and capability of imaging distant targets. Given the camera sensor type 1/3'' the effective horizontal field of view $fov_{h}$ is approximately $5.5^{\circ}$.
 
@@ -759,7 +759,7 @@ A camera unit (see Figure \ref{fig:camera_unit_photo_model}) consists of a surve
 
 The model of the camera unit is based on the kinematic chain consisting of six joints and five links corresponding to the distance between separate parts of the surveying tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \textsc{ground} itself is dependent on the reference location (let us call it \textsc{origin}) which represents the origin of the global coordinate frame. The transformation between \textsc{origin} and \textsc{ground} reflects the position and orientation of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing}).
 
-The kinematic chain is designed as the composition of transformation matrices where a single joint can be located as a solution to the forward kinematics problem, i.e. by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \textsc{camera} can be derived as:
+The kinematic chain is designed as the composition of transformation matrices where a single joint can be located as a solution to the \textit{forward kinematics problem}, i.e. by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \textsc{camera} can be derived as:
 
 \begin{equation}
 M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
@@ -789,7 +789,6 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 %-------------------------------------------------------------------------
 \section{Visual Tracking}
 
-\todo{detection}
 \todo{tracking}
 \todo{occlusion prediciton using 3D reconstruction}
 \todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
@@ -815,38 +814,61 @@ In OLS, the intrinsics were estimated for each camera during calibration and ext
 %-------------------------------------------------------------------------
 \section{Hardware and Software Architecture}
 
-Considering the big picture of the system, OLS consists of four camera stations, a hardware devices necessary for network communication and the peripherals for manual control. There are two types of camera stations, a tracking station and an overview station (see Section~\ref{txt:system_overview}). All stations communicate with each other vie Ethernet switch. The peripheral devices (keyboard, joystick) allowing the operator to manually control the system are connected to the overview station (see Figure \ref{fig:hw_ols}).
+In order to support scalability and to meet the computational demands, the OLS is designed as a distributed system where each camera unit is equipped with its own desktop computer. Sections \ref{txt:hardware_topology} and \ref{txt:components_of_cu} describe the hardware architecture of the system and internals of the camera unit. The section \ref{txt:sw_pipeline} then presents the main software pipeline from the input of the operator to the estimated position of the target in 3-space.
+
+%.........................................................................
+%.........................................................................
+\subsection{Hardware Topology} \label{txt:hardware_topology}
+
+Considering the big picture of the system, OLS is designed as a simple two layer tree topology, where each node is represented as either tracking unit or overview unit (TU/OU) -- a standalone independent device continuously capturing the camera image stream, performing visual tracking and regulating the motion of the manipulator. All TU/OUs are interconnected via the Gigabit Ethernet switch. 
+
+One of the TU/OUs is selected as the \textsc{master} -- a root of the tree topology which is continuously receiving the tracking estimates from all the TU/OUs and estimating the 3D location of the target (see Figure \ref{fig:hw_ols}). Additionally, \textsc{master} serves the purpose of the interface between the OLS and the human operators and enables them to manually initialize the system and control each TU/OU (using keyboard and/or joystick) during runtime if necessary. All the TU/OUs are synchronized using PTP, which is ensured by the hardware support provided by the Prosilica cameras.
+
 
 %% The big picture diagram of the hardware components of the OLS
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=9cm]{fig/hw_ols.pdf}
-	\caption{The big picture diagram of the main components of the OLS.}
+	\includegraphics[width=0.9\linewidth]{fig/hwsw_architecture.pdf}
+	\caption{The hardware diagram of the OLS depicting the interconnection of the main building blocks -- the tracking and/or overview units (TU/OU).}
 	\label{fig:hw_ols}
 \end{figure}
 
-A camera station itself consists of a camera unit (see Section \ref{txt:camera_unit}) and a computer running the OLS software. The camera unit is controlled by the controller \texttt{STM32F4007} which communicates with the manipulator \texttt{Flir PTU D46-70}, a GPS module and a zoom lens. The camera \texttt{Prosilica GT 1290C} is connected directly to a computer running OLS system (for more details see Figure \ref{fig:hw_camera_unit}).
+%.........................................................................
+%.........................................................................
+\subsection{Components of the Camera Unit} \label{txt:components_of_cu}
+
+As described in \ref{txt:devices} a camera unit itself consists of a P\&T unit, a camera, sensors used for stationing and a desktop computer running the OLS software. The P\&T unit and all the sensors communicate through the RS-232 bus with the controller (based on $\mu$P STM32F4007) serving the purpose of the hub aggregating the communication with the desktop PC. The controller was designed and produced by the Department of Measurement at Faculty of Electrical Engineering, CTU in Prague. The camera is connected via GigE bus and finally the desktop computer is linked to the Ethernet Switch via Ethernet bus (see Figure \ref{fig:hw_camera_unit})).
 
 %% The diagram of the hardware components of the camera unit
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=9cm]{fig/hw_camera_unit.pdf}
+	\includegraphics[width=0.8\linewidth]{fig/hw_camera_unit.pdf}
 	\caption{The diagram of the hardware components of the camera unit depicting both the hardware devices and the communication standards.}
 	\label{fig:hw_camera_unit}
 \end{figure}
 
-Before the 3D location of the given target is estimated, the system must perform several operations. After powering on the system all camera stations start scanning the surrounding environment. The scanning process is autonomous, however, should the operator decide to interfere, the overview unit is used in order to control the camera (through the GUI and peripheral devices). 
+%.........................................................................
+%.........................................................................
+\subsection{Software Pipeline} \label{txt:sw_pipeline}
 
-Once any of the stations detects an aerial object, it saves the visual information distinguishing the object and notifies the overview station. The overview station selects the best candidate(s) to track the newly discovered object and notifies the chosen unit with the essential data about the object (direction in which it was spotted, visual clues, global id, etc.).
+The operation of the OLS in the means of data flow is depicted in the Figure \ref{fig:pipeline}. The OLS is initialized by the human operator who directs the CUs to the desired target and starts the tracking process. All the selected tracking units then visually track the target, continuously stream current measurements to the \textsc{master} and regulate the motion of the P\&T unit so that the target would not disappear from their fields of view.
 
-The other unit(s) must first detect the newly spotted object. If it succeeds it initiates the tracking. The overview unit then computes the triangulation and estimates the 3D location of the target.
+The localization component continuously estimates the location of the target in 3-space given the observations from the single tracking units. Given the knowledge of the target positions history and the suitable motion model the speed and future trajectory of the target can be estimated and used in order to refine tracking. The final estimate of the current target location is continuously emitted and presented to the operator. Should the operators decide to interfere, the peripherals (keyboard/mouse/joystick) can be used to manually adjust the tracking and regulation.
 
+%% OLS runtime pipeline
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.95\linewidth]{fig/pipeline.pdf}
+	\caption{The end-to-end pipeline of the OLS in the means of data sent among the separate software components.}
+	\label{fig:pipeline}
+\end{figure}
 
 
 %=========================================================================
 %=========================================================================
 \chapter{Implementation} \label{txt:implementation}
-% 2 - 4 ns
+
+/todo{sekce gui - vysvetlit, ze neni gui, ale nekolik oken, vypis aktualnich info, crosshait apod, ovladani mysi a klavesnici}
 
 The whole system is built on the robotic framework Robot Operating System (for details see Section \ref{txt:robot_operating_system}). Since the ROS defines multiple conventions, restrictions and best practices the whole system design including the selection of a programing language, a programing and a communication paradigm, a target platform and a tool for physical simulations is impacted by the possibilities of this framework.
 
