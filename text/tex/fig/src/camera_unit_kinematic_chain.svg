@@ -22,15 +22,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="-56.273187"
-     inkscape:cy="715.80172"
+     inkscape:zoom="3.171875"
+     inkscape:cx="147.47284"
+     inkscape:cy="642.41828"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
+     inkscape:window-width="1280"
+     inkscape:window-height="961"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1" />
   <defs
@@ -706,7 +706,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1447,7 +1447,7 @@
            x="236.9101"
            y="495.12292"
            style="fill:#626262;fill-opacity:1;" /></flowRegion><flowPara
-         id="flowPara4596"></flowPara></flowRoot>    <ellipse
+         id="flowPara4596" /></flowRoot>    <ellipse
        cy="872.91248"
        cx="342.61011"
        style="fill:#ffff00;fill-opacity:1;stroke:#250000;stroke-width:6;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -1553,14 +1553,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#00c500;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="102.89111"
-       y="410.00159"
+       x="102.26057"
+       y="407.47943"
        id="text11336-2"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan11338-2"
-         x="102.89111"
-         y="410.00159"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:cmr10;-inkscape-font-specification:cmr10;fill:#00c500;fill-opacity:1">x</tspan></text>
+         x="102.26057"
+         y="407.47943"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:cmr10;-inkscape-font-specification:cmr10;fill:#00c500;fill-opacity:1">y</tspan></text>
   </g>
 </svg>
