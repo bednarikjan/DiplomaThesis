@@ -788,18 +788,65 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Visual Tracking}
+- pro trackovani byl pouzit TLD a BGFG tracker
 
-\todo{tracking}
-\todo{occlusion prediciton using 3D reconstruction}
-\todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
+%.........................................................................
+%.........................................................................
+\subsection{Measurement Belief}
+--- vzorec distance function s normalizaci (in [0.0, 1.0]) ---
+=== obrazek template - candidate, mask ===
+
+%.........................................................................
+%.........................................................................
+\subsection{Adjusting Prediction Frame Differencing}
+--- nejaky vzorec z prediction stepu ---
+=== obrazek trackingu drona ===
+
 
 The homography might not be found, which often occurs if the airborne target with the uniform background of the sky is tracked or if the manipulator moves the camera too harshly. To deal with such cases in OLS, the tracker was adjusted so that in a \textit{prediction} step of the BPF a small subset of particles would be forced to take the image positions yielding the highest response of adjacent frame differencing which is expected to contain the moving target of interest.
+
+%.........................................................................
+%.........................................................................
+\subsection{2D Motion Prediction and Regulation}
+\todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
+
+- problem nerovnomerneho prijmu updatu z trackeru - a pomale, proto muze funkce pejizdet
+--- vzorec moving average (decaying) ---
+=== obrazek funkci s dead zone ===
+--- mozna vzorce fci ---
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Target Localization Using Triangulation} \label{txt:localization}
 
 In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators.
+
+%.........................................................................
+%.........................................................................
+\subsection{Triangulation}
+\todo{promitani do stejne roviny podle belief, triangulace}
+
+--- algoritmus promitani do stejne roviny ---
+=== obrazek z excel ===
+
+%.........................................................................
+%.........................................................................
+\subsection{Incorporating Target-Base Geometry}
+
+--- algoritmus z excel ---
+=== obrazek ukazujici vypocet finalniho T podle vahy z geometrie ===
+
+\todo{algoritmus z excel}
+
+%.........................................................................
+%.........................................................................
+\subsection{3D Motion Prediction}
+
+\todo{RANSAC}
+
+- vysvetlit ransac
+=== obrazek ransac + screen z rviz ===
+- popsat algoritmus: nalezeni 3D line -> refine -> promintout inliers -> spocist predikci rychlosti (constant v, nulove zrychleni)
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
