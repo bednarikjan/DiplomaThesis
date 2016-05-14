@@ -1171,28 +1171,94 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 	
 	\paragraph{Serial} A cross-platform library Serial\footnote{The official website of Serial: \url{https://github.com/wjwwood/serial}} implemented in C++ provides the API for interfacing with RS-232 serial like ports. It is used to control the manipulator.
 	
-	%=========================================================================
-	%=========================================================================
-	\chapter{Experiemtnal Results}
+%=========================================================================
+%=========================================================================
+\chapter{Experiemtnal Results}
 
-	\subsection{Regulation of the Manipulator Motion} \label{txt:test_regulation}
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Obtaining Dataset} \label{txt:obtaining_dataset}
+
+\vata[4]
 	
-	\vata[28]
-	
-	%=========================================================================
-	%=========================================================================
-	\chapter{Conclusion} \label{txt:conclusion}
-	% 1 - 2 ns
-	
-	\todo{zhodnocení z pohledu dalšího vývoje projektu}
-	\todo{student uvede rovněž návaznosti na právě dokončené projekty (řešené v rámci ostatních diplomových prací v daném roce nebo na projekty řešené na externích pracovištích).}
-	\todo{zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem diplomanta}
-	
-	
-	This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
-	
-	As fo the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
-	
-	As far as the further development is concerned, the autonomous detection algorithm will be implemented and the tracking algorithm will be improved on since the OLS system expects a static background (as opposed to the TLD) so the background modeling could be incorporated to further improve the tracker performance. The subsystem for target handoff among the cameras will be designed and implemented and the localization algorithm will be improved on to reflect the uncertainty of the locations and orientations of the separate joints in the kinematic models and to provide the result in global geographical coordinates (most likely UTM). A proper dataset will be acquired and the system will be tested thoroughly.
-	
-	\vata[5]
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Real World Testing} \label{txt:real_world_testing}
+
+The system was tested in the real-world environment in the basic two-camera setup. The CSs were precisely positioned using the differential GPS sensor (achieving accuracy of ca $0.01~m$) so that the base would be exactly $30~m$ long.  The local heading was estimated by aiming the units on each other. The system was tested against both static and dynamic targets, and in both cases only horizontal position was considered. 
+
+As for the static targets, nine landmarks with a priori known UTM coordinates (obtained from the cadastral map) and one target carrying an ordinary mobile GPS sensor were chosen (see Figure \ref{fig:trackingAndMap}). The localization error, given as the Euclidean distance between the ground truth and the estimated locations, was compared with the estimated error (see Table \ref{tab:staticTargets}). Note that both measured and estimated error follow the same trend (see Figure \ref{fig:plotErrorFixedTargets}); however, the measured error is higher mainly due to the insufficient precision of calibration, stationing and rectification. 
+
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.98\linewidth]{fig/tracking_and_map.png}
+	\caption{The two-camera setup, where a distant target is tracked by both CSs (left and right). The estimated position of the target is displayed in the map (center) in real time.}
+	\label{fig:trackingAndMap}
+\end{figure}
+
+\begin{table}[htbp]
+	\centering
+	\caption{The table shows the position as well as the localization error for each static target. The estimated error \textbf{est.~$\Delta$} is affected by the distance of the target and the angle $\alpha$ between the target and the base, and it was computed for the scenario where each CU makes random error $p = 4~px$ (see Section \ref{txt:localisationPrecision}). See also Figure \ref{fig:plotErrorFixedTargets} for graphical comparison of the estimated and the measured error.}
+	\begin{tabular}{ccccc}
+		\toprule
+		\textbf{object} & \textbf{dist. [m]} & \textbf{$\alpha$ [rad]} & \textbf{est. $\Delta$ [m]} & \textbf{$\Delta$ [m]} \\
+		\midrule
+		\textbf{pillar1} & 91,92 & 0,38  & 0,20  & 4,41 \\
+		\textbf{pillar2} & 199,14 & 0,46  & 0,95  & 5,51 \\
+		\textbf{pillar3} & 285,01 & 0,48  & 1,93  & 11,73 \\
+		\textbf{pillar4} & 386,81 & 0,41  & 3,39  & 17,16 \\
+		\textbf{tree1} & 433,88 & 0,34  & 4,13  & 17,20 \\
+		\textbf{person} & 479,96 & 0,10  & 4,65  & 23,90 \\
+		\textbf{hide} & 526,86 & 0,77  & 7,57  & 22,77 \\
+		\textbf{tree2} & 634,46 & 0,35  & 8,56  & 28,33 \\
+		\textbf{mast} & 1379,67 & 0,33  & 41,24 & 34,21 \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:staticTargets}
+\end{table}
+
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.65\linewidth]{fig/fixed_target_estimation_error.pdf}
+	\caption{The plot displays both measured and estimated localization error for all static targets, which are sorted in ascending order with respect to the estimated error. The measured error is higher due to imprecise calibration, rectification and stationing.}
+	\label{fig:plotErrorFixedTargets}
+\end{figure}
+
+The system was tested against one dynamic terrestrial target equipped with a mobile GPS sensor (a walking person). The target was tracked for $120~s$ and the estimated positions were captured and compared to the ground truth path (see Figure \ref{fig:resultsWalking}). On average the system achieved the precision of $6.25~m$. Note that the position estimates oscillate around the ground truth trajectory, which is caused by the random error made by both trackers; the error, however, keeps in the specific range and reaches maximum of $13.35~m$. The mean error is higher as compared to the estimated error (see Section \ref{txt:localisationPrecision}), which is again caused by the systematic error (imprecise calibration, rectification and stationing).
+
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.44\linewidth]{fig/eval_walking.png}
+	\includegraphics[width=0.54\linewidth]{fig/eval_walking_error.pdf}
+	\caption{The comparison of the ground truth and estimated trajectory of a target moving in the distance range of ca $50$--$200~m$ (left). The error as the function of the distance of the target is also displayed (right). The system makes the average error of $6.25~m$.}
+	\label{fig:resultsWalking}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Regulation of the Manipulator Motion} \label{txt:test_regulation}
+
+\vata[7]
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Multi-camera scenario} \label{txt:multi-camera_scenario}
+
+\vata[7]
+
+%=========================================================================
+%=========================================================================
+\chapter{Conclusion} \label{txt:conclusion}
+
+\todo{zhodnocení z pohledu dalšího vývoje projektu}
+\todo{student uvede rovněž návaznosti na právě dokončené projekty (řešené v rámci ostatních diplomových prací v daném roce nebo na projekty řešené na externích pracovištích).}
+\todo{zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem diplomanta}
+
+
+This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
+
+As fo the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
+
+As far as the further development is concerned, the autonomous detection algorithm will be implemented and the tracking algorithm will be improved on since the OLS system expects a static background (as opposed to the TLD) so the background modeling could be incorporated to further improve the tracker performance. The subsystem for target handoff among the cameras will be designed and implemented and the localization algorithm will be improved on to reflect the uncertainty of the locations and orientations of the separate joints in the kinematic models and to provide the result in global geographical coordinates (most likely UTM). A proper dataset will be acquired and the system will be tested thoroughly.
+
+\vata[5]
