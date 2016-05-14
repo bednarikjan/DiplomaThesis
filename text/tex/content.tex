@@ -816,7 +816,7 @@ Therefore, the noisy measurements or a complete failure of the tracker can be de
 
 %.........................................................................
 %.........................................................................
-\subsection{Adjusting Prediction Step Using Frame Differencing}
+\subsection{Adjusting Prediction Step Using Frame Differencing} \label{txt:adjusting_prediction_step}
 
 One of the most common reasons for failure of the BGFG tracker is sudden and harsh motion of the camera mounted to the P\&T unit. In such a case the tracked target represented as a 2D location on the image plane of the camera abruptly changes its 2D position. BGFG tracker continuously computes the homography \cite{ObjectTrackinginMonochromaticVideo} in order to detect the camera motion and incorporate it to the motion model of the target, however, homography computation often fails mostly when the background is too uniform (e.g. a monotone field, a sky, etc.).
 
@@ -847,7 +847,7 @@ In order no to loose the moving target from the field of view, the manipulator h
 
 Contrarily, it is necessary to predict the future 2D position of the target from two reasons. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of the sudden and rapid movement of the target. Second, the measurements are delayed (the tracking algorithm computation and communication delay).
 
-Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the taregt $\vec{\omega_{t}}$ can estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d}$ between the current and future 2D position in $T$ seconds:
+Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the taregt $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between the current and future 2D position in $T$ seconds:
 
 \begin{align}
 	\vec{\omega_{t}} &= \frac{\sum_{i=0}^{N-2}{\alpha(\vec{p_{i+1}} - \vec{p_{i}}) + (\vec{m_{i+1}} - \vec{m_{i}})}}{\sum_{i=0}^{N-2}{t_{i+1} - t_{i}}},\\
@@ -855,23 +855,25 @@ Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ 
 \end{align}
 where $\alpha = \arctan{(\frac{cs}{f})}$ is the angular difference given by one \textit{pixel}, which can be computed with the knowledge of the physical size of one pixel $cs$ and focal length $f$.
 
-Then it is necessary to regulate the motion of the manipulator which is forced to the given future position. Smooth motion is absolutely necessary...
+Then the manipulator can be instructed to move by the given angular distance $\vec{d}$. It is necessary that the angular speed $\vec{\omega_{m}}$ of the manipulator decrease gradually and smoothly as the target position is approached since the harsh motion of the camera might causes the failure of the tracker (see Section \ref{txt:adjusting_prediction_step}).
+
+Due to the fact the tracker measurements and consequently the motion commands sent to the manipulator are delayed, the regulation function must define a \textit{deadzone}, i.e. the minimal angular distance $d_{min}$ to the target from which the manipulator is instructed to stop, otherwise it would oscillate in the vicinity of the static target indefinitely. The angular distance $d_{max}$ then defines the maximal desired \textit{cutoff} angular speed $\omega_{m_{max}}$ of the manipulator. The regulation function is thus given as follows:
 
 \begin{align}
-	\omega &=
+	\omega_{m} &=
 	\begin{cases}
 		0,  & \text{if}\ d \textless d_{min}\\
-		f_{reg},  & \text{if}\ d_{min} \leq d \textless d_{max} \\
-		\omega_{max}, & \text{otherwise}
-	\end{cases},\\	
+		f_{reg},  & \text{if}\ d_{min} \leq d \textless d_{max}\\
+		\omega_{max}, & \text{otherwise},
+	\end{cases}
 \end{align}
-where $f_{reg}$ is either linear ($f_{lin} = ax+b$) or power ($f_{pow} = ax^{k}+b$) function.
+where $f_{reg}$ is either linear ($f_{lin} = ax+b$) or power ($f_{pow} = ax^{k}+b$) function. The example of a linear and power regulation function is depicted in figure \ref{fig:regulation_lin_power}.
 
 %% Linear and power regulation functions.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.75\linewidth]{fig/regulation_linear_power.pdf}
-	\caption{.}
+	\caption{The linear and power regulation function used for controlling the angular speed of the manipulator in a given dimension (azimuth or elevation).}
 	\label{fig:regulation_lin_power}
 \end{figure}
 
@@ -1129,6 +1131,8 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 	%=========================================================================
 	%=========================================================================
 	\chapter{Experiemtnal Results}
+
+	\subsection{Regulation of the Manipulator Motion} \label{txt:test_regulation}
 	
 	\vata[28]
 	

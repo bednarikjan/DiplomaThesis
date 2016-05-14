@@ -87,9 +87,9 @@ STRUTKTURA DETAILNE
 4) Design of the Optical Localisation System [8.0 s]
 	= Camera Station [1.5 s]
 		- kinematic chain
-	= Detection and Tracking [2.0 s]
-		- uprava PF
+	= Visual Tracking [2.0 s]
 		- belief -> NCC
+		- uprava PF	
 		- motion prediction a regulace pomoci RANSAC
 	= Target Localisation Using Triangulation [2.0 s]
 		- muj algoritmus (beliefs)
@@ -115,7 +115,15 @@ STRUTKTURA DETAILNE
 	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chyba se deli na dve rotace) [1.0]
 	- testovani pro staticke a dynamicke cile [2.0]
 		- Zebetin
-		- VUT stadion -> TODO
+		- VUT stadion
+                    - staticke cile
+                        - strojarna
+                        - sloup na hristi 1
+                        - sloup na hristi 2
+                        - panelak v dalce
+                    - dynamicky cil
+                        - sehnat gpx z telefonu
+                        - nahrat gpx ze zaznamu
 	- testovani regulace v zavislosti na ? [0.75]
 	- test presnosti vice kamer vs 2 kamery - simulator [0.75]
 	- test predikce okluze u 3 jednotek -> vzdy pouze 2 vidi cil (simulator), synteticka prekazka - s vs. bez predikce

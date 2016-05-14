@@ -127,9 +127,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="212.15592"
-     inkscape:cy="827.40612"
+     inkscape:zoom="1.6782738"
+     inkscape:cx="265.86611"
+     inkscape:cy="732.82219"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -146,7 +146,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -203,20 +203,6 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="386.6875"
-       y="230.76152"
-       id="text4755"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         x="386.6875"
-         y="230.76152"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-         id="tspan8695"><tspan
-   id="tspan8697"
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω </tspan>[rad/s]</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="589.79797"
        y="386.21912"
        id="text4755-6"
@@ -257,38 +243,6 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="353.98105"
-       y="370.45966"
-       id="text4755-6-0-7-8"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         x="353.98105"
-         y="370.45966"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-         id="tspan8695-5-5-4-5"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-           id="tspan8805">ω</tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-           id="tspan8738-2-2">MIN</tspan></tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="354.07837"
-       y="276.49414"
-       id="text4755-6-0-7-8-8"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         x="354.07837"
-         y="276.49414"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-         id="tspan8695-5-5-4-5-4"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-           id="tspan8803">ω</tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-           id="tspan8738-2-2-0">MAX</tspan></tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="372.29266"
        y="406.13696"
        id="text4755-6-0-7-8-4"
@@ -323,15 +277,17 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="469.82629"
+       x="466.84702"
        y="326.48959"
        id="text9189-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan9191-2"
-         x="469.82629"
+         x="466.84702"
          y="326.48959"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:cmr10;-inkscape-font-specification:'cmr10, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω = ax<tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:cmr10;-inkscape-font-specification:'cmr10, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω<tspan
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:cmr10;-inkscape-font-specification:'cmr10, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   id="tspan4366">m</tspan> = ax<tspan
    style="font-size:64.99999762%;baseline-shift:super"
    id="tspan9211">k</tspan>+b</tspan></text>
     <path
@@ -409,7 +365,9 @@
          x="86.6875"
          sodipodi:role="line"><tspan
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-   id="tspan9745">ω </tspan>[rad/s]</tspan></text>
+   id="tspan9745">ω</tspan><tspan
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   id="tspan4270">m</tspan>[rad/s]</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text9747"
@@ -452,36 +410,22 @@
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">MIN</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
-       id="text9763"
-       y="370.45966"
-       x="53.981049"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         id="tspan9765"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
-         y="370.45966"
-         x="53.981049"
-         sodipodi:role="line"><tspan
-           id="tspan9767"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω</tspan><tspan
-           id="tspan9769"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">MIN</tspan></tspan></text>
-    <text
-       sodipodi:linespacing="125%"
        id="text9771"
        y="276.49414"
-       x="54.078369"
+       x="50.710358"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          id="tspan9773"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
          y="276.49414"
-         x="54.078369"
+         x="50.710358"
          sodipodi:role="line"><tspan
            id="tspan9775"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω</tspan><tspan
+           id="tspan4280"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">m</tspan><tspan
            id="tspan9777"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">MAX</tspan></tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.75px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">MAX</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text9779"
@@ -554,6 +498,78 @@
          y="326.48959"
          x="111.82629"
          id="tspan9809"
-         sodipodi:role="line">ω = ax+b</tspan></text>
+         sodipodi:role="line">ω<tspan
+   style="-inkscape-font-specification:'cmr10, Normal';font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;font-size:7.5px;text-anchor:start;text-align:start;writing-mode:lr;line-height:125%"
+   id="tspan4364">m</tspan> = ax+b</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="50.710358"
+       y="371.08997"
+       id="text4299"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="50.710358"
+         y="371.08997"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+         id="tspan4301"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+           id="tspan4303">ω</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+           id="tspan4305">m</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.75px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+           id="tspan4307">MIN</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="386.6875"
+       y="230.76152"
+       id="text4336"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="386.6875"
+         y="230.76152"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+         id="tspan4338"><tspan
+   id="tspan4340"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω</tspan><tspan
+   id="tspan4342"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">m</tspan>[rad/s]</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="351.13168"
+       y="276.49414"
+       id="text4344"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="351.13168"
+         y="276.49414"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+         id="tspan4346"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+           id="tspan4348">ω</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+           id="tspan4350">m</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.75px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+           id="tspan4352">MAX</tspan></tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4354"
+       y="371.08997"
+       x="351.13168"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         id="tspan4356"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+         y="371.08997"
+         x="351.13168"
+         sodipodi:role="line"><tspan
+           id="tspan4358"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ω</tspan><tspan
+           id="tspan4360"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.5px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">m</tspan><tspan
+           id="tspan4362"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.75px;line-height:125%;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">MIN</tspan></tspan></text>
   </g>
 </svg>
