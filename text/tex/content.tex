@@ -788,16 +788,16 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Visual Tracking}
-- pro trackovani byl pouzit TLD a BGFG tracker (zminit zkratku BGFG)
-- zminit, ze nasledujici dve kapitoly shrnuji upravy pouze BGFG trackeru
+
+The visual tracking subsystem of the OLS is based on the TLD tracker (\ref{txt:tracking_learning_detection}) and BGFG tracker (\ref{txt:bgfg_tracker}). As explained in Section \ref{txt:precision_of_the_localization} the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking is concerned, the random error caused mostly by the common difficulties, such as the background clutter, varying illumination, target appearance change etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
+
+Therefore, the BGFG tracker was adjusted so as to assign a belief to each measurement which then enables the localization subsystem to combine the measurements in the weighted manner (see Section \ref{txt:measurement_belief}). Furthermore, the bootstrap particle filter (BPF) algorithm ofthe BGFG tracker was adjusted so as to alleviate the failures caused by the harsh camera motion (see Section \ref{txt:adjusting_prediction_step}). Finally, the most suitable strategy for regulating the motion of the manipulator based on predicting the 2D motion of the target is proposed (see Section \ref{txt:2d_motion_prediction_and_regulation}).
 
 %.........................................................................
 %.........................................................................
-\subsection{Measurement Belief}
+\subsection{Measurement Belief} \label{txt:measurement_belief}
 
-As explained in Section \ref{txt:precision_of_the_localization} the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking subsystem is concerned, the random error caused mostly by the common difficulties, such as the background clutter, varying illumination, target appearance change etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
-
-Nevertheless, since the OLS is designed as multi-camera system, the random error or failure of a single tracker might be compensated by the rest of the units, thus alleviating the total impact on the localization precision. In order to denote the certainty of the measurements coming from individual trackers, the notion of \textit{belief} is introduced for the BGFG tracker which the OLS is based on (the operation of BGFG tracker is described in Section \ref{txt:bgfg_tracker}).
+Since the OLS is designed as multi-camera system, the random error or failure of a single tracker might be compensated by the rest of the units, thus alleviating the total impact on the localization precision. In order to denote the certainty of the measurements coming from individual trackers, the notion of \textit{belief} is introduced for the BGFG tracker (the operation of BGFG tracker is described in Section \ref{txt:bgfg_tracker}).
 
 The \textit{belief} is calculated for each frame and it is based on the distance function (\ref{eq:bgfg_distance_function}) which BGFG tracker uses to evaluate the candidate states represented by the particles. Basically, the distance function corresponds to the visual similarity of two image patches -- the target template and current candidate weighted by its foreground mask. Therefore, the particle weight is normalized by the maximum possible similarity so as to obtain a percent value \textit{belief} representing the similarity (i.e. $\textit{belief} \in [0, 1]$):
 \begin{align}
@@ -841,7 +841,7 @@ where $fd_{dim_{n}}$ is the coordinate of maximal intensity $F_{max_{n}}$ of the
 
 %.........................................................................
 %.........................................................................
-\subsection{2D Motion Prediction and Regulation}
+\subsection{2D Motion Prediction and Regulation} \label{txt:2d_motion_prediction_and_regulation}
 
 In order no to loose the moving target from the field of view, the manipulator has to rotate the camera around both azimuthal and elevation axis appropriately. A most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the manipulator to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
 
