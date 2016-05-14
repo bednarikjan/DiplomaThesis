@@ -318,7 +318,7 @@ With two calibrated cameras (i.e. $K$, $R$ and $C$ matrices are known) observing
 	x &= x_{l}z/f = b + x_{r}z/f,\\
 	y &= y_{l}z/f = y_{r}z/f,
 \end{align}
-where $f$ is a focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, OLS cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:system_overview}).
+where $f$ is a focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, OLS cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:design_of_the_OLS}).
 
 %% Canonical stereo setup vs general stereo setup
 \begin{figure}[tbh]
@@ -348,7 +348,7 @@ In general, the same problem holds within each pair of cameras in N-view setup. 
 \end{align}
 where $\vec{p_{i}}$ is the direction of back-projected line in camera $i$, $z_{ij}$ gives the scale of vector ${p_{i}}$ so as to define a point $P_{ij}$ which is the closest to the line back-projected from camera $j$, $T_{ij}$ and $R_{ij}$ are the translation and rotation of the coordinate frame of the camera $j$ with respect to the coordinate frame of the camera $i$ and $\lambda_{ij}$ defines the length of the line segment connecting both back-projected skew lines.
 
-A similar approach to finding the closest distance between each pair of cameras is used in OLS (see Section \ref{txt:localization}).
+A similar approach to finding the closest distance between each pair of cameras is used in OLS (see Section \ref{txt:target_localization_using_triangulation}).
 
 %% Skew lines in multi view scenario
 \begin{figure}[tbh]
@@ -387,7 +387,7 @@ where $d(\vec{x}, \vec{x'})$ is the Euclidean distance between the measurement $
 	\label{fig:reprojection}
 \end{figure}
 
-Even though both DLT and reprojection error minimization could be extended so as to support multiple-view setup, neither of these approaches is suitable for OLS since they do not consider any a priori known information about the reliability of the back-projected line in each camera. It has been shown that in OLS the precision of target location estimation strongly depends on the mutual position of the target and the baseline of given camera pair (see Chapter \ref{txt:precision_of_the_localization}). Furthermore, it is possible to obtain the belief from individual visual trackers (i.e. the confidence that the object is tracked correctly). In order to exploit these prior information a specific location estimation method was proposed for OLS (see Section~\ref{txt:localization}).
+Even though both DLT and reprojection error minimization could be extended so as to support multiple-view setup, neither of these approaches is suitable for OLS since they do not consider any a priori known information about the reliability of the back-projected line in each camera. It has been shown that in OLS the precision of target location estimation strongly depends on the mutual position of the target and the baseline of given camera pair (see Chapter \ref{txt:precision_of_the_localization}). Furthermore, it is possible to obtain the belief from individual visual trackers (i.e. the confidence that the object is tracked correctly). In order to exploit these prior information a specific location estimation method was proposed for OLS (see Section~\ref{txt:target_localization_using_triangulation}).
 
 %\subsection{Existing Multi-Camera Localization Systems}
 %
@@ -433,9 +433,9 @@ In case of OLS both extrinsics and intrinsics are known. However, they are corre
 %.........................................................................
 \subsection{Epipolar Geometry} \label{txt:epipolar_geometry}
 
-Epipolar geometry represents the relation between two projective pinhole cameras observing the same point (points) in 3-space \cite{Cyganek:2007:ICV:1214366} (see Figure \ref{fig:epipolar_geometry}). The line between both camera centers $\vec{C_{i}}$ is called the \textit{baseline} and it delimits the \textit{epipole} $ \vec{e_{i}}$ in each projective plane $Im_{i}$. The projection of target $\vec{T}$ to both image planes defines image points $\vec{t_{i}}$ which in return backproject to lines in 3-space. The line $el_{i}$ lying in image plane $Im_{i}$ connecting $\vec{e_{i}}$ and ${\vec{t_{i}}}$ is called \textit{epipolar line}.
+Epipolar geometry represents the relation between two projective pinhole cameras observing the same point (points) in 3-space \cite{Cyganek:2007:ICV:1214366} (see Figure \ref{fig:epipolar_geometry}). The line between both camera centers $\vec{C_{i}}$ is called the \textit{baseline} and it delimits the \textit{epipole} $ \vec{e_{i}}$ in each projective plane $Im_{i}$. The projection of target $\vec{T}$ to both image planes defines image points $\vec{t_{i}}$ which in return back-project to lines in 3-space. The line $el_{i}$ lying in image plane $Im_{i}$ connecting $\vec{e_{i}}$ and ${\vec{t_{i}}}$ is called \textit{epipolar line}.
 
-What the epipolar geometry relation says is that the observed target $\vec{T}$ must lie only in the plane $Ep$ defined by the baseline and both backprojected lines (from camera center $\vec{C_{i}}$ through image point $\vec{t_{i}}$). Alternatively, the epipolar line $el_{i}$ is the projection of back-projected line $\vec{C_{j}}\vec{t_{j}}$ to the projection plane $Im_{i}$.
+What the epipolar geometry relation says is that the observed target $\vec{T}$ must lie only in the plane $Ep$ defined by the baseline and both back-projected lines (from camera center $\vec{C_{i}}$ through image point $\vec{t_{i}}$). Alternatively, the epipolar line $el_{i}$ is the projection of back-projected line $\vec{C_{j}}\vec{t_{j}}$ to the projection plane $Im_{i}$.
 
 %% Epipolar geometry
 \begin{figure}[tbh]
@@ -710,10 +710,9 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 
 %=========================================================================
 %=========================================================================
-\chapter{Design of the Optical Localisation System} \label{txt:system_overview}
-\todo{prepsat uvod kapitoly}
+\chapter{Design of the Optical Localization System} \label{txt:design_of_the_OLS}
 
-This chapter presents the main hardware building blocks of the OLS, the camera stations, and describes the basic pipeline which the system must follow in order to localize a given object. 
+This chapter describes the overall design of the OLS from both hardware and software perspective. First the main physical component of the system -- camera unit -- is presented, the hardware components it consists of are described and the suitable model based on the kinematic chain is proposed in Section \ref{txt:camera_unit}. Next Section \ref{txt:visual_tracking} delves into the specific requirements and proposed solutions for the visual tracking. The Section \ref{txt:target_localization_using_triangulation} explains the proposed approach to localizing the target in multi-view scenario given the noisy measurements and finally the Section \ref{txt:hw_and_sw_architecture} presents both hardware and software architecture of the system.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -787,7 +786,7 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Visual Tracking}
+\section{Visual Tracking} \label{txt:visual_tracking}
 
 The visual tracking subsystem of the OLS is based on the TLD tracker (\ref{txt:tracking_learning_detection}) and BGFG tracker (\ref{txt:bgfg_tracker}). As explained in Section \ref{txt:precision_of_the_localization} the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking is concerned, the random error caused mostly by the common difficulties, such as the background clutter, varying illumination, target appearance change etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
 
@@ -879,59 +878,103 @@ where $f_{reg}$ is either linear ($f_{lin} = ax+b$) or power ($f_{pow} = ax^{k}+
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Target Localization Using Triangulation} \label{txt:localization}
+\section{Target Localization Using Triangulation} \label{txt:target_localization_using_triangulation}
 
-In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators.
-
-%.........................................................................
-%.........................................................................
-\subsection{Triangulation}
-\todo{promitani do stejne roviny podle belief, triangulace}
-
---- algoritmus promitani do stejne roviny ---
-=== obrazek z excel ===
+This section describes the proposed triangulation method in two-view scenario (see Section \ref{txt:triangulation}), the incorporation of the a priori known relationship between the target-baseline orientation and the localization precision (see Section \ref{txt:incorporating_target-base_geometry}) and the strategy for estimating the speed and future locations of the target (see Section \ref{txt:3d_motion_predicition}).
 
 %.........................................................................
 %.........................................................................
-\subsection{Incorporating Target-Base Geometry}
+\subsection{Triangulation} \label{txt:triangulation}
 
---- algoritmus z excel ---
-=== obrazek ukazujici vypocet finalniho T podle vahy z geometrie ===
+As explained in Section \ref{txt:multi_camera_target_localization} the position of a target in 3-space as seen by the stereoscopic system with known cameras' parameters can be calculated using triangulation. In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators. However, due to the random and systematic error the rays back-projected from each camera might not intersect in the 3D space (see Figure \ref{fig:triangulationSchematicView}). Therefore, the common plane for both (all) the back-projected rays must first be found.
 
-\todo{algoritmus z excel}
+The estimation of the 3D position of the target consists of the following steps. First, back-projection is used to find the vectors $\vec{u}$ and $\vec{v}$ which form the planes $C_{1}C_{2}U$ and $C_{1}C_{2}V$ with the angle $\alpha$ between them. Both vectors are then rotated around the axis $\vec{m}$ so that they lie in the same plane $C_{1}C_{2}W$: $\vec{u'} = R(\beta_{1})\vec{u}$, $\vec{v'} = R(\beta_{2})\vec{v}$. The rotation angles $\beta_{1}$ and $\beta_{2}$ correspond to the beliefs $bel_{1}$ and $bel_{2}$ obtained from both trackers: $|\beta_{1}| = |\alpha|\frac{bel_{2}}{bel_{1} + bel_{2}},~|\beta_{2}| = |\alpha| -\beta_{1}$. Finally, the intersection $W$ of the vectors $\vec{u'}$ and $\vec{v'}$ is found.
+
+% Triangulation with noisy measurements in 2-view system.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.45\linewidth]{fig/triangulation.pdf}
+	\caption{A schematic view of a problem of 3D position estimation using triangulation in two-cameras scenario. The camera units $C_{1}$ and $C_{2}$ observe the target $T$ in the directions $\vec{u}$ and $\vec{v}$. The plane $C_{1}C_{2}W$ is used as a common plane where the projected vectors $\vec{u'}$ and $\vec{v'}$ intersect.}
+	\label{fig:triangulationSchematicView}
+\end{figure}
 
 %.........................................................................
 %.........................................................................
-\subsection{3D Motion Prediction}
+\subsection{Incorporating Target-Base Geometry} \label{txt:incorporating_target-base_geometry}
 
-\todo{RANSAC}
+If multiple camera units are used, the location of the target in 3-space can be estimated as the weighted centroid of the estimates $T_{i}$ computed by each pair of the camera units forming the baseline $b_{i}$. The weights correspond to the angle between the baseline $b_{i}$ and the line intersecting the initially estimated position of the target $T'$ and the baseline center $bc_{i}$, since this angle significantly affects the localisation precision (see Section \ref{txt:localisationPrecision}).
 
-- vysvetlit ransac
-=== obrazek ransac + screen z rviz ===
-- popsat algoritmus: nalezeni 3D line -> refine -> promintout inliers -> spocist predikci rychlosti (constant v, nulove zrychleni)
+Basically, the location of the target in 3-space is estimated twice. First estimation $T'$ corresponds to the standard centroid of the individual estimates $T_{i}$. The second estimation refines the position $T'$ by using the weights corresponding to the target-baseline geometry (see Algorithm \ref{alg:3dPosEstimation}). The demonstration of the three-view scenario is shown in Figure \ref{fig:target-base_and_weighted_centroid}.
+
+% Target-base geometry and weighetd centroid compuation.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/target-base_and_weighted_centroid.pdf}
+	\caption{Left figure depicts the initial estimation of the target-baseline angles $\gamma_{i}$ in three-view localization scenario with one target $T_{GT}$. The right figure demonstrates the final estimation of the target location using the weights $w_{i} \sim \gamma_{i}$.}
+	\label{fig:target-base_and_weighted_centroid}
+\end{figure}
+
+\begin{algorithm}
+	\SetAlgoNoLine	
+	\KwIn{Set of bases $B = {b_{1}, b_{2}, ..., b_{N}}$.}
+	\KwOut{3D position estimate $T$.}
+	\DontPrintSemicolon
+	\BlankLine
+	
+	\SetCommentSty{textnormal}
+	\tcc{3D location estimate disregarding weights}
+	\ForEach{$b_{i} \in B$}
+	{
+		$\vec{T_{i}} = Estimate3DPosFrom2Views(b_{i})$\;
+	}
+	$\vec{T'} = \frac{1}{N}\sum_{i=1}^{N}\vec{T_{i}}$\;	
+	\tcc{Weighted estimation of the 3D location. $\vec{bc_{i}}$ represents center of the baseline $b_{i}$}
+	\ForEach{$b_{i} \in B$}
+	{
+		$\gamma_{i} = |\vec{b_{i}}(\vec{T'} - \vec{bc_{i}})|$\;
+		$w_{i} = \frac{e^{\kappa\gamma_{i}}}{\sum_{j=1}^{N}e^{\kappa\gamma_{j}}}$\;
+	}
+	$\vec{T} = \sum_{i=1}^{N}w_{i}\vec{T_{i}}$	
+	\caption{Estimation of the 3D position from n-views}
+	\label{alg:3dPosEstimation}
+\end{algorithm}
+
+
+%.........................................................................
+%.........................................................................
+\subsection{3D Motion Prediction} \label{txt:3d_motion_predicition}
+
+The final estimates of the position of the target in 3-space are noisy and thus do not represent the motion of the tracked target well. In order to estimate current speed of the target and to predict its future locations (which can be used for occlusion prediction), the individual estimates must be smoothed. For this purpose a suitable motion model of a target must be proposed.
+
+The OLS is designed to localize arbitrary moving targets, therefore it is not possible to utilize one general motion model. Nevertheless, it is assumed that the complex trajectory of a target can be locally approximated by a simple linear motion model with constant velocity and zero acceleration, i.e. the trajectory is modeled as a line in 3-space.
+
+The method RANSAC is used in order to fit the line model to the observed time stamped measurements since it is fast and it can cope well with a large proportion of outliers \cite{Hartley:2003:MVG:861369}. First, the parameters of a line fitting to last $N$ observations $\vec{o_{i}}$ with the tolerance range $d~m$ are estimated. The inliers are then projected to the line and the speed $\vec{v}$ of a target is computed as the average weighted by the time durations $t_{i}$ between consecutive observations $\vec{o_{i}}$ and $\vec{o_{i-1}}$:
+\begin{align}
+	\vec{v} = \sum_{i=1}^{N-1}{\frac{\vec{o_{i}} - \vec{o_{i-1}}}{t_{i} - t_{i-1}}}
+\end{align}
+
+The future position $\vec{p_{t}}$ of the target can be then simply estimated as $\vec{p} = \vec{p_{0}} + \vec{v}t$ given the current position $\vec{p){0}}$. The tolerance $d$ was empirically set to $2~m$ and RANSAC is somputed for $N = 30$ last observations (see Figure \ref{fig:ransac}).
 
 %% RANSAC
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/ransac_theory_rviz.png}
-	\caption{.}
+	\caption{RANSAC algorithm is capable of estimating the model parameters given the noisy data and it is robust even in the presence of outliers which are effectively disregarded (left). RANSAC is used in OLS in order to estimate the direction and speed of the target with the assumption of linear motion model (right). The three-view scenario where the 3D line (yellow) is fitted to the noisy measurements (white spheres) and where the speed is estimated (red arrow) is demonstrated in \textit{rviz} environment.}
 	\label{fig:ransac}
 \end{figure}
-
-
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Occlusion Prediction} \label{txt:occlusion_prediction}
-- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
-- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
-- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
-- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
-- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
+%- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
+%- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
+%- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
+%- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
+%- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Hardware and Software Architecture}
+\section{Hardware and Software Architecture} \label{txt:hw_and_sw_architecture}
 
 In order to support scalability and to meet the computational demands, the OLS is designed as a distributed system where each camera unit is equipped with its own desktop computer. Sections \ref{txt:hardware_topology} and \ref{txt:components_of_cu} describe the hardware architecture of the system and internals of the camera unit. The section \ref{txt:sw_pipeline} then presents the main software pipeline from the input of the operator to the estimated position of the target in 3-space.
 
@@ -991,7 +1034,7 @@ The localization component continuously estimates the location of the target in 
 
 The whole system is built on the robotic framework Robot Operating System (for details see Section \ref{txt:robot_operating_system}). Since the ROS defines multiple conventions, restrictions and best practices the whole system design including the selection of a programing language, a programing and a communication paradigm, a target platform and a tool for physical simulations is impacted by the possibilities of this framework.
 
-As of writing this text a current state of the implementation mainly builds on the virtual environment provided by the physical simulator Gazebo (see Section \ref{txt:application_of_gazebo}). When confronted with the overview of all subsystems making up the whole system presented in Section \ref{txt:system_overview}, so far the following parts are already designed, implemented and/or integrated:
+As of writing this text a current state of the implementation mainly builds on the virtual environment provided by the physical simulator Gazebo (see Section \ref{txt:application_of_gazebo}). When confronted with the overview of all subsystems making up the whole system presented in Section \ref{txt:design_of_the_OLS}, so far the following parts are already designed, implemented and/or integrated:
 
 \begin{itemize}
 	\item manual control of the manipulator using peripheral devices
