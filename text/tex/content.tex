@@ -153,7 +153,7 @@ Kalman filtering is one of the widely used technique for recursively evaluating 
 \end{figure}
 
 \paragraph{particle filter} 
-The particle filter represents the most general class of filters which can cope with non-Gaussian state and measurement processes as well as with tracking multiple hypothesis \cite{journals/cviu/BimboD11}. Current state of the system is represented as a \textit{particle} $\particle{t}{i}$ -- a vector of parameters ${\vec{x_{t}^{i}}}$ describing the properties of tracked object (e.g. position, velocity, acceleration, etc.) and assigned scalar weight $w_{t}^{i}$. The suitable \textit{fitness function} must be proposed which evaluates how well a particle fits to the observed data. Using finite number of particles the particle filter basically samples the fitness function (which might be arbitrarily complex and non-differentiable) in an attempt to find the optimum. A bootstrap particle filter (BPF) is a variant of particle filter widely used for visual tracking \cite{Isard98condensation}. It follows the sequential importance sampling principle -- in each iteration the particles with higher weights are duplicated while the particles with lower weights are discarded \cite{doucet2001sequential}. This enables higher resolution sampling of the fitness function only in the parts which are likely to contain the (local) optimum. The BPF iteratively performs four main steps -- \textit{resampling}, \textit{prediction}, \textit{update} and \textit{weights normalization}. The detailed breakdown of all steps is depicted in Algorithm \ref{alg:tracking}. Note that the function $predict()$ in \textit{update} step should correspond to the required motion model of the tracked object (a normal distribution $\mathcal{N}(\mu, \sigma)$ is given as an example) and it can be designed to allow for the rapid camera motion which suits the needs of OLS. Therefore, the tracker based on BPF is utilized (see Section \ref{txt:bgfg_tracker}).
+The particle filter represents the most general class of filters which can cope with non-Gaussian state and measurement processes as well as with tracking multiple hypothesis \cite{journals/cviu/BimboD11}. Current state of the system is represented as a \textit{particle} $\particle{t}{i}$ -- a vector of parameters ${\vec{x_{t}^{i}}}$ describing the properties of tracked object (e.g. position, velocity, acceleration, etc.) and assigned scalar weight $w_{t}^{i}$. The suitable \textit{fitness function} must be proposed which evaluates how well a particle fits to the observed data. Using finite number of particles the particle filter basically samples the fitness function (which might be arbitrarily complex and non-differentiable) in an attempt to find the optimum. A bootstrap particle filter (BPF) is a variant of particle filter widely used for visual tracking \cite{Isard98condensation}. It follows the sequential importance sampling principle -- in each iteration the particles with higher weights are duplicated while the particles with lower weights are discarded \cite{doucet2001sequential}. This enables higher resolution sampling of the fitness function only in the parts which are likely to contain the (local) optimum. The BPF iteratively performs four main steps -- \textit{resampling}, \textit{prediction}, \textit{update} and \textit{weights normalization}. The detailed breakdown of all steps is depicted in Algorithm \ref{alg:bpf}. Note that the function $predict()$ in \textit{update} step should correspond to the required motion model of the tracked object (a normal distribution $\mathcal{N}(\mu, \sigma)$ is given as an example) and it can be designed to allow for the rapid camera motion which suits the needs of OLS. Therefore, the tracker based on BPF is utilized (see Section \ref{txt:bgfg_tracker}).
 
 \begin{algorithm}
 	\SetAlgoNoLine	
@@ -197,7 +197,7 @@ The particle filter represents the most general class of filters which can cope 
 	
 	
 	\caption{Tracking using BPF}
-	\label{alg:tracking}
+	\label{alg:bpf}
 \end{algorithm}
 
 %.........................................................................
@@ -249,14 +249,14 @@ The Bootstrap particle filter (BPF) \cite{Isard98condensation} is used to genera
 
 The perturbations in the observed position of the target caused by the moving camera are alleviated using the motion model which is applied in the \textit{prediction} step of the BPF:
 \begin{align}
-	pos_{n+1} &= pos_{n} + vel_{n} + \gamma_{pos} \sim \mathcal{N}(\mu, \sigma),\\
+	pos_{n+1} &= pos_{n} + vel_{n} + \gamma_{pos} \sim \mathcal{N}(\mu, \sigma),\\ \label{eq:bgfg_pos_prediction}
 	vel_{n+1} &= vel_{n} + \gamma_{vel} \sim \mathcal{N}(\mu, \sigma),\\
 	bb_{n+1} &= bb_{n} + \gamma_{bb} \sim \mathcal{N}(\mu, \sigma),	
 \end{align}
 where scalar $pos_{n}$ is the $x$ or $y$ position, scalar $vel_{n}$ is the $x$ or $y$ velocity, scalar $bb_{n}$ is the $w$ or $h$ size of the bounding box in time $n$, and $\gamma$ is the noise drawn from the Gaussian distribution $\mathcal{N}(\mu, \sigma)$, where scalars $\mu$ and $\sigma$ parameters are set empirically for each parameter.
 
 In the \textit{update} step, each particle is assigned a new weight $w$ using the objective function reflecting the similarity of the template and the candidate patch, The function serves the purpose of the similarity measure and it is based on a SSD:
-\begin{align}
+\begin{align} \label{eq:bgfg_distance_function}
 	w = \sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}(1 - |I_{t}^{(x,y)} - I_{c}^{(x,y)}|)^{2}},
 \end{align}
 where $M_{t}$ and $M_{c}$ are the foreground masks (FM) of the template and the current candidate respectively, $I$ is the image, $t, c$ subscripts denote template and candidate patch respectively, and $(x,y)$ superscript denotes indexing 2D array (an image). The FMs are estimated by subtraction of the two images where the bounding boxes denoting the position of the target do not overlap (the FM $M_{t}$ is estimated only once). The resulting estimate of the target position is chosen using the Maximum a posteriori approach.
@@ -788,32 +788,92 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Visual Tracking}
-- pro trackovani byl pouzit TLD a BGFG tracker
+- pro trackovani byl pouzit TLD a BGFG tracker (zminit zkratku BGFG)
+- zminit, ze nasledujici dve kapitoly shrnuji upravy pouze BGFG trackeru
 
 %.........................................................................
 %.........................................................................
 \subsection{Measurement Belief}
---- vzorec distance function s normalizaci (in [0.0, 1.0]) ---
-=== obrazek template - candidate, mask ===
+
+As explained in Section \ref{txt:precision_of_the_localization} the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking subsystem is concerned, the random error caused mostly by the common difficulties, such as the background clutter, varying illumination, target appearance change etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
+
+Nevertheless, since the OLS is designed as multi-camera system, the random error or failure of a single tracker might be compensated by the rest of the units, thus alleviating the total impact on the localization precision. In order to denote the certainty of the measurements coming from individual trackers, the notion of \textit{belief} is introduced for the BGFG tracker which the OLS is based on (the operation of BGFG tracker is described in Section \ref{txt:bgfg_tracker}).
+
+The \textit{belief} is calculated for each frame and it is based on the distance function (\ref{eq:bgfg_distance_function}) which BGFG tracker uses to evaluate the candidate states represented by the particles. Basically, the distance function corresponds to the visual similarity of two image patches -- the target template and current candidate weighted by its foreground mask. Therefore, the particle weight is normalized by the maximum possible similarity so as to obtain a percent value \textit{belief} representing the similarity (i.e. $\textit{belief} \in [0, 1]$):
+\begin{align}
+	belief = \frac{\sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}(1 - |I_{t}^{(x,y)} - I_{c}^{(x,y)}|)^{2}}}{\sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}}},
+\end{align}
+
+Therefore, the noisy measurements or a complete failure of the tracker can be detected and propagated to the rest of the system ((see Figure \ref{fig:belief})).
+
+%% Comparison of template-candidate match and resulting belief.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.5\linewidth]{fig/belief.pdf}
+	\caption{The demonstration of the belief computed for two different candidates (top, bottom) given the input target template (left).}
+	\label{fig:belief}
+\end{figure}
 
 %.........................................................................
 %.........................................................................
-\subsection{Adjusting Prediction Frame Differencing}
---- nejaky vzorec z prediction stepu ---
-=== obrazek trackingu drona ===
+\subsection{Adjusting Prediction Step Using Frame Differencing}
 
+One of the most common reasons for failure of the BGFG tracker is sudden and harsh motion of the camera mounted to the P\&T unit. In such a case the tracked target represented as a 2D location on the image plane of the camera abruptly changes its 2D position. BGFG tracker continuously computes the homography \cite{ObjectTrackinginMonochromaticVideo} in order to detect the camera motion and incorporate it to the motion model of the target, however, homography computation often fails mostly when the background is too uniform (e.g. a monotone field, a sky, etc.).
 
-The homography might not be found, which often occurs if the airborne target with the uniform background of the sky is tracked or if the manipulator moves the camera too harshly. To deal with such cases in OLS, the tracker was adjusted so that in a \textit{prediction} step of the BPF a small subset of particles would be forced to take the image positions yielding the highest response of adjacent frame differencing which is expected to contain the moving target of interest.
+To deal with such cases, the BGFG tracker was adjusted so that in a \textit{prediction} step of the BPF a subset of particles would be forced to take the image positions yielding the highest response of the frame differencing computed for subsequent frames. Such locations are expected to contain the moving target of interest. As compared to the original \textit{prediction} step (\ref{eq:bgfg_pos_prediction}), the parameters $pos_{dim_{n}}^{i}$ representing 2D position of the particle $i$ in the dimension $dim$ (i.e. $x$ or $y$) in time $n$ takes the following form:
+\begin{align}
+	pos_{dim_{n+1}}^{i} =
+	\begin{cases}
+		fd_{dim_{n}} + x, ~ x \sim \mathcal{N}(\mu_{pos}, \sigma_{pos}),  & \text{if}\ FD_{max_{n}} \textgreater T \land i \textless M \\
+		pos_{n}^{i} + x, ~ x \sim \mathcal{N}(\mu_{pos}, \sigma_{pos}), & \text{otherwise},
+	\end{cases}
+\end{align}
+
+where $fd_{dim_{n}}$ is the coordinate of maximal intensity $F_{max_{n}}$ of the frame differencing in dimension $dim$ in time $n$, $T$ is the threshold which alleviates the ubiquitous non-zero frame differencing response caused by noise and $M$ is the number of particles which are allowed to change their position. Note that the particles are sorted according to their current weights in the ascending order, i.e. the index $i$ and constant $M$ denote whether the particle is allowed to change its position. The impact of adjusted \textit{prediction} step is depicted in Figure \ref{fig:frame_diff}. 
+
+%% Adjusting update step in particle filter by response of frame differencing.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.99\linewidth]{fig/frame_diff.pdf}
+	\caption{Four frames from two tracking sequences of the BGFG tracker are shown where the original (left) and adjusted (right) \textit{prediction step} implementation is used. The distribution of the particles (green dots) is manifested in the top row, the response of the frame differencing is shown in the bottom row. In both cases the tilt of the camera changes abruptly between frames $f 2$ and $f 3$ which causes the target (denoted by black arrow) to appear in the significantly different position. In the first scenario the particles fail to follow the target whereas in second scenario the subset of particles are forced to the position of the highest frame differencing response and consequently the target is found again.}
+	\label{fig:frame_diff}
+\end{figure}
 
 %.........................................................................
 %.........................................................................
 \subsection{2D Motion Prediction and Regulation}
-\todo{regulation - ukazat nekolik pouzitych funkci pro regulaci (linearni / kvadraticka / exp / ...)}
 
-- problem nerovnomerneho prijmu updatu z trackeru - a pomale, proto muze funkce pejizdet
---- vzorec moving average (decaying) ---
-=== obrazek funkci s dead zone ===
---- mozna vzorce fci ---
+In order no to loose the moving target from the field of view, the manipulator has to rotate the camera around both azimuthal and elevation axis appropriately. A most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the manipulator to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
+
+Contrarily, it is necessary to predict the future 2D position of the target from two reasons. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of the sudden and rapid movement of the target. Second, the measurements are delayed (the tracking algorithm computation and communication delay).
+
+Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the taregt $\vec{\omega_{t}}$ can estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d}$ between the current and future 2D position in $T$ seconds:
+
+\begin{align}
+	\vec{\omega_{t}} &= \frac{\sum_{i=0}^{N-2}{\alpha(\vec{p_{i+1}} - \vec{p_{i}}) + (\vec{m_{i+1}} - \vec{m_{i}})}}{\sum_{i=0}^{N-2}{t_{i+1} - t_{i}}},\\
+	\vec{d} &= \vec{\omega_{t}}T,
+\end{align}
+where $\alpha = \arctan{(\frac{cs}{f})}$ is the angular difference given by one \textit{pixel}, which can be computed with the knowledge of the physical size of one pixel $cs$ and focal length $f$.
+
+Then it is necessary to regulate the motion of the manipulator which is forced to the given future position. Smooth motion is absolutely necessary...
+
+\begin{align}
+	\omega &=
+	\begin{cases}
+		0,  & \text{if}\ d \textless d_{min}\\
+		f_{reg},  & \text{if}\ d_{min} \leq d \textless d_{max} \\
+		\omega_{max}, & \text{otherwise}
+	\end{cases},\\	
+\end{align}
+where $f_{reg}$ is either linear ($f_{lin} = ax+b$) or power ($f_{pow} = ax^{k}+b$) function.
+
+%% Linear and power regulation functions.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.75\linewidth]{fig/regulation_linear_power.pdf}
+	\caption{.}
+	\label{fig:regulation_lin_power}
+\end{figure}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -847,6 +907,16 @@ In OLS, the intrinsics were estimated for each camera during calibration and ext
 - vysvetlit ransac
 === obrazek ransac + screen z rviz ===
 - popsat algoritmus: nalezeni 3D line -> refine -> promintout inliers -> spocist predikci rychlosti (constant v, nulove zrychleni)
+
+%% RANSAC
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/ransac_theory_rviz.png}
+	\caption{.}
+	\label{fig:ransac}
+\end{figure}
+
+
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
