@@ -1183,37 +1183,24 @@ A couple of additional tests focusing on specific aspects of the systems were th
 %-------------------------------------------------------------------------
 \section{Obtaining the Dataset} \label{txt:obtaining_dataset}
 
-In order to test the real world performance of the OLS two datasets were obtained using a basic two-cameras setup. 
+In order to test the real world performance of the OLS two datasets were obtained using a basic two-cameras setup. The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebetín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the baseline would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was no longer available and thus the marks measuring the distance painted on the running pitch were used to station the CUS which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}) and presumably in the same altitude.
 
-The rest of the tests were performed in the semi-simulated environment, where the P\&T
-
-\paragraph{Real world environment}
-
-The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebetín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the base would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was not available and thus the marks painted on the running pitch were used to station the CUS which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}).
-
-In both datasets the local heading was estimated by aiming the units on each other (as explained in Section \ref{txt:stationing}) and the global heading was computed as the rotation of the baseline with regards to the UTM coordinate frame.
-
-The system was tested against both static and dynamic targets, and in both cases only horizontal position was considered. 
+In both datasets the local heading was estimated by aiming the units on each other as explained in Section \ref{txt:stationing} and the global heading was computed as the rotation of the baseline with regards to the UTM coordinate frame. Standalone digital inclinometer was used to level both stations by manually adjusting the lengths of surveying tripod legs.
 	
 %% Google Earth view on the setups in Zebetin and on VUT pitch.
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.98\linewidth]{fig/dataset_zebetin_vut.png}
-	\caption{.}
+	\caption{The overview and close-up look on the environments within which the \textsc{meadow} ((a), (b)) and \textsc{pitch} ((c), (d)) datasets were created. The geographical positions of both CUs are denoted by the blue pinpoints.}
 	\label{fig:dataset_zebetin_vut}
 \end{figure}
 
-\paragraph{Simulator}
-	
-- GT tracker	
-
-\vata[1]
 	
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Real World Testing} \label{txt:real_world_testing}
 
-The system was tested in two different real-world environments and a basic two-cameras setup was used in both cases. The first testing was performed on a meadow and the second one on the running pitch as described in Section \ref{txt:obtaining_dataset} (see also Figure \ref{fig:dataset_zebetin_vut}). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map). In case of the testing on a meadow, a moving target equipped with the handheld GPS sensor was tracked and localized as well. 
+The system was tested in two different real-world environments and a basic two-cameras setup was used in both cases. The first testing was performed on a meadow and the second one on the running pitch as described in Section \ref{txt:obtaining_dataset} (see also Figure \ref{fig:dataset_zebetin_vut}). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map). In case of the testing on a meadow, a moving target equipped with the handheld GPS sensor was tracked and localized as well. During all measurements only horizontal position (i.e. northing and easting parameters of the UTM coordinate frame) was considered.
 
 For each target, the expected \textit{localization error} was estimated based on the theory presented in chapter \ref{txt:precision_of_the_localization} and it was compared to the real measured error. Note that the \textit{localization error} $E$ is defined as the Euclidean distance between the estimated and ground truth geographical location of the given target given in UTM coordinates:
 
@@ -1283,14 +1270,14 @@ Note that due to the fact the angle $\gamma$ (see Figure \ref{fig:target-base_an
 	\label{tab:static_targets_vut_pitch}
 \end{table}
 
-\begin{figure}[!h]\centering
+Figure \ref{fig:plot_error_estatic_targets} compares the estimated and measured localization error. Note that both $E_{est}$ and $E_{meas}$ follow the same trend of increasing value with increasing distance of the target from the baseline which is expected behavior caused by the phenomenon of diminishing accuracy of depth measurement (see Section \ref{txt:precision_of_the_localization}). 
+
+\begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.98\linewidth]{fig/plot_static_targets.pdf}
 	\caption{The plot displays both measured $E_{meas}$ and estimated $E_{est}$ localization error for all static targets, which are sorted in ascending order with respect to the estimated error.}
 	\label{fig:plot_error_estatic_targets}
 \end{figure}
-
-Figure \ref{fig:plot_error_estatic_targets} compares the estimated and measured localization error. Note that both $E_{est}$ and $E_{meas}$ follow the same trend of increasing value with increasing distance of the target from the baseline which is expected behavior caused by the phenomenon of diminishing accuracy of depth measurement (see Section \ref{txt:precision_of_the_localization}). 
 
 As for the \textsc{meadow} dataset the achieved precision is approximately 4--5 times worse than expected ranging from 4.41 to 34.21 $m$. Note that the targets were selected manually in the images, hence the random error plays insignificantly small role in the total imprecision. The main source of the deflections is the systematic error caused by both imprecise rectification and stationing. 
 
