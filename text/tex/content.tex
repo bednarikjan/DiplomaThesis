@@ -1175,13 +1175,25 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 %=========================================================================
 \chapter{Experiemtnal Results}
 
+\todo{pridat uvod}
+
+A couple of additional tests focusing on specific aspects of the systems were then performed in the simulated environment using the physical simulator Gazebo (see Section \ref{txt:application_of_gazebo}) where the real P\&T units were plugged into the simulation in the hardware-in-the-loop manner.
+
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Obtaining Dataset} \label{txt:obtaining_dataset}
+\section{Obtaining the Dataset} \label{txt:obtaining_dataset}
 
-The CUs were precisely positioned using precise differential GPS sensor so that the base would be exactly $30~m$ long.  The local heading was estimated by aiming the units on each other. The system was tested against both static and dynamic targets, and in both cases only horizontal position was considered. 
+In order to test the real world performance of the OLS two datasets were obtained using a basic two-cameras setup. 
 
-\vata[3]
+The rest of the tests were performed in the semi-simulated environment, where the P\&T
+
+\paragraph{Real world environment}
+
+The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebetín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the base would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was not available and thus the marks painted on the running pitch were used to station the CUS which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}).
+
+In both datasets the local heading was estimated by aiming the units on each other (as explained in Section \ref{txt:stationing}) and the global heading was computed as the rotation of the baseline with regards to the UTM coordinate frame.
+
+The system was tested against both static and dynamic targets, and in both cases only horizontal position was considered. 
 	
 %% Google Earth view on the setups in Zebetin and on VUT pitch.
 \begin{figure}[htb]\centering
@@ -1191,12 +1203,17 @@ The CUs were precisely positioned using precise differential GPS sensor so that 
 	\label{fig:dataset_zebetin_vut}
 \end{figure}
 
+\paragraph{Simulator}
+	
+- GT tracker	
+
+\vata[1]
 	
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Real World Testing} \label{txt:real_world_testing}
 
-The system was tested in two different real-world environments and a basic two-camera setup was used in both cases. The first testing was performed on a meadow and the second one on the running pitch as described in Section \ref{txt:obtaining_dataset} (see also Figure \ref{fig:dataset_zebetin_vut}). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map). In case of the testing on a meadow, a moving target equipped with the handheld GPS sensor was tracked and localized as well. 
+The system was tested in two different real-world environments and a basic two-cameras setup was used in both cases. The first testing was performed on a meadow and the second one on the running pitch as described in Section \ref{txt:obtaining_dataset} (see also Figure \ref{fig:dataset_zebetin_vut}). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map). In case of the testing on a meadow, a moving target equipped with the handheld GPS sensor was tracked and localized as well. 
 
 For each target, the expected \textit{localization error} was estimated based on the theory presented in chapter \ref{txt:precision_of_the_localization} and it was compared to the real measured error. Note that the \textit{localization error} $E$ is defined as the Euclidean distance between the estimated and ground truth geographical location of the given target given in UTM coordinates:
 
@@ -1269,7 +1286,7 @@ Note that due to the fact the angle $\gamma$ (see Figure \ref{fig:target-base_an
 \begin{figure}[!h]\centering
 	\centering
 	\includegraphics[width=0.98\linewidth]{fig/plot_static_targets.pdf}
-	\caption{The plot displays both measured and estimated localization error for all static targets, which are sorted in ascending order with respect to the estimated error. The measured error is higher due to imprecise calibration, rectification and stationing.}
+	\caption{The plot displays both measured $E_{meas}$ and estimated $E_{est}$ localization error for all static targets, which are sorted in ascending order with respect to the estimated error.}
 	\label{fig:plot_error_estatic_targets}
 \end{figure}
 
