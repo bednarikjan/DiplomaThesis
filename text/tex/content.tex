@@ -1179,52 +1179,119 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 %-------------------------------------------------------------------------
 \section{Obtaining Dataset} \label{txt:obtaining_dataset}
 
-\vata[4]
+The CUs were precisely positioned using precise differential GPS sensor so that the base would be exactly $30~m$ long.  The local heading was estimated by aiming the units on each other. The system was tested against both static and dynamic targets, and in both cases only horizontal position was considered. 
+
+\vata[3]
+	
+%% Google Earth view on the setups in Zebetin and on VUT pitch.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.98\linewidth]{fig/dataset_zebetin_vut.png}
+	\caption{.}
+	\label{fig:dataset_zebetin_vut}
+\end{figure}
+
 	
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Real World Testing} \label{txt:real_world_testing}
 
-The system was tested in the real-world environment in the basic two-camera setup. The CSs were precisely positioned using the differential GPS sensor (achieving accuracy of ca $0.01~m$) so that the base would be exactly $30~m$ long.  The local heading was estimated by aiming the units on each other. The system was tested against both static and dynamic targets, and in both cases only horizontal position was considered. 
+The system was tested in two different real-world environments and a basic two-camera setup was used in both cases. The first testing was performed on a meadow and the second one on the running pitch as described in Section \ref{txt:obtaining_dataset} (see also Figure \ref{fig:dataset_zebetin_vut}). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map). In case of the testing on a meadow, a moving target equipped with the handheld GPS sensor was tracked and localized as well. 
 
-As for the static targets, nine landmarks with a priori known UTM coordinates (obtained from the cadastral map) and one target carrying an ordinary mobile GPS sensor were chosen (see Figure \ref{fig:trackingAndMap}). The localization error, given as the Euclidean distance between the ground truth and the estimated locations, was compared with the estimated error (see Table \ref{tab:staticTargets}). Note that both measured and estimated error follow the same trend (see Figure \ref{fig:plotErrorFixedTargets}); however, the measured error is higher mainly due to the insufficient precision of calibration, stationing and rectification. 
+For each target, the expected \textit{localization error} was estimated based on the theory presented in chapter \ref{txt:precision_of_the_localization} and it was compared to the real measured error. Note that the \textit{localization error} $E$ is defined as the Euclidean distance between the estimated and ground truth geographical location of the given target given in UTM coordinates:
 
-\begin{figure}[htb]\centering
+\begin{align}
+	E = \sqrt{(e_{gt} - e_{e})^{2} + (n_{gt} - n_{e})^{2}}
+\end{align}
+where $n$ and $e$ are the northing and easting coordinates and subscripts $gt$ and $e$ denote the ground truth and the estimate.
+
+%.........................................................................
+%.........................................................................
+\subsection{Static Targets}
+
+Nine landmarks in case of \textsc{meadow} dataset and three landmarks in case of \textsc{pitch} dataset were selected to test localization. Tables \ref{tab:static_targets_zebetin} and \ref{tab:static_targets_vut_pitch} summarize ground truth and measured UTM coordinates of the targets as well as the position of the targets with regards to the baseline (angle $\omega$ and distance $d$) which influences the total localization error (see Section~\ref{txt:precision_of_the_localization}). 
+
+Note that due to the fact the angle $\gamma$ (see Figure \ref{fig:target-base_and_weighted_centroid}) do not vary much the overall estimated error $E_{est}$ is mainly influenced by the distance of the target $d$ which varies significantly. Therefore the targets are sorted in ascending order with respect to the distance $d$. The estimated error $E_{est}$ was calculated with assumption of the random error worth $p = 4~px$ (see Section \ref{txt:precision_of_the_localization}). 
+
+%% Static targets Zebetin.
+\begin{table}[!h]
 	\centering
-	\includegraphics[width=0.98\linewidth]{fig/tracking_and_map.png}
-	\caption{The two-camera setup, where a distant target is tracked by both CSs (left and right). The estimated position of the target is displayed in the map (center) in real time.}
-	\label{fig:trackingAndMap}
-\end{figure}
-
-\begin{table}[htbp]
-	\centering
-	\caption{The table shows the position as well as the localization error for each static target. The estimated error \textbf{est.~$\Delta$} is affected by the distance of the target and the angle $\alpha$ between the target and the base, and it was computed for the scenario where each CU makes random error $p = 4~px$ (see Section \ref{txt:localisationPrecision}). See also Figure \ref{fig:plotErrorFixedTargets} for graphical comparison of the estimated and the measured error.}
-	\begin{tabular}{ccccc}
+	\caption{The results achieved for \textsc{meadow} dataset.}
+	\begin{tabular}{crrcccc}
 		\toprule
-		\textbf{object} & \textbf{dist. [m]} & \textbf{$\alpha$ [rad]} & \textbf{est. $\Delta$ [m]} & \textbf{$\Delta$ [m]} \\
+		\multirow{2}[0]{*}{\textbf{object}} & \multicolumn{1}{c}{\textbf{GT pos.}} & \multicolumn{1}{c}{\textbf{estim. pos. }} & \textbf{$d$} & \textbf{$\gamma$} & \textbf{$E_{est}$} & \textbf{$E_{meas}$} \\
+		\textbf{} & \multicolumn{1}{c}{\textbf{[UTM]}} & \multicolumn{1}{c}{\textbf{[UTM]}} & \textbf{[m]} & \textbf{[$\circ$]} & \textbf{[m]} & \textbf{[m]} \\
 		\midrule
-		\textbf{pillar1} & 91,92 & 0,38  & 0,20  & 4,41 \\
-		\textbf{pillar2} & 199,14 & 0,46  & 0,95  & 5,51 \\
-		\textbf{pillar3} & 285,01 & 0,48  & 1,93  & 11,73 \\
-		\textbf{pillar4} & 386,81 & 0,41  & 3,39  & 17,16 \\
-		\textbf{tree1} & 433,88 & 0,34  & 4,13  & 17,20 \\
-		\textbf{person} & 479,96 & 0,10  & 4,65  & 23,90 \\
-		\textbf{hide} & 526,86 & 0,77  & 7,57  & 22,77 \\
-		\textbf{tree2} & 634,46 & 0,35  & 8,56  & 28,33 \\
-		\textbf{mast} & 1379,67 & 0,33  & 41,24 & 34,21 \\
+		\multirow{2}[0]{*}{\textbf{pillar1}} & \multicolumn{1}{l}{x: 608696.2} & \multicolumn{1}{l}{x: 608695.05} & \multirow{2}[0]{*}{91.92} & \multirow{2}[0]{*}{68.40} & \multirow{2}[0]{*}{0.20} & \multirow{2}[0]{*}{4.41} \\
+		& \multicolumn{1}{l}{y: 5452998} & \multicolumn{1}{l}{y: 5452993.74} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{pillar2}} & \multicolumn{1}{l}{x: 608714.13} & \multicolumn{1}{l}{x: 608711.56} & \multirow{2}[0]{*}{199.14} & \multirow{2}[0]{*}{63.91} & \multirow{2}[0]{*}{0.95} & \multirow{2}[0]{*}{5.51} \\
+		& \multicolumn{1}{l}{y: 5452890.03} & \multicolumn{1}{l}{y: 5452885.16} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{pillar3}} & \multicolumn{1}{l}{x: 608728.93} & \multicolumn{1}{l}{x: 608731.78} & \multirow{2}[0]{*}{285.01} & \multirow{2}[0]{*}{62.62} & \multirow{2}[0]{*}{1.93} & \multirow{2}[0]{*}{11.73} \\
+		& \multicolumn{1}{l}{y: 5452804.81} & \multicolumn{1}{l}{y: 5452793.43} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{pillar4}} & \multicolumn{1}{l}{x: 608713.61} & \multicolumn{1}{l}{x: 608720.62} & \multirow{2}[0]{*}{386.81} & \multirow{2}[0]{*}{66.61} & \multirow{2}[0]{*}{3.39} & \multirow{2}[0]{*}{17.16} \\
+		& \multicolumn{1}{l}{y: 5452702.31} & \multicolumn{1}{l}{y: 5452686.65} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{tree1}} & \multicolumn{1}{l}{x: 608687.5} & \multicolumn{1}{l}{x: 608684.5} & \multirow{2}[0]{*}{433.88} & \multirow{2}[0]{*}{70.31} & \multirow{2}[0]{*}{4.13} & \multirow{2}[0]{*}{17.20} \\
+		& \multicolumn{1}{l}{y: 5452655.72} & \multicolumn{1}{l}{y: 5452652.72} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{person}} & \multicolumn{1}{l}{x: 608481.06} & \multicolumn{1}{l}{x: 608473.64} & \multirow{2}[0]{*}{479.96} & \multirow{2}[0]{*}{84.09} & \multirow{2}[0]{*}{4.65} & \multirow{2}[0]{*}{23.90} \\
+		& \multicolumn{1}{l}{y: 5452666.47} & \multicolumn{1}{l}{y: 5452643.75} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{hide}} & \multicolumn{1}{l}{x: 608226.71} & \multicolumn{1}{l}{x: 608216.86} & \multirow{2}[0]{*}{526.86} & \multirow{2}[0]{*}{45.63} & \multirow{2}[0]{*}{7.57} & \multirow{2}[0]{*}{22.77} \\
+		& \multicolumn{1}{l}{y: 5452875.99} & \multicolumn{1}{l}{y: 5452880.58} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{tree2}} & \multicolumn{1}{l}{x: 608283.11} & \multicolumn{1}{l}{x: 608287.11} & \multirow{2}[0]{*}{634.46} & \multirow{2}[0]{*}{69.77} & \multirow{2}[0]{*}{8.56} & \multirow{2}[0]{*}{28.33} \\
+		& \multicolumn{1}{l}{y: 5452618.41} & \multicolumn{1}{l}{y: 5452622.41} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{mast}} & \multicolumn{1}{l}{x: 607816.03} & \multicolumn{1}{l}{x: 607826.83} & \multirow{2}[0]{*}{1379.67} & \multirow{2}[0]{*}{70.88} & \multirow{2}[0]{*}{41.24} & \multirow{2}[0]{*}{34.21} \\
+		& \multicolumn{1}{l}{y: 5452037} & \multicolumn{1}{l}{y: 5452069.46} &       &       &       &  \\
 		\bottomrule
 	\end{tabular}
-	\label{tab:staticTargets}
+	\label{tab:static_targets_zebetin}
 \end{table}
 
-\begin{figure}[htb]\centering
+
+%% Static targets VUT pitch.
+\begin{table}[!h]
 	\centering
-	\includegraphics[width=0.65\linewidth]{fig/fixed_target_estimation_error.pdf}
+	\caption{The results achieved for \textsc{pitch} dataset.}
+	\begin{tabular}{crrcccc}
+		\toprule
+		\multirow{2}[0]{*}{\textbf{object}} & \multicolumn{1}{c}{\textbf{GT pos.}} & \multicolumn{1}{c}{\textbf{estim. pos. }} & \textbf{$d$} & \textbf{$\gamma$} & \textbf{$E_{est}$} & \textbf{$E_{meas}$} \\
+		\textbf{} & \multicolumn{1}{c}{\textbf{[UTM]}} & \multicolumn{1}{c}{\textbf{[UTM]}} & \textbf{[m]} & \textbf{[$\circ$]} & \textbf{[m]} & \textbf{[m]} \\
+		\midrule
+		\multirow{2}[0]{*}{\textbf{pillar}} & \multicolumn{1}{l}{x: 614563.07} & \multicolumn{1}{l}{x: 614556.08} & \multirow{2}[0]{*}{125.54} & \multirow{2}[0]{*}{52.93} & \multirow{2}[0]{*}{1.14} & \multirow{2}[0]{*}{7.77} \\
+		& \multicolumn{1}{l}{y: 5453706.81} & \multicolumn{1}{l}{y: 5453703.41} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{hall}} & \multicolumn{1}{l}{x: 614554.47} & \multicolumn{1}{l}{x: 614547.67} & \multirow{2}[0]{*}{128.91} & \multirow{2}[0]{*}{85.96} & \multirow{2}[0]{*}{1.01} & \multirow{2}[0]{*}{9.41} \\
+		& \multicolumn{1}{l}{y: 5453794.96} & \multicolumn{1}{l}{y: 5453788.45} &       &       &       &  \\
+		\multirow{2}[0]{*}{\textbf{fsi}} & \multicolumn{1}{l}{x: 614840.64} & \multicolumn{1}{l}{x: 614752.41} & \multirow{2}[0]{*}{425.53} & \multirow{2}[0]{*}{44.38} & \multirow{2}[0]{*}{15.80} & \multirow{2}[0]{*}{89.46} \\
+		& \multicolumn{1}{l}{y: 5453589.38} & \multicolumn{1}{l}{y: 5453604.15} &       &       &       &  \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:static_targets_vut_pitch}
+\end{table}
+
+\begin{figure}[!h]\centering
+	\centering
+	\includegraphics[width=0.98\linewidth]{fig/plot_static_targets.pdf}
 	\caption{The plot displays both measured and estimated localization error for all static targets, which are sorted in ascending order with respect to the estimated error. The measured error is higher due to imprecise calibration, rectification and stationing.}
-	\label{fig:plotErrorFixedTargets}
+	\label{fig:plot_error_estatic_targets}
 \end{figure}
 
-The system was tested against one dynamic terrestrial target equipped with a mobile GPS sensor (a walking person). The target was tracked for $120~s$ and the estimated positions were captured and compared to the ground truth path (see Figure \ref{fig:resultsWalking}). On average the system achieved the precision of $6.25~m$. Note that the position estimates oscillate around the ground truth trajectory, which is caused by the random error made by both trackers; the error, however, keeps in the specific range and reaches maximum of $13.35~m$. The mean error is higher as compared to the estimated error (see Section \ref{txt:localisationPrecision}), which is again caused by the systematic error (imprecise calibration, rectification and stationing).
+Figure \ref{fig:plot_error_estatic_targets} compares the estimated and measured localization error. Note that both $E_{est}$ and $E_{meas}$ follow the same trend of increasing value with increasing distance of the target from the baseline which is expected behavior caused by the phenomenon of diminishing accuracy of depth measurement (see Section \ref{txt:precision_of_the_localization}). 
+
+As for the \textsc{meadow} dataset the achieved precision is approximately 4--5 times worse than expected ranging from 4.41 to 34.21 $m$. Note that the targets were selected manually in the images, hence the random error plays insignificantly small role in the total imprecision. The main source of the deflections is the systematic error caused by both imprecise rectification and stationing. 
+
+In case of \textsc{pitch} dataset the achieved precision is approximately 6--10 times worse than expected ranging from 7.77 to 89.46 $m$. The impact of the systematic error is even grater. One of the reason is the fact the CUs were not stationed using GPS, contrarily their geographical positions were estimated by finding the pitch marks (on which the CUs were placed) on the ortophotomap. It has been noted that all the wrong estimations tend to be placed in more less correct direction, however too close to the baseline which is another clue which points to the systematic error (i.e. the mounting of the cameras might have moved slightly during the transportations).
+
+\paragraph{Conclusion} In order to achieve higher precision more thorough elimination of systematic error must be performed. In case of rectification the human error as well as non-robust construction of the camera mounting is the main limitation (see Section \ref{txt:rectification}). In case of stationing, the more robust approach to leveling the stations as well as estimating the heading should be taken.
+
+%.........................................................................
+\subsection{Dynamic Targets}
+
+In case of \textsc{meadow} dataset the system was tested against one dynamic terrestrial target equipped with a mobile GPS sensor -- a walking person (see Figure~ \ref{fig:trackingAndMap}). The target was tracked for $120~s$ and the estimated positions were captured and compared to the ground truth path (see Figure \ref{fig:resultsWalking}). On average the system achieved the precision of $6.25~m$. Note that the position estimates oscillate around the ground truth trajectory, which is caused by the random error made by both trackers; the error, however, keeps in the specific range and reaches maximum of $13.35~m$. The mean error is higher as compared to the estimated error (see Section \ref{txt:precision_of_the_localization}), which is again caused by the systematic error (imprecise rectification and stationing).
+
+\begin{figure}[!h]\centering
+	\centering
+	\includegraphics[width=0.9\linewidth]{fig/tracking_and_map.png}
+	\caption{The two-camera setup, where a distant target is tracked by both CUs (left and right). The estimated position of the target is displayed in the map (center).}
+	\label{fig:trackingAndMap}
+\end{figure}
 
 \begin{figure}[htb]\centering
 	\centering
@@ -1233,6 +1300,10 @@ The system was tested against one dynamic terrestrial target equipped with a mob
 	\caption{The comparison of the ground truth and estimated trajectory of a target moving in the distance range of ca $50$--$200~m$ (left). The error as the function of the distance of the target is also displayed (right). The system makes the average error of $6.25~m$.}
 	\label{fig:resultsWalking}
 \end{figure}
+
+An attempt was made to localize another moving target in \textsc{pitch} dataset as well, however, it was not possible to evaluate the precision since the visual tracker was not able to follow the target properly. The main reason for faulty operation was the cluttered background of the target which prevented the tracking subsystem from providing correct measurements.
+
+\paragraph{Conclusion} Precision of localization of the dynamic target is limited in the same way as in case of static targets. Above that, the system greatly depends on the precision of the visual tracker which should be investigated more in order to avoid incorrect measurements.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------

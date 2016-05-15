@@ -14,8 +14,14 @@
 % change following constants
 
 % UTM positions of camera units
-CU1 = [608708.55, 5453089.09];
-CU2 = [608680.49, 5453099.64];
+
+% Zebetin
+% CU1 = [608708.55, 5453089.09];
+% CU2 = [608680.49, 5453099.64];
+
+% VUT
+CU1 = [614440.62, 5453734.49];
+CU2 = [614445.04, 5453725.49];
 
 % Error of 2D target position estimation [px]
 ePX = 4;                    
@@ -58,20 +64,29 @@ alphas      = zeros(numTgts, 1);
 errors      = zeros(numTgts, 1);
 estimErrors = zeros(numTgts, 1);
 
+disp(sprintf('name distance alpha estim_error error'))
 for ii = 1:numTgts
     tgt      = [targets{2}(ii) targets{3}(ii)];    
     tgtEstim = [targets{4}(ii) targets{5}(ii)];    
     t = tgt - CM;        
     
     distances(ii)  = norm(tgt - CU1);
-    alphas(ii) = acos(abs(dot(n, t)) / (norm(t)));
+    alphas(ii) = acos(abs(dot(b, t)) / (norm(t) * norm(b))) / pi * 180;
     errors(ii) = norm(tgt - tgtEstim);
     estimErrors(ii) = worst_error(CU1, CU2, tgt, delta);
     
-%     disp(sprintf('%s %f m %f rad %f m %f m', targets{1}{ii}, distances(ii), alphas(ii), estimErrors(ii), errors(ii)));
-	disp(sprintf('name distance alpha estim_error error'))
-    disp(sprintf('%s %f %f %f %f', targets{1}{ii}, distances(ii), alphas(ii), estimErrors(ii), errors(ii)));
+%     disp(sprintf('%s %f m %f rad %f m %f m', targets{1}{ii}, distances(ii), alphas(ii), estimErrors(ii), errors(ii)));	
+%     disp(sprintf('%s %f %f %f %f', targets{1}{ii}, distances(ii), alphas(ii), estimErrors(ii), errors(ii)));
 end
+
+% Find indices for sorting the records according to the distance in ascending order
+[~, si] = sort(distances);
+
+for ii = 1:numTgts
+    disp(sprintf('%s %f %f %f %f', targets{1}{si(ii)}, distances(si(ii)), alphas(si(ii)), estimErrors(si(ii)), errors(si(ii))));
+end
+
+disp(sprintf('\n'));
 
 % plot expected and measured error
 plot(1:numTgts, errors, '-r');
