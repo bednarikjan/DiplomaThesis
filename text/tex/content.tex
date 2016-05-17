@@ -703,10 +703,6 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 	\label{fig:rect_default_elevation_angle}
 \end{figure}
 
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Camera Calibration}
-
 
 %=========================================================================
 %=========================================================================
@@ -984,7 +980,7 @@ In order to support scalability and to meet the computational demands, the OLS i
 
 Considering the big picture of the system, OLS is designed as a simple two layer tree topology, where each node is represented as either tracking unit or overview unit (TU/OU) -- a standalone independent device continuously capturing the camera image stream, performing visual tracking and regulating the motion of the manipulator. All TU/OUs are interconnected via the Gigabit Ethernet switch. 
 
-One of the TU/OUs is selected as the \textsc{master} -- a root of the tree topology which is continuously receiving the tracking estimates from all the TU/OUs and estimating the 3D location of the target (see Figure \ref{fig:hw_ols}). Additionally, \textsc{master} serves the purpose of the interface between the OLS and the human operators and enables them to manually initialize the system and control each TU/OU (using keyboard and/or joystick) during runtime if necessary. All the TU/OUs are synchronized using PTP, which is ensured by the hardware support provided by the Prosilica cameras.
+One of the TU/OUs is selected as the \textsc{master} -- a root of the tree topology which is continuously receiving the tracking estimates from all the TU/OUs and estimating the 3D location of the target (see Figure \ref{fig:hw_ols}). Additionally, \textsc{master} serves the purpose of the interface between the OLS and the human operators and enables them to manually initialize the system and control each TU/OU (using keyboard and/or joystick) during runtime if necessary. All the TU/OUs are synchronized using PTP, which is ensured by the hardware support provided by Prosilica cameras.
 
 
 %% The big picture diagram of the hardware components of the OLS
@@ -1175,20 +1171,66 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 	
 %=========================================================================
 %=========================================================================
-\chapter{Experiemtnal Results}
+\chapter{Experimental Results}
 
-\todo{pridat uvod}
-
-A couple of additional tests focusing on specific aspects of the systems were then performed in the simulated environment using the physical simulator Gazebo (see Section \ref{txt:application_of_gazebo}) where the real P\&T units were plugged into the simulation in the hardware-in-the-loop manner.
+The OLS was tested both in simulated and real world environment. The simulation was based on Gazebo and utilized hardware-in-the-loop approach. Section \ref{txt:test_regulation} describes the first test which compares various regulation functions and finds the most suitable parameters. Section \ref{txt:multi-camera_scenario} looks closely on the geometrical limitations of the OLS and verifies the sanity of the proposed approach to localize the target using geometry based weights. Finally, Section \ref{txt:real_world_testing} explains how the real world datasets were obtained and what precision the OLS achieves.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Obtaining the Dataset} \label{txt:obtaining_dataset}
+\section{Regulation of the Manipulator Motion} \label{txt:test_regulation}
 
-In order to test the real world performance of the OLS two datasets were obtained using a basic two-cameras setup. The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebetín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the baseline would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was no longer available and thus the marks measuring the distance painted on the running pitch were used to station the CUS which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}) and presumably in the same altitude.
+As explained in Section \ref{txt:2d_motion_prediction_and_regulation} it is desirable to keep the tracked target as close to the image center as possible by instructing the P\&T unit to rotate the camera. Furthermore, the motion should be smooth and as fast as possible, however, it should cope with the delays imposed by the visual tracker computation, the communication latency and the latency of the hardware (P\&T unit). Hardware-in-the-loop approach was taken in order to test the real P\&T unit in the simulated environment and the \textit{GT tracker} (see Section \ref{txt:implementation}) was utilized.
+
+In the first test both proposed regulation functions (linear and power, see Section \ref{txt:2d_motion_prediction_and_regulation}) with various settings of parameters $a$ and $k$. In this scenario the objective was to position the camera so as to aim directly on the static target. The constants $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 0~px$ were selected for the \textit{GT tracker} to simulate the worst case delay scenario of the visual tracker performance.
+
+As can be seen in Figure \ref{fig:test_reg_lin_pow}, the linear function cannot be too steep (high value of derivative $a$), otherwise the P\&T unit overshoots the target position and it must return (the cases of linear functions where $a = 1.0$ and $a = 5.0$) which is inadmissible behavior. Contrarily, if set correctly the power functions do not cause the overshoot and converge faster. As the result the power function with parameters $a = 2.26,~k = 1.5$ is used in the OLS.
+
+% Comparison of different regulation functions as tested in the hardware-in-the-loop manner.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.75\linewidth]{fig/test_regulation_lin_pow.pdf}
+	\caption{The figure depicts the Euclidean distance between the target and center of the image plane (given in pixels) as the function of time for both linear and power regulation functions with various settings of parameters. The power function tend to converge more quickly to the minimal distance.}
+	\label{fig:test_reg_lin_pow}
+\end{figure}
+
+In order to keep the moving targets close to the center of the image plane, the prediction of future position of the target must be employed (see Section \ref{txt:2d_motion_prediction_and_regulation}). A suitable value of variable $T_{pred}$ specifying the time in the future for which the position of the target is predicted should be chosen. If $T_{pred}$ is too small the P\&T unit is not able to keep up with the motion of the target and the center of the image screen always falls behind the target. Contrarily, if $T_{pred}$ is too high, the P\&T unit overshoots to the \textit{cutoff} region (see Figure \ref{fig:regulation_lin_power}) and anticipates the position of the target.
+
+Therefore, in the second test a simple scenario consisting of one P\&T unit and the simulated target moving with a constant speed along a line between two boundaries was created. Different values for prediction time $T_{pred}$ were set and the horizontal distance $d_{h}$ between the center of the image $PP$ and the projection $t$ of the target $T$ was measured (see Figure \ref{fig:test_motion_predict}). As was expected, with increasing value of $T_{pred}$ the overall distance $d_{h}$ decreases up to the point where the P\&T unit starts to overshoot. Note that it is not possible to select the best universal value since the performance depends on the distance, speed and motion model of the target. Therefore, it is necessary to choose the right value with regards to the given scenario.
+
+% Comparison of amount of time for future position prediciton.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.95\linewidth]{fig/schema_defile_and_motion_prediction.pdf}
+	\caption{Left figure depicts the schema of the perpetual linear motion of the target moving to and fro between two boundaries. Right figure shows $d_{h}$ as the function of time for different settings of prediction time $T_{pred}$.}
+	\label{fig:test_motion_predict}
+\end{figure}
+
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Multi-camera Scenario} \label{txt:multi-camera_scenario}
+
+As was shown in Chapter \ref{txt:precision_analysis} the precision of localizing the target in 3-space significantly depends on the angle $\gamma$ between the baseline and the direction to the target. However, this geometry limitation can be alleviated by using multiple CUs which are appropriately placed within the environment so that there could be always chosen at least one baseline which is oriented conveniently with regards to the target.
+
+In order to test the proposed approach of incorporating the target-base geometry by weighting the measurements from separate baselines (see Section \ref{txt:incorporating_target-base_geometry}) two scenarios comparing the localization precision of two and three CUs was created. In both cases the goal was to localize the target moving with constant speed along the circle. In order to simulate the random error of single visual trackers, the \textit{GT tracker} with parameters $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 15~px$ was used. 
+
+In the first scenario only two CUs ($CU_{1}$, $CU_{2}$) are used and thus there are two critical regions $CR_{1}$ and $CR_{2}$ along the baseline within which the localization error is expected to be high. In the second scenario the third $CU_{3}$ was added so that all three CUs would form regular triangle. It was expected that both critical regions would be covered by two newly created baselines. As can be seen in Figure \ref{fig:test_two_vs_three_cus}) the expectations were met.
+
+% Schema of testing two vs three units and plot with error results.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.95\linewidth]{fig/schema_two_vs_three_units_and_plot.pdf}
+	\caption{The figure to the left depicts the schematic view of two test scenarios where either two or three CUs are used. The target $T$ moves along the circle with constant speed in the height of $2~m$. The figure to the right depicts the localization error $E$ as the function of time for both scenarios. It can be seen that in the two-camera scenario the error $E$ increases rapidly once the target reaches either of the critical regions $CR_{1}$ and $CR_{2}$.}
+	\label{fig:test_two_vs_three_cus}
+\end{figure}
+	
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\section{Real World Testing} \label{txt:real_world_testing}
+
+In order to test the real world performance of the OLS two datasets were created using a basic two-cameras setup. The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebetín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the baseline would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was no longer available and thus the marks measuring the distance painted on the running pitch were used to station the CUS which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}) and presumably in the same altitude.
 
 In both datasets the local heading was estimated by aiming the units on each other as explained in Section \ref{txt:stationing} and the global heading was computed as the rotation of the baseline with regards to the UTM coordinate frame. Standalone digital inclinometer was used to level both stations by manually adjusting the lengths of surveying tripod legs.
-	
+
 %% Google Earth view on the setups in Zebetin and on VUT pitch.
 \begin{figure}[htb]\centering
 	\centering
@@ -1197,17 +1239,16 @@ In both datasets the local heading was estimated by aiming the units on each oth
 	\label{fig:dataset_zebetin_vut}
 \end{figure}
 
-	
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Real World Testing} \label{txt:real_world_testing}
+%.........................................................................
+%.........................................................................
+\subsection{Setup and Methodology} \label{txt:setup_and_methodology}
 
-The system was tested in two different real-world environments and a basic two-cameras setup was used in both cases. The first testing was performed on a meadow and the second one on the running pitch as described in Section \ref{txt:obtaining_dataset} (see also Figure \ref{fig:dataset_zebetin_vut}). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map). In case of the testing on a meadow, a moving target equipped with the handheld GPS sensor was tracked and localized as well. During all measurements only horizontal position (i.e. northing and easting parameters of the UTM coordinate frame) was considered.
+The system was tested in two different real-world environments and a basic two-cameras setup was used in both cases. The first testing was performed on a meadow (\textsc{meadow} dataset) and the second one on the running pitch (\textsc{pitch} dataset). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map. In case of \textsc{meadow} dataset, a moving target equipped with the handheld GPS sensor was tracked and localized as well. During all measurements only horizontal position (i.e. northing and easting parameters of the UTM coordinate frame) was considered.
 
-For each target, the expected \textit{localization error} was estimated based on the theory presented in chapter \ref{txt:precision_of_the_localization} and it was compared to the real measured error. Note that the \textit{localization error} $E$ is defined as the Euclidean distance between the estimated and ground truth geographical location of the given target given in UTM coordinates:
+For each target, the expected \textit{localization error} $E_{est}$ was computed based on the theory presented in chapter \ref{txt:precision_of_the_localization} and it was compared to the real measured error. Note that the \textit{localization error} $E_{meas}$ is defined as the Euclidean distance between the estimated and ground truth geographical location of the given target given in UTM coordinates:
 
 \begin{align}
-	E = \sqrt{(e_{gt} - e_{e})^{2} + (n_{gt} - n_{e})^{2}}
+	E_{meas} = \sqrt{(e_{gt} - e_{e})^{2} + (n_{gt} - n_{e})^{2}}
 \end{align}
 where $n$ and $e$ are the northing and easting coordinates and subscripts $gt$ and $e$ denote the ground truth and the estimate.
 
@@ -1288,13 +1329,14 @@ In case of \textsc{pitch} dataset the achieved precision is approximately 6--10 
 \paragraph{Conclusion} In order to achieve higher precision more thorough elimination of systematic error must be performed. In case of rectification the human error as well as non-robust construction of the camera mounting is the main limitation (see Section \ref{txt:rectification}). In case of stationing, the more robust approach to leveling the stations as well as estimating the heading should be taken.
 
 %.........................................................................
+%.........................................................................
 \subsection{Dynamic Targets}
 
 In case of \textsc{meadow} dataset the system was tested against one dynamic terrestrial target equipped with a mobile GPS sensor -- a walking person (see Figure~ \ref{fig:trackingAndMap}). The target was tracked for $120~s$ and the estimated positions were captured and compared to the ground truth path (see Figure \ref{fig:resultsWalking}). On average the system achieved the precision of $6.25~m$. Note that the position estimates oscillate around the ground truth trajectory, which is caused by the random error made by both trackers; the error, however, keeps in the specific range and reaches maximum of $13.35~m$. The mean error is higher as compared to the estimated error (see Section \ref{txt:precision_of_the_localization}), which is again caused by the systematic error (imprecise rectification and stationing).
 
 \begin{figure}[!h]\centering
 	\centering
-	\includegraphics[width=0.9\linewidth]{fig/tracking_and_map.png}
+	\includegraphics[width=0.98\linewidth]{fig/tracking_and_map.png}
 	\caption{The two-camera setup, where a distant target is tracked by both CUs (left and right). The estimated position of the target is displayed in the map (center).}
 	\label{fig:trackingAndMap}
 \end{figure}
@@ -1310,54 +1352,6 @@ In case of \textsc{meadow} dataset the system was tested against one dynamic ter
 An attempt was made to localize another moving target in \textsc{pitch} dataset as well, however, it was not possible to evaluate the precision since the visual tracker was not able to follow the target properly. The main reason for faulty operation was the cluttered background of the target which prevented the tracking subsystem from providing correct measurements.
 
 \paragraph{Conclusion} Precision of localization of the dynamic target is limited in the same way as in case of static targets. Above that, the system greatly depends on the precision of the visual tracker which should be investigated more in order to avoid incorrect measurements.
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Regulation of the Manipulator Motion} \label{txt:test_regulation}
-
-As explained in Section \ref{txt:2d_motion_prediction_and_regulation} it is desirable to keep the tracked target as close to the image center as possible by instructing the P\&T unit to rotate the camera. Furthermore, the motion should be smooth and as fast as possible, however, it should cope with the delays imposed by the visual tracker computation, the communication latency and the latency of the hardware (P\&T unit). Hardware-in-the-loop approach was taken in order to test the real P\&T unit in the simulated environment and the \textit{GT tracker} (see Section \ref{txt:implementation}) was utilized.
-
-In the first test both proposed regulation functions (linear and power, see Section \ref{txt:2d_motion_prediction_and_regulation}) with various settings of parameters $a$ and $k$. In this scenario the objective was to position the camera so as to aim directly on the static target. The constants $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 0~px$ were selected for the \textit{GT tracker} to simulate the worst case delay scenario of the visual tracker performance.
-
-As can be seen in Figure \ref{fig:test_reg_lin_pow}, the linear function cannot be too steep (high value of derivative $a$), otherwise the P\&T unit overshoots the target position and it must return (the cases of linear functions where $a = 1.0$ and $a = 5.0$) which is inadmissible behavior. Contrarily, if set correctly the power functions do not cause the overshoot and converge faster. As the result the power function with parameters $a = 2.26,~k = 1.5$ is used in the OLS.
-
-% Comparison of different regulation functions as tested in the hardware-in-the-loop manner.
-\begin{figure}[htb]\centering
-	\centering
-	\includegraphics[width=0.75\linewidth]{fig/test_regulation_lin_pow.pdf}
-	\caption{The figure depicts the Euclidean distance between the target and center of the image plane (given in pixels) as the function of time for both linear and power regulation functions with various settings of parameters. The power function tend to converge more quickly to the minimal distance.}
-	\label{fig:test_reg_lin_pow}
-\end{figure}
-
-In order to keep the moving targets close to the center of the image plane, the prediction of future position of the target must be employed (see Section \ref{txt:2d_motion_prediction_and_regulation}). A suitable value of variable $T_{pred}$ specifying the time in the future for which the position of the target is predicted should be chosen. If $T_{pred}$ is too small the P\&T unit is not able to keep up with the motion of the target and the center of the image screen always falls behind the target. Contrarily, if $T_{pred}$ is too high, the P\&T unit overshoots to the \textit{cutoff} region (see Figure \ref{fig:regulation_lin_power}) and anticipates the position of the target.
-
-Therefore, in the second test a simple scenario consisting of one P\&T unit and the simulated target moving with a constant speed along a line between two boundaries was created. Different values for prediction time $T_{pred}$ were set and the horizontal distance $d_{h}$ between the center of the image $PP$ and the projection $t$ of the target $T$ was measured (see Figure \ref{fig:test_motion_predict}). As was expected, with increasing value of $T_{pred}$ the overall distance $d_{h}$ decreases up to the point where the P\&T unit starts to overshoot. Note that it is not possible to select the best universal value since the performance depends on the distance, speed and motion model of the target. Therefore, it is necessary to choose the right value with regards to the given scenario.
-
-% Comparison of amount of time for future position prediciton.
-\begin{figure}[htb]\centering
-	\centering
-	\includegraphics[width=0.95\linewidth]{fig/schema_defile_and_motion_prediction.pdf}
-	\caption{Left figure depicts the schema of the perpetual linear motion of the target moving to and fro between two boundaries. Right figure shows $d_{h}$ as the function of time for different settings of prediction time $T_{pred}$.}
-	\label{fig:test_motion_predict}
-\end{figure}
-
-%-------------------------------------------------------------------------
-%-------------------------------------------------------------------------
-\section{Multi-camera Scenario} \label{txt:multi-camera_scenario}
-
-As was shown in Chapter \ref{txt:precision_analysis} the precision of localizing the target in 3-space significantly depends on the angle $\gamma$ between the baseline and the direction to the target. However, this geometry limitation can be alleviated by using multiple CUs which are appropriately placed within the environment so that there could be always chosen at least one baseline which is oriented conveniently with regards to the target.
-
-In order to test the proposed approach of incorporating the target-base geometry by weighting the measurements from separate baselines (see Section \ref{txt:incorporating_target-base_geometry}) two scenarios comparing the localization precision of two and three CUs was created. In both cases the goal was to localize the target moving with constant speed along the circle. In order to simulate the random error of single visual trackers, the \textit{GT tracker} with parameters $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 15~px$ was used. 
-
-In the first scenario only two CUs ($CU_{1}$, $CU_{2}$) are used and thus there are two critical regions $CR_{1}$ and $CR_{2}$ along the baseline within which the localization error is expected to be high. In the second scenario the third $CU_{3}$ was added so that all three CUs would form regular triangle. It was expected that both critical regions would be covered by two newly created baselines. As can be seen in Figure \ref{fig:test_two_vs_three_cus}) the expectations were met.
-
-% Schema of testing two vs three units and plot with error results.
-\begin{figure}[htb]\centering
-	\centering
-	\includegraphics[width=0.95\linewidth]{fig/schema_two_vs_three_units_and_plot.pdf}
-	\caption{The figure to the left depicts the schematic view of two test scenarios where either two or three CUs are used. The target $T$ moves along the circle with constant speed in the height of $2~m$. The figure to the right depicts the localization error $E$ as the function of time for both scenarios. It can be seen that in the two-camera scenario the error $E$ increases rapidly once the target reaches either of the critical regions $CR_{1}$ and $CR_{2}$.}
-	\label{fig:test_two_vs_three_cus}
-\end{figure}
 
 %=========================================================================
 %=========================================================================
