@@ -73,7 +73,7 @@ The OLS system aims to utilize the same principle as the old optical range finde
 %=========================================================================
 \chapter{Related Work}
 
-Being a complex and semi-autonomously working system, the multi-camera optical localization system comprises problematics ranging over several different areas. Most importantly, robust visual tracking capable of long-term tracking of arbitrary target which might exhibit time varying appearance and which might move in a cluttered environment must be employed. Furthermore, a suitable approach for estimating the position of the target in 3-space given noisy measurements must be proposed. Finally a possible extension of occlusion prediction using 3D environment reconstruction. The overview of visual tracking approaches and the discussion of their suitability for OLS is given in Section~\ref{txt:object_tracking}, the most widely used methods for localization in 3-space given projective geometry are described in Section~\ref{txt:multi_camera_target_localization} and the problematics of 3D envrironment reconstruction is introduced in Section~\ref{txt:3d_environment_reconstruction}.
+Being a complex and semi-autonomously working system the multi-camera optical localization system comprises problematics ranging over several different areas. Most importantly, robust visual tracking capable of long-term tracking of arbitrary target which might exhibit time varying appearance and which might move in a cluttered environment must be employed. Furthermore, a suitable approach for estimating the position of the target in 3-space given noisy measurements must be proposed. Finally, occlusion prediction using 3D environment reconstruction can ne incorporated as a possible extension. The overview of visual tracking approaches and the discussion of their suitability for the OLS is given in Section~\ref{txt:object_tracking}, the most widely used methods for localizing targets in 3-space given projective geometry are described in Section~\ref{txt:multi_camera_target_localization} and the problematics of 3D environment reconstruction is introduced in Section~\ref{txt:3d_environment_reconstruction}.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -93,21 +93,21 @@ Being a complex and semi-autonomously working system, the multi-camera optical l
 %-------------------------------------------------------------------------
 \section{Object Tracking} \label{txt:object_tracking}
 
-This section discusses the various approaches to tracking of the objects using the computer vision techniques. First the importance of the suitable object representation is explained and the properties of various object models as well as their advantages and disadvantages with regards to the requirements of the OLS system are discussed. Different categories of tracking algorithms are then described and two specific approaches which are most appropriate for OLS -- the \textit{TLD tracker} and the \textit{foreground-background tracker based on the particle filter framework} -- are explained in more detail.
+This section discusses the various approaches to tracking of the objects using the computer vision techniques. First, the importance of the suitable object representation is explained and the properties of various object models as well as their advantages and disadvantages with regards to the requirements of the OLS system are discussed. Different categories of tracking algorithms are then described and two specific approaches which are most appropriate for the OLS -- the \textit{TLD tracker} and the \textit{BGFG tracker based on the particle filter framework} -- are explained in more detail.
 
 %.........................................................................
 %.........................................................................
 \subsection{Object Model} \label{txt:object_model}
 
-The choice of how the targets are represented determines the domain of approaches used for visual detection and/or tracking due to the strong relationship between the algorithm and the object model. Neither of the stat-of-the-art approaches is universal enough to cope with all the difficulties and disturbances, such as the illumination change, occlusion, cluttered background, motion blurring, appearance change due to deformation and/or transformation of the object \cite{Li:2013:SAM:2508037.2508039}, which might occur over the course of tracking. Therefore, the model should suit a priori known tracking conditions (e.g. size, speed, rigidity and motion model of a target, number of targets, camera motion, background model etc.). Yilmaz et al. classified the model representations into two categories in their review \cite{Yilmaz:2006:OTS:1177352.1177355} -- the \textit{shape} and the \textit{appearance}. 
+The choice of how the targets are represented determines the domain of approaches used for visual tracking due to the strong relationship between the algorithm and the object model. Neither of the stat-of-the-art approaches is universal enough to cope with all the difficulties and disturbances, such as the illumination change, occlusion, cluttered background, motion blurring or appearance change due to deformation and/or transformation of the object \cite{Li:2013:SAM:2508037.2508039} which might occur over the course of tracking. Therefore, the model should suit a priori known tracking conditions (e.g. size, speed, rigidity and motion model of the target, number of targets, camera motion, background model etc.). Yilmaz et al. classified the model representations into two categories in their review \cite{Yilmaz:2006:OTS:1177352.1177355} -- the \textit{shape} and the \textit{appearance}. 
 
 %Beyond these two classes, a few categories of widely used image features can be distinguished, e.g. \textit{gradient, texture or spatio-temporal features}, with some of them being specifically developed for tracking certain classes of objects, such as pedestrians or cars \cite{Yang20113823}.
 
 \paragraph{shape representation} 
-A \textit{shape} model encompasses points \cite{Tomasi91detectionand}, contours \cite{Kass88snakes:active, ActiveContour-BasedVisualTracking} or articulated models \cite{Delamarre2001328, conf/isvc/MigniotA13} (see Figure \ref{fig:object_models}). The point representation is not suitable for OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points (see Figure \ref{fig:small_tracked_object}. Both contours and articulated models are mostly used for tracking non-rigid deformable objects which is not the main concern of OLS. Additinally the accuracy of fitting a contour to a target strongly depends on the convergence criteria of the energy minimization function, thus they might be computationally expensive.
+A \textit{shape} model encompasses points \cite{Tomasi91detectionand}, contours \cite{Kass88snakes:active, ActiveContour-BasedVisualTracking} or articulated models \cite{Delamarre2001328, conf/isvc/MigniotA13} (see Figure \ref{fig:object_models}). The point representation is not suitable for the OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points (see Figure \ref{fig:small_tracked_object}). Both contours and articulated models are mostly used for tracking non-rigid deformable objects which is not the main concern of the OLS. Additionally, the accuracy of fitting a contour to a target strongly depends on the convergence criteria of the energy minimization function, thus they might be computationally expensive.
 
 \paragraph{appearance representation} 
-An \textit{appearance} model is represented either by rectangular template \cite{ProbabilisticVisualTrackingTemplate, ObjectTrackinginMonochromaticVideo} or a weighted kernel \cite{Comaniciu:2003:KOT:776753.776799, MultipleCollaborativeKernelTracking} (see Figure \ref{fig:object_models}). The main advantage of both representations is the fact they contain both the spatial and appearance information, additionally they scale well to varying object size (approaching and receding object). The appearance model seem to suit the requirements of OLS, thus the tracking approaches based on the variants of both template and kernel model will be used (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}).
+An \textit{appearance} model is represented either by rectangular template \cite{ProbabilisticVisualTrackingTemplate, ObjectTrackinginMonochromaticVideo} or a weighted kernel \cite{Comaniciu:2003:KOT:776753.776799, MultipleCollaborativeKernelTracking} (see Figure \ref{fig:object_models}). The main advantage of both representations is the fact they contain both the spatial and appearance information, additionally they scale well to varying object size (approaching and receding object). The appearance model seem to suit the requirements of the OLS, thus the tracking approaches based on variants of both template and kernel model will be used (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}).
 
 %% Object models - shape and appearance representation.
 \begin{figure}[tbh]
@@ -123,37 +123,37 @@ An \textit{appearance} model is represented either by rectangular template \cite
 
 The main purpose of the tracker is to iteratively estimate the trajectory of the tracked object from frame to frame. There is a wide range of approaches to visual tracking and since they usually combine multiple various methods in order to reinforce the tracker robustness they cannot be really divided into distinct categories in a straightforward manner. However, the approaches can be coarsely categorized by the selection of the object representation.
 
-To reinforce the tracker robustness, the motion models are often used, Kalman filter and particle filter being the most popular ones \cite{cuevas2005kalman, ObjectTrackinginMonochromaticVideo}.
+To reinforce the tracker robustness the motion models are often used. Kalman filter and particle filter are the most popular ones \cite{cuevas2005kalman, ObjectTrackinginMonochromaticVideo}.
 
 
 \subsubsection*{Keypoint Tracking} 
-Keypoint tracking represents one of the most common approaches \cite{Tomasi91detectionand,Nebehay2014WACV}. The \textit{keypoint} is understood to be a single point in a an image, which represents a small image region -- a \textit{point descriptor} -- which should be highly discriminative and invariant to various image transformations. There are many widely used keypoint detectors/descriptors e.g. SIFT, SURF, ORB, FREAK, etc. \cite{sift, Bay:2008:SRF:1370312.1370556, Rublee:2011:OEA:2355573.2356268, Ortiz:2012:FFR:2354409.2354903} and they differ mainly in the means of matching precision and computation speed \cite{Schaeffer_acomparison, conf/icpr/MiksikM12}. What the tracker does is that it detects the keypoints and their descriptors in each frame, selects those representing the object, finds the correspondences and computes the transformation from the previous frame. Even though the keypoint tracking is well established approach, it cannot be used in OLS due to the insufficient size of the tracked objects, as was explained in Section \ref{txt:object_model}.
+Keypoint tracking represents one of the most common approaches \cite{Tomasi91detectionand,Nebehay2014WACV}. The \textit{keypoint} is understood to be a single point in a an image which represents a small image region -- a \textit{point descriptor} -- and which should be highly discriminative and invariant to various image transformations. There are many widely used keypoint detectors/descriptors e.g. SIFT, SURF, ORB, FREAK, etc. \cite{sift, Bay:2008:SRF:1370312.1370556, Rublee:2011:OEA:2355573.2356268, Ortiz:2012:FFR:2354409.2354903} and they differ mainly in the means of matching precision and computation speed \cite{Schaeffer_acomparison, conf/icpr/MiksikM12}. What the tracker does is that it detects the keypoints and their descriptors in each frame, selects those representing the object, finds the correspondences and computes the transformation from the previous frame. Even though the keypoint tracking is well established approach it cannot be used in the OLS due to the insufficient size of the tracked objects as was explained in Section \ref{txt:object_model}.
 
 \subsubsection*{Kernel Tracking}
-Kernel approaches are based on a so-called \textit{kernel}. Basically, the feature target representation is spatially masked with an isotropic kernel (for illustration see Figure \ref{fig:object_models} (e)), which assigns the largest weights to the pixels in the middle while the weights decay in the directions towards the edges of the kernel. This enables a spatially-smooth similarity function to be defined. Consequently, this function can be optimized in the means of target position using traditional gradient based methods such as gradient descent \cite{Comaniciu:2003:KOT:776753.776799}. To boost the robustness of the tracker multiple collaborative kernels might be used \cite{MultipleCollaborativeKernelTracking, Multi-kernelCorrelationFilterForVisualTracking}. The notion of distinguishing which pixels in the kernel/template are more or less reliable is also utilized in one of the approaches the OLS is based on -- the background/foreground tracker (see Section \ref{txt:bgfg_tracker}).
+Kernel approaches are based on so-called \textit{kernel}. Basically, the feature target representation is spatially masked with an isotropic kernel (for illustration see Figure \ref{fig:object_models} (e)) which assigns the largest weights to the pixels in the middle while the weights decay in the directions towards the edges of the kernel. This enables a spatially-smooth similarity function to be defined. Consequently, this function can be optimized in the means of target position using traditional gradient based methods such as gradient descent \cite{Comaniciu:2003:KOT:776753.776799}. To boost the robustness of the tracker multiple collaborative kernels might be used \cite{MultipleCollaborativeKernelTracking, Multi-kernelCorrelationFilterForVisualTracking}. The strategy to distinguish which pixels in the kernel/template are more or less reliable is also utilized in the BGFG tracker which the OLS is based on (see Section \ref{txt:bgfg_tracker}).
 
 \subsubsection*{Tracking-by-Detection}
-This class of approaches heavily utilize the detection principles in combination with motion based approaches to localize the object \cite{eth_biwi_00633, Kalal:2012:TRA:2225045.2225082}. Depending on the object model, the detection might be performed either by detecting keypoints and matching them against the pretrained model \cite{FastKeypointRecognitionInTenLinesOfCode, DBLP:journals/corr/abs-1211-5829}, or by dividing the image into individual patches in which the object is searched for. For each patch, the template matching is performed \cite{AFastTemplateMatchingAlgorithm, ObjectTrackinginMonochromaticVideo} (using SSD\footnote{Sum of Squared Differences.}, SAD\footnote{Sum of Absolute Differences.} or NCC\footnote{Normalized Cross Correlation.} as a similarity measure) or feature set is extracted; consequently, the model presence probability is evaluated using the generative or the discriminative classifier \cite{EnhancedGaussianMixtureModels, EfficientScan-windowGPGPU}. Since the exhaustive search within the whole image is computationally expensive, the cascade classifiers might be applied \cite{violaJones, RobustObjectDetectionViaSoftCascade}. The TLD approach, which is used in OLS, utilizes the object detector in order to correct and/or reinitialize the tracker (see Section \ref{txt:tracking_learning_detection}).
+This class of approaches heavily utilizes the detection principles in combination with motion based approaches to localize the object \cite{eth_biwi_00633, Kalal:2012:TRA:2225045.2225082}. Depending on the object model the detection might be performed either by detecting keypoints and matching them against the pretrained model \cite{FastKeypointRecognitionInTenLinesOfCode, DBLP:journals/corr/abs-1211-5829} or by dividing the image into individual patches in which the object is searched for. For each patch the template matching is performed \cite{AFastTemplateMatchingAlgorithm, ObjectTrackinginMonochromaticVideo} (using SSD\footnote{Sum of Squared Differences.}, SAD\footnote{Sum of Absolute Differences.} or NCC\footnote{Normalized Cross Correlation.} as a similarity measure) or feature set is extracted; consequently, the model presence probability is evaluated using the generative or the discriminative classifier \cite{EnhancedGaussianMixtureModels, EfficientScan-windowGPGPU}. Since the exhaustive search within the whole image is computationally expensive, the cascade classifiers might be applied \cite{violaJones, RobustObjectDetectionViaSoftCascade}. The TLD approach which is used in the OLS utilizes the object detector in order to correct and/or reinitialize the tracker (see Section \ref{txt:tracking_learning_detection}).
 
 \subsubsection*{Motion Based Tracking}
-This category of approaches attempts to extract the motion occurring between the consecutive images. The \textit{optical flow} method which in general attempts to find the motion of individual pixels in the image can be used to track the keypoints \cite{Bouguet00pyramidalimplementation} or to produce the binary feature images and consequently the blobs corresponding to moving objects \cite{aslani2013optical}. Alternatively, the moving object can be detected in the image regions yielding the highest response of \textit{frame differencing} (known also as \textit{background subtraction}) \cite{Noh2013, Movingobjectdetection}. The background/foreground tracker which OLS uses is based on the frame differencing to estimate the appearance model and most likely location of the tracked object (see Section \ref{txt:bgfg_tracker}).
+This category of approaches attempts to extract the motion occurring between the consecutive images. The \textit{optical flow} method which in general tries to find the motion of individual pixels in the image can be used to track the keypoints \cite{Bouguet00pyramidalimplementation} or to produce the binary feature images and consequently the blobs corresponding to moving objects \cite{aslani2013optical}. Alternatively, the moving object can be detected in the image regions yielding the highest response of \textit{frame differencing} (known also as \textit{background subtraction}) \cite{Noh2013, Movingobjectdetection}. The BGFG tracker which the OLS uses is based on the frame differencing to estimate the appearance model and most likely location of the tracked object (see Section \ref{txt:bgfg_tracker}).
 
 \subsubsection*{Motion Modeling}
-The tracking can be approached through the model of a discrete-time dynamic system, where the aim is to estimate the current state for each incoming frame \cite{Comaniciu:2003:KOT:776753.776799}. The state can be represented as a mere 2D position of a target (in pixel-coordinates) or other parameters such as a velocity or an acceleration of a target can be modeled a well. Thanks to the motion model the (computationally expensive) exhaustive search for the object can be reduced to the vicinity of the current target position estimate.
+The tracking can be approached through the model of a discrete-time dynamic system, where the aim is to estimate the current state for each incoming frame \cite{Comaniciu:2003:KOT:776753.776799}. The state can be represented as a mere 2D position of a target (in pixel-coordinates) or other parameters such as velocity or acceleration of a target can be modeled a well. Thanks to the motion model the (computationally expensive) exhaustive search for the object can be reduced to the vicinity of the current target position estimate.
 
 \paragraph{Kalman filter} 
-Kalman filtering is one of the widely used technique for recursively evaluating the current state of a target given the measurement corrupted by the measurement noise and the prediction of the next state corrupted by the process noise \cite{Welch:1995:IKF:897831, cuevas2005kalman}. It is based on the assumption that the state posterior density is Gaussian and thus can be parametrized by means and covariances. However, this assumption might not hold. In case of OLS a camera used for tracking is often in motion and the sensory data about its position which could be used to stabilize the motion might be imprecise or not available at all (for illustration see Figure \ref{fig:kalman}). Consequently, the position of a tracked object can change rapidly from frame to frame and thus to defy the assumption of the Gaussian distribution of the state posterior density. Furthermore the basic Kalman filter is based on a unimodal Gaussian distribution which prevents it from keeping multiple hypothesis for a single target.
+Kalman filtering is one of the widely used technique for recursively evaluating the current state of a target given the measurement corrupted by the measurement noise and the prediction of the next state corrupted by the process noise \cite{Welch:1995:IKF:897831, cuevas2005kalman}. It is based on the assumption that the state posterior density is Gaussian and thus can be parametrized by means and covariances. However, this assumption might not hold. In case of the OLS a camera used for tracking is often in motion and the sensory data about its position which could be used to stabilize the motion might be imprecise or not available at all (for illustration see Figure \ref{fig:kalman}). Consequently, the position of a tracked object can change rapidly from frame to frame and thus to defy the assumption of the Gaussian distribution of the state posterior density. Furthermore the basic Kalman filter is based on unimodal Gaussian distribution which prevents it from keeping multiple hypothesis for a single target.
 
 %% Kalman filter illustration
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=0.95\textwidth]{fig/kalman.pdf}
-	\caption{The evolution of the measurement and prediction probability density of the tracked target in the Kalman filter framework. The target apparently moves along a line with constant velocity, however, in frame $k = 4$ it suddenly changes its position due to the rapid camera movement which si something that Kalman filter cannot cope with.}
+	\caption{The evolution of measurement and prediction probability density of the tracked target in the Kalman filter framework. The target apparently moves along a line with constant velocity, however, in frame $k = 4$ it suddenly changes its position due to the rapid camera movement which is something that Kalman filter cannot cope with.}
 	\label{fig:kalman}
 \end{figure}
 
 \paragraph{particle filter} 
-The particle filter represents the most general class of filters which can cope with non-Gaussian state and measurement processes as well as with tracking multiple hypothesis \cite{journals/cviu/BimboD11}. Current state of the system is represented as a \textit{particle} $\particle{t}{i}$ -- a vector of parameters ${\vec{x_{t}^{i}}}$ describing the properties of tracked object (e.g. position, velocity, acceleration, etc.) and assigned scalar weight $w_{t}^{i}$. The suitable \textit{fitness function} must be proposed which evaluates how well a particle fits to the observed data. Using finite number of particles the particle filter basically samples the fitness function (which might be arbitrarily complex and non-differentiable) in an attempt to find the optimum. A bootstrap particle filter (BPF) is a variant of particle filter widely used for visual tracking \cite{Isard98condensation}. It follows the sequential importance sampling principle -- in each iteration the particles with higher weights are duplicated while the particles with lower weights are discarded \cite{doucet2001sequential}. This enables higher resolution sampling of the fitness function only in the parts which are likely to contain the (local) optimum. The BPF iteratively performs four main steps -- \textit{resampling}, \textit{prediction}, \textit{update} and \textit{weights normalization}. The detailed breakdown of all steps is depicted in Algorithm \ref{alg:bpf}. Note that the function $predict()$ in \textit{update} step should correspond to the required motion model of the tracked object (a normal distribution $\mathcal{N}(\mu, \sigma)$ is given as an example) and it can be designed to allow for the rapid camera motion which suits the needs of OLS. Therefore, the tracker based on BPF is utilized (see Section \ref{txt:bgfg_tracker}).
+The particle filter represents the most general class of filters which can cope with non-Gaussian state and measurement processes as well as with tracking multiple hypothesis \cite{journals/cviu/BimboD11}. Current state of the system is represented as a \textit{particle} $\particle{t}{i}$ -- a vector of parameters ${\vec{x_{t}^{i}}}$ describing the properties of tracked object (e.g. position, velocity, acceleration, etc.) and assigned scalar weight $w_{t}^{i}$. The suitable \textit{fitness function} must be proposed to evaluate how well a particle fits to the observed data. Using finite number of particles the particle filter basically samples the fitness function (which might be arbitrarily complex and non-differentiable) in an attempt to find the optimum. A bootstrap particle filter (BPF) is a variant of particle filter widely used for visual tracking \cite{Isard98condensation}. It follows the sequential importance sampling principle -- in each iteration the particles with higher weights are duplicated while the particles with lower weights are discarded \cite{doucet2001sequential}. This enables higher resolution sampling of the fitness function only in the parts which are likely to contain the (local) optimum. The BPF iteratively performs four main steps -- \textit{resampling}, \textit{prediction}, \textit{update} and \textit{weights normalization}. The detailed breakdown of all steps is depicted in Algorithm \ref{alg:bpf}. Note that the function $predict()$ in \textit{update} step should correspond to the required motion model of the tracked object (a normal distribution $\mathcal{N}(\mu, \sigma)$ is given as an example) and it can be designed to allow for the rapid camera motion which suits the needs of the OLS. Therefore, the tracker based on BPF is utilized (see Section \ref{txt:bgfg_tracker}).
 
 \begin{algorithm}
 	\SetAlgoNoLine	
@@ -204,11 +204,11 @@ The particle filter represents the most general class of filters which can cope 
 %.........................................................................
 \subsection{Tracking-Learning-Detection} \label{txt:tracking_learning_detection}
 
-The Tracking Learning Detection (TLD) \cite{Kalal:2012:TRA:2225045.2225082} is an algorithm designed for performing so called long-term tracking -- a robust tracking of an object which might change its appearance, be temporarily occluded by closer objects or temporarily completely disappear from the scene. TLD is based on the appearance representation of the target, specifically a set of templates is stored and continuously updated. Additionally, TLD can be implemented to run in real-time. Such properties meet the requirements of OLS (see Section \ref{txt:introduction}, object tracking), thus TLD is incorporated in OLS as one of the visual trackers and this section explains its design in more detail.
+The Tracking Learning Detection (TLD) \cite{Kalal:2012:TRA:2225045.2225082} is an algorithm designed for performing so called long-term tracking -- a robust tracking of an object which might change its appearance, be temporarily occluded by closer objects or temporarily completely disappear from the scene. TLD is based on the appearance representation of the target, specifically a set of templates is stored and continuously updated. Additionally, TLD can be implemented to run in real-time. Such properties meet the requirements of the OLS (see Section \ref{txt:introduction}), thus TLD is incorporated in OLS as one of the visual trackers and this section explains its design in more detail.
 
-Since a long-term tracking cannot be easily achieved neither by a mere tracker nor by a detector, the TLD aims to combine the strengths of the detection and tracking algorithms by combining their results. Furthermore the algorithm incorporates the online adaptation subsystem capable of learning the new appearances of the tracked object in the course of the tracking.
+Since a long-term tracking cannot be easily achieved either by a mere tracker nor by a detector, the TLD aims to combine the strengths of the detection and tracking algorithms by combining their results. Furthermore, the algorithm incorporates the online adaptation subsystem capable of learning the new appearances of the tracked object over the course of the tracking.
 
-A conceptual diagram of the TLD algorithm is shown in Figure \ref{fig:tld_block_diagram}. The \texttt{tracking} component tracks the object and for each frame produces the new position. It expects that object does not disappear (occlusion, out of FOV) from the scene and if it does, the tracker fails. The \texttt{detection} component performs full scanning of the image for each frame. It detects the object and if needed it reinitializes the tracker. The \texttt{learning} component is capable of generating new appearances of the tracked object and thus improving the performance of the detector. 
+A conceptual diagram of the TLD algorithm is shown in Figure \ref{fig:tld_block_diagram}. The \textit{tracking} component tracks the object and for each frame produces the new position. It expects that object does not disappear (occlusion, out of FOV) from the scene and if it does, the tracker fails. The \textit{detection} component performs full scanning of the image for each frame. It detects the object and if needed it reinitializes the tracker. The \textit{learning} component is capable of generating new appearances of the tracked object and thus improving the performance of the detector. 
 
 The object itself is modeled as a set of patches, each patch being already learned appearance represented by the rectangular bounding box around the object rescaled to a normalized resolution of 15 x 15 pixels. The similarity of the patches is given by NCC.
 
@@ -219,31 +219,31 @@ The object itself is modeled as a set of patches, each patch being already learn
 	\begin{minipage}{.34\textwidth}
 		\centering
 		\includegraphics[width=.99\linewidth]{fig/tld_block_diagram.png}
-		\captionof{figure}{A diagram of the main TLD components. Image is adopted from \cite{Kalal:2012:TRA:2225045.2225082}.}
+		\captionof{figure}{A diagram of the main TLD components. Image is adopted from authors Kalal, Mikolajczyk and Matas \cite{Kalal:2012:TRA:2225045.2225082}.}
 		\label{fig:tld_block_diagram}
 	\end{minipage}
 	\hfill
 	\begin{minipage}{.63\textwidth}
 		\centering
 		\includegraphics[width=.99\linewidth]{fig/tld_pn_learning_block_diagram.png}
-		\captionof{figure}{A diagram of the PN learning process. Image is adopted from \cite{Kalal:2012:TRA:2225045.2225082}.}
+		\captionof{figure}{A diagram of the PN learning process. Image is adopted from authors Kalal, Mikolajczyk and Matas \cite{Kalal:2012:TRA:2225045.2225082}.}
 		\label{fig:tld_pn_learning_block_diagram}
 	\end{minipage}
 \end{figure}
 
-\paragraph{Detection} Detector treats each frame as an independent one and scans a full image. A scanning window is used and it is gradually scaled (in order for the detector to achieve scale invariance) and iteratively shifted along a regular grid of candidate positions. Since this task is computationally intensive a cascade classifier is used so that the detector could quickly decide whether a given subregion contains the object. In case of TLD, the cascade classifier consists of three sequential stages specifically ordered so that earlier the stage is the more subregions it should reduce while being computationally less expensive. Should the subregion be rejected by any stage, later stages ignore it completely.
+\paragraph{Detection} The detector treats each frame as an independent one and scans a full image. A scanning window is used and it is gradually scaled (in order for the detector to achieve scale invariance) and iteratively shifted along a regular grid of candidate positions. Since this task is computationally intensive a cascade classifier is used so that the detector could quickly decide whether a given subregion contains the object. In case of TLD the cascade classifier consists of three sequential stages specifically ordered so that earlier the stage is the more subregions it should reduce while being computationally less expensive. Should the subregion be rejected by any stage later stages ignore it completely.
 
-\paragraph{Tracking} The tracking subsystem is based on the algorithm called the Median-Flow tracker. A $10 \times 10$ grid is used to select the positions within the bounding box representing the object. For each position a given point is tracked between the consecutive frames using pyramidal Lucas-Kanade tracker and eventually the tracker only accepts a 50\% of the most reliable displacements to estimate a new position of the target.
+\paragraph{Tracking} The tracking subsystem is based on the algorithm called the Median-Flow tracker. A $10 \times 10$ grid is used to select the positions within the bounding box representing the object. For each position a given point is tracked between the consecutive frames using pyramidal Lucas-Kanade tracker and eventually the tracker only accepts a 50~\% of the most reliable displacements to estimate a new position of the target.
 
-\paragraph{Learning} Since the classifier used in the detection phase is initially trained using only one positive patch (the initial bounding box selected by a user) it tends to make errors as a video stream progress since the moving object of interest change its appearance due to the transformation caused by its motion. Therefore an online so called \texttt{P-N learning} component is incorporated in the system which gradually extends the training sets. Two experts are used, a \texttt{P-expert} identifies only false negatives while \texttt{N-expert} identifies only false positives. Once a wrongly classified patch is found, the experts extend the training set and the classifier is retrained (see Figure \ref{fig:tld_pn_learning_block_diagram}).
+\paragraph{Learning} Since the classifier used in the detection phase is initially trained using only one positive patch (the initial bounding box selected by user) it tends to make errors as a video stream progresses since the moving object of interest changes its appearance due to the transformation caused by its motion. Therefore, online component called \textit{P-N learning} is incorporated in the system and it gradually extends the training sets. Two experts are used. \textit{P-expert} identifies only false negatives while \textit{N-expert} identifies only false positives. Once a wrongly classified patch is found the experts extend the training set and the classifier is retrained (see Figure \ref{fig:tld_pn_learning_block_diagram}).
 
 %.........................................................................
 %.........................................................................
 \subsection{Tracking Using Background/Foreground Modeling and Particle Filter} \label{txt:bgfg_tracker}
 
-The autonomous tracking uses the implementation of the visual tracker combining the background subtraction, motion model and object model in the particle filter framework  proposed in \cite{ObjectTrackinginMonochromaticVideo}. Thanks to both particle filter and inter frames homography computation this approach can even cope with the moving cameras. Partial occlusion is handled using foreground modeling and the tracker is capable of running in real-time. Therefore, this approach si suitable for OLS as well and it is used as an alternative to TLD. The operation of the tracker is described below.
+The autonomous tracking uses the implementation of the visual tracker combining the background subtraction, motion model and object model in the particle filter framework  proposed in \cite{ObjectTrackinginMonochromaticVideo} (BGFG tracker). Thanks to both particle filter and inter frames homography computation this approach can even cope with the moving cameras. Partial occlusion is handled using foreground modeling and the tracker is capable of running in real-time. Therefore, this approach is suitable for the OLS as well and it is used as an alternative to TLD. The operation of the tracker is described below.
 
-The target is represented as a rectangular template (consisting of gray-scale intensity values), which is normalized to the size $24\times24$ pixels. The template is created only once during the initialization, and thus the tracker could fail if the target changed its appearance significantly during the course of tracking. However, in case of very distant targets only a slight change occurs.
+The target is represented as a rectangular template (consisting of gray-scale intensity values) which is normalized to the size $24\times24$ pixels. The template is created only once during the initialization, thus the tracker could fail if the target changed its appearance significantly during the course of tracking. However, in case of very distant targets only a slight change occurs.
 
 The Bootstrap particle filter (BPF) \cite{Isard98condensation} is used to generate and evaluate candidate positions of the target. Each particle (i.e. the state of the system) is represented as $\vec{x_{n}} = (x, y, v_{x}, v_{y}, h, w)$, where $(x, y)$ represents the 2D position of the target, $(v_{x}, v_{y})$ represents the estimated speed of the target and $(h, w)$ represents the bounding box size. 
 
@@ -261,9 +261,9 @@ In the \textit{update} step, each particle is assigned a new weight $w$ using th
 \end{align}
 where $M_{t}$ and $M_{c}$ are the foreground masks (FM) of the template and the current candidate respectively, $I$ is the image, $t, c$ subscripts denote template and candidate patch respectively, and $(x,y)$ superscript denotes indexing 2D array (an image). The FMs are estimated by subtraction of the two images where the bounding boxes denoting the position of the target do not overlap (the FM $M_{t}$ is estimated only once). The resulting estimate of the target position is chosen using the Maximum a posteriori approach.
 
-In order to enable the motion of the camera, the transformation between each pair of adjacent frames is estimated by detecting and tracking the keypoints using KLT tracker \cite{Tomasi91detectionand} and then estimating the homography using the RANSAC algorithm \cite{Hartley:2003:MVG:861369}.
+In order to enable the motion of the camera the transformation between each pair of adjacent frames is estimated by detecting and tracking the keypoints using KLT tracker \cite{Tomasi91detectionand} and then estimating the homography using the RANSAC algorithm \cite{Hartley:2003:MVG:861369}.
 
-%\section{Motion Predicition and Regulation}
+%\section{Motion Prediction and Regulation}
 %
 %%.........................................................................
 %%.........................................................................
@@ -280,13 +280,13 @@ In order to enable the motion of the camera, the transformation between each pai
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Multi-Camera Target Localization} \label{txt:multi_camera_target_localization}
+\section{Multi-camera Target Localization} \label{txt:multi_camera_target_localization}
 
-This section introduces the problematics of estimating the location of a target in 3-space given the arbitrary number of corresponding image points in 2-space. First the suitable camera model is described, then the standard stereo setups are examined, next the notion of triangulation with noisy measurements is presented and finally the existing approaches to target location estimation as well as their suitability for OLS are discussed.
+This section introduces the problematics of estimating the location of a target in 3-space given the arbitrary number of corresponding image points in 2-space. First, the suitable camera model is described, then the standard stereo setups are examined, next the notion of triangulation with noisy measurements is presented and finally the existing approaches to target location estimation as well as their suitability for OLS are discussed.
 
 \subsection{Camera Model}
 
-Localization of a target corresponds to a process of mapping image locations of a target in 2-space from multiple cameras to a location in 3-space. Thus it is necessary to define a model of a camera first. The \textit{Finite pinhole camera} based on the \textit{central projection} is a standard approach to model cameras with CCD like sensors \cite{Hartley:2003:MVG:861369}. and it is used to model hardware cameras in OLS as well. Finite pinhole cameras use projection matrix $P$ which maps a point $\vec{X}$ in 3-space to an image location $\vec{x}$ in 2-space (see Figure \ref{fig:pinhole_camera}):
+Localization of a target corresponds to a process of mapping image locations of a target in 2-space from multiple cameras to a location in 3-space. Thus it is necessary to define a model of a camera first. The \textit{finite pinhole camera} based on the \textit{central projection} is a standard approach to model cameras with CCD like sensors \cite{Hartley:2003:MVG:861369} and it is used to model hardware cameras in OLS as well. Finite pinhole cameras use projection matrix $P$ which maps a point $\vec{X}$ in 3-space to an image location $\vec{x}$ in 2-space (see Figure \ref{fig:pinhole_camera}):
 
 \begin{align}
 	\vec{x} &= P\vec{X},\\
@@ -305,26 +305,26 @@ where $I$ is the identity matrix, $R$ and $C$ are the rotation and translation m
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=0.60\textwidth]{fig/pinhole_camera.pdf}
-	\caption{Perspective projection of point $T$ in 3-space to point $t$ in 2-space located on the image plane in a finite pinhole camera model.}
+	\caption{Perspective projection of pthe oint $T$ in 3-space to the point $t$ in 2-space located on the image plane in the finite pinhole camera model.}
 	\label{fig:pinhole_camera}
 \end{figure}
 
 \subsection{Stereo Setups}
 
-With two calibrated cameras (i.e. $K$, $R$ and $C$ matrices are known) observing the same portion of the environment it is possible to estimate the location of a given point/object in 3-space. The \textit{Canonical stereoscopic system} is one of the widely used setup capable of estimating the depth of points in the scene \cite{Cyganek:2007:ICV:1214366}. The optical axes of both cameras are collinear and the notion of \textit{disparity} is introduced. Disparity refers to the difference in the image location of the same 3D point when projected under perspective to two different cameras \cite{Stockman:2001:CV:558008} and the coordinates of a point in 3-space can derived using following equations (see Figure \ref{fig:canonical_vs_general_stereo}):
+With two calibrated cameras (i.e. $K$, $R$ and $C$ matrices are known) observing the same portion of the environment it is possible to estimate the location of the given point/object in 3-space. The \textit{canonical stereoscopic system} is one of the widely used setup capable of estimating the depth of points in the scene \cite{Cyganek:2007:ICV:1214366}. The optical axes of both cameras are collinear and the notion of \textit{disparity} is introduced. Disparity refers to the difference in the image location of the same 3D point when projected under perspective to two different cameras \cite{Stockman:2001:CV:558008} and the coordinates of a point in 3-space can derived using following equations (see Figure \ref{fig:canonical_vs_general_stereo}):
 
 \begin{align}
 	z &= fb/(x_{l} - x_{r}) = fb/d,\\
 	x &= x_{l}z/f = b + x_{r}z/f,\\
 	y &= y_{l}z/f = y_{r}z/f,
 \end{align}
-where $f$ is a focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, OLS cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:design_of_the_OLS}).
+where $f$ is the focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, the OLS cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:design_of_the_OLS}).
 
 %% Canonical stereo setup vs general stereo setup
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=0.8\textwidth]{fig/canonical_stereo_vs_general_stereo.pdf}
-	\caption{In canonical stereo setup (left) the 3D coordinates of a given point can be computed using the notion od disparity. On the other hand, in case of general stereo setup (right) the intersection of lines in 3-space defined by the target projected to the image space of each camera must be found.}
+	\caption{In canonical stereo setup (left) the 3D coordinates of the given point can be computed using the notion of disparity. On the other hand, in case of general stereo setup (right) the intersection of lines in 3-space defined by the target projected to the image space of each camera must be found.}
 	\label{fig:canonical_vs_general_stereo}
 \end{figure}
 
@@ -332,7 +332,7 @@ In \textit{general stereo setup} the collinearity of the optical axes is not req
 \begin{align}
 	X(\lambda) = P^{+}\vec{x} + \lambda C,
 \end{align}
-where $P^{+}$ is the pseudo-inverse of $P$ ($P^{+} = P^{T}(PP^{T})^{-1}$). The location of the target in 3-space is then given as an intersection of all back-projected lines. Given its nature, OLS can be modeled as a general stereo setup extended to use arbitrary number of cameras (instead of only two cameras).
+where $P^{+}$ is the pseudo-inverse of $P$ ($P^{+} = P^{T}(PP^{T})^{-1}$). The location of the target in 3-space is then given as an intersection of all back-projected lines. Given its nature the OLS can be modeled as a general stereo setup extended to use arbitrary number of cameras (instead of only two cameras).
 
 \subsection{Triangulation with Noisy Measurements}
 
@@ -348,19 +348,19 @@ In general, the same problem holds within each pair of cameras in N-view setup. 
 \end{align}
 where $\vec{p_{i}}$ is the direction of back-projected line in camera $i$, $z_{ij}$ gives the scale of vector ${p_{i}}$ so as to define a point $P_{ij}$ which is the closest to the line back-projected from camera $j$, $T_{ij}$ and $R_{ij}$ are the translation and rotation of the coordinate frame of the camera $j$ with respect to the coordinate frame of the camera $i$ and $\lambda_{ij}$ defines the length of the line segment connecting both back-projected skew lines.
 
-A similar approach to finding the closest distance between each pair of cameras is used in OLS (see Section \ref{txt:target_localization_using_triangulation}).
+A similar approach to finding the closest distance between each pair of cameras is used in the OLS (see Section \ref{txt:target_localization_using_triangulation}).
 
 %% Skew lines in multi view scenario
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=0.9\textwidth]{fig/multi_view_intersection.pdf}
-	\caption{An example of a 3-view setup and the target location estimation using triangulation. Since all cameras are subject to systematic and random error the back-projected lines are skew, thus there is no intersection. The closest distance between each pair of liness is given by the line segment perpendicular to both lines.}
+	\caption{An example of a three-view setup and the target location estimation using triangulation. Since all cameras are subject to systematic and random error the back-projected lines are skew, thus there is no intersection. The closest distance between each pair of lines is given by the line segment perpendicular to both lines.}
 	\label{fig:multi_view_intersection}
 \end{figure}
 
 \subsection{Estimation of Target Location}
 
-Since the back-projected lines are skew, there is not the only correct solution to the localization problem. Contrarily, the position of the target must be estimated. Hartley and Zisserman \cite{Hartley:2003:MVG:861369} propose a couple of methods where the approaches used basically boil down either to solving the overdetermined system of linear equations or to minimization of the geometric error. Both approaches are briefly described below.
+Since the back-projected lines are skew, there is not the only correct solution to the localization problem. Contrarily, the position of the target must be estimated. Hartley and Zisserman \cite{Hartley:2003:MVG:861369} propose a couple of methods where the approaches basically boil down either to solving the overdetermined system of linear equations or to minimization of the geometric error. Both approaches are briefly described below.
 
 \paragraph{Direct Linear Transformation (DLT)} The DLT algorithm is based on the assumption that an overdetermined system of linear equations in the form $\matr{A}\vec{x} = \vec{0}$ (where $\matr{A}$ is the matrix of coefficients, $\vec{x}$ is the vector of unknowns and $\vec{0}$ is the zero vector) is available and that given the noise there is no exact solution. In case of a stereo setup where the image points $\vec{t_{1}}$ and $\vec{t_{2}}$ in 2-space on each camera correspond to a target $\vec{T}$ in 3-space the overdetermined system of linear equations can be defined with vector $\vec{x} = (t_{1}^{x}, t_{1}^{y}, t_{2}^{x}, t_{2}^{y})$ and matrix $\matr{A}$:
 \begin{align}
@@ -387,7 +387,7 @@ where $d(\vec{x}, \vec{x'})$ is the Euclidean distance between the measurement $
 	\label{fig:reprojection}
 \end{figure}
 
-Even though both DLT and reprojection error minimization could be extended so as to support multiple-view setup, neither of these approaches is suitable for OLS since they do not consider any a priori known information about the reliability of the back-projected line in each camera. It has been shown that in OLS the precision of target location estimation strongly depends on the mutual position of the target and the baseline of given camera pair (see Chapter \ref{txt:precision_of_the_localization}). Furthermore, it is possible to obtain the belief from individual visual trackers (i.e. the confidence that the object is tracked correctly). In order to exploit these prior information a specific location estimation method was proposed for OLS (see Section~\ref{txt:target_localization_using_triangulation}).
+Even though both DLT and reprojection error minimization could be extended so as to support multiple-view setup, neither of these approaches is suitable for the OLS since they do not consider any a priori known information about the reliability of the back-projected line in each camera. It has been shown that in the OLS the precision of target location estimation strongly depends on the mutual position of the target and the baseline of the given camera pair (see Chapter \ref{txt:precision_of_the_localization}). Furthermore, it is possible to obtain the belief from individual visual trackers (i.e. the confidence that the object is tracked correctly). In order to exploit these prior information a specific location estimation method was proposed for the OLS (see Section~\ref{txt:target_localization_using_triangulation}).
 
 %\subsection{Existing Multi-Camera Localization Systems}
 %
@@ -405,11 +405,11 @@ Even though both DLT and reprojection error minimization could be extended so as
 %-------------------------------------------------------------------------
 \section{3D Environment Reconstruction} \label{txt:3d_environment_reconstruction}
 
-One of the most challenging and still not fully solved problems of visual tracking algorithms is the occlusion \cite{Zhang:2010:RVT:1937728.1937766, conf/iccv/KwakNHH11}, i.e. the case where the tracked object becomes partially or fully overlapped by another object. Even though both visual trackers the OLS is based on (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}) are robust against partial occlusion and to the limited extent even against full occlusion, it is necessary to detect the occlusion using the visual clues which might not be reliable. 
+One of the most challenging and still not fully solved problems of visual tracking algorithms is the occlusion \cite{Zhang:2010:RVT:1937728.1937766, conf/iccv/KwakNHH11}, i.e. the case where the tracked object becomes partially or fully overlapped by another object. Even though both visual trackers the OLS is based on (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}) are robust against partial occlusion and to the limited extent even against full occlusion, they detect the occlusion using the visual clues which might not be reliable. 
 
 However, if the 3D model of the surrounding scene is known and motion model in 3-space of the tracked target is estimated, it is possible to predict both start and end of full occlusion occurrence in advance and consequently to adjust the tracking algorithm temporarily so that it would not fail. If the 3D model of the environment is not known beforehand it can be reconstructed using mere visual information obtained from cameras.
 
-Therefore, this section introduces the problematics of 3D reconstruction using visual cues in multi-camera system, namely the basics of epipolar geometry, the notion of bundle adjustment and a popular tool for performing both sparse and dense reconstruction in multiple-camera setup -- VisualSFM. A proposed algorithm of occlusion prediction based on the knowledge of sparse 3D model of the environment is presented in Section \ref{txt:occlusion_prediction}. 
+Therefore, this section introduces the problematics of 3D reconstruction using visual cues in multi-camera system, namely the basics of epipolar geometry, the notion of bundle adjustment and a popular tool for performing both sparse and dense reconstruction in multiple-camera setup -- VisualSFM. Proposed algorithm of occlusion prediction based on the knowledge of sparse 3D model of the environment is presented in Section \ref{txt:occlusion_prediction}. 
 
 %.........................................................................
 %.........................................................................
@@ -421,21 +421,21 @@ Assuming the most general scenario where multiple images of the scene taken from
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=0.8\textwidth]{fig/3d_reconstruction_pipeline.pdf}
-	\caption{A 3D reconstruction pipeline taking multiple images taken from uncalibrated cameras and producing estimated camera parameters and locations of matched points in 3-space.}
+	\caption{The 3D reconstruction pipeline taking multiple images obtained from uncalibrated cameras and producing estimated camera parameters and locations of matched points in 3-space.}
 	\label{fig:3d_reconstruction_pipeline}
 \end{figure}
 
-The algorithm takes arbitrary number of images on the input performs \textit{SIFT keypoint detection} as the first step. Next, individual keypoints are matched across all images creating the \textit{tracks}. A \textit{fundamental matrix $\matr{F}$} is estimated for each pair of images (see Section \ref{txt:epipolar_geometry}) and those matches which are outliers with regards to $\matr{F}$ are removed. Finally, the \textit{iterative sparse bundle adjustment} is run (see Section \ref{txt:bundle_adjustment}) which produces the estimates of camera parameters (both intrinsics and extrinsics) and 3D locations of matched points.
+The algorithm takes arbitrary number of images on the input and performs \textit{SIFT keypoint detection} as the first step. Next, individual keypoints are matched across all images creating the \textit{tracks}. A \textit{fundamental matrix $\matr{F}$} is estimated for each pair of images (see Section \ref{txt:epipolar_geometry}) and those matches which are outliers with regards to $\matr{F}$ are removed. Finally, the \textit{iterative sparse bundle adjustment} (see Section \ref{txt:bundle_adjustment}) which produces the estimates of camera parameters (both intrinsics and extrinsics) and 3D locations of matched points is run.
 
-In case of OLS both extrinsics and intrinsics are known. However, they are correct only up to a systematic and random error caused by imprecise stationing and rectification (see Chapter \ref{txt:precision_of_the_localization}) and a noise which the P\&T orientation measurements are subject to. Therefore in order to achieve a 3D reconstruction of the surrounding environment it is still reasonable to employ the bundle adjustment technique. In order to exploit the a priori known information, for instance the bundle adjustment might be initialized with known camera calibration and pose parameters so as to make the optimization algorithm more likely to find the global optimum.
+In case of the OLS both extrinsics and intrinsics are known. However, they are correct only up to a systematic and random error caused by imprecise stationing and rectification (see Chapter \ref{txt:precision_of_the_localization}) and a noise which the P\&T unit orientation measurements are subject to. Therefore, in order to achieve a 3D reconstruction of the surrounding environment it is still reasonable to employ the bundle adjustment technique. In order to exploit the a priori known information the bundle adjustment could be for instance initialized with known camera calibration and pose parameters so as to make the optimization algorithm more likely to find the global optimum.
 
 %.........................................................................
 %.........................................................................
 \subsection{Epipolar Geometry} \label{txt:epipolar_geometry}
 
-Epipolar geometry represents the relation between two projective pinhole cameras observing the same point (points) in 3-space \cite{Cyganek:2007:ICV:1214366} (see Figure \ref{fig:epipolar_geometry}). The line between both camera centers $\vec{C_{i}}$ is called the \textit{baseline} and it delimits the \textit{epipole} $ \vec{e_{i}}$ in each projective plane $Im_{i}$. The projection of target $\vec{T}$ to both image planes defines image points $\vec{t_{i}}$ which in return back-project to lines in 3-space. The line $el_{i}$ lying in image plane $Im_{i}$ connecting $\vec{e_{i}}$ and ${\vec{t_{i}}}$ is called \textit{epipolar line}.
+Epipolar geometry represents the relation between two projective pinhole cameras observing the same point (points) in 3-space \cite{Cyganek:2007:ICV:1214366} (see Figure \ref{fig:epipolar_geometry}). The line between both camera centers $\vec{C_{i}}$ is called the \textit{baseline} and it delimits the \textit{epipole} $ \vec{e_{i}}$ in each projective plane $Im_{i}$. The projection of target $\vec{T}$ to both image planes defines image points $\vec{t_{i}}$ which in return back-project to lines in 3-space. The line $el_{i}$ lying in image plane $Im_{i}$ connecting $\vec{e_{i}}$ and ${\vec{t_{i}}}$ is called the \textit{epipolar line}.
 
-What the epipolar geometry relation says is that the observed target $\vec{T}$ must lie only in the plane $Ep$ defined by the baseline and both back-projected lines (from camera center $\vec{C_{i}}$ through image point $\vec{t_{i}}$). Alternatively, the epipolar line $el_{i}$ is the projection of back-projected line $\vec{C_{j}}\vec{t_{j}}$ to the projection plane $Im_{i}$.
+What the epipolar geometry relation says is that the observed target $\vec{T}$ must lie only in the plane $Ep$ defined by the baseline and both back-projected lines (from the camera center $\vec{C_{i}}$ through the image point $\vec{t_{i}}$). Alternatively, the epipolar line $el_{i}$ is the projection of back-projected line $\vec{C_{j}}\vec{t_{j}}$ to the projection plane $Im_{i}$.
 
 %% Epipolar geometry
 \begin{figure}[tbh]
@@ -462,25 +462,25 @@ Bundle adjustment is the approach which aims to simultaneously refine the parame
 \end{align}
 where $m$ is the number of cameras, $n$ is the number of target points in 3-space, $(x_{ij}, y_{ij})$ is the initially measured location of the projection of target $T_{j}$ to the projective plane of camera $i$ and $\vec{p_{ir}}$ is the rth row of projection matrix $P_{i}$. As for the minimization, \textit{Levenberg-Marquardt} algorithm is mostly used. 
 
-In case of reconstruction approach proposed by Snavely, Seitz and Szeliski \cite{Snavely:2006:PTE:1179352.1141964} (see Section \ref{txt:reconstruction_pipeline}) the iterative version of bundle adjustment is used. In this case a most suitable image pair, which has enough matches and large baseline is selected and the camera parameters as well as the 3D locations of matched points are estimated. In each next iteration a new camera is added to the optimization algorithm.
+In case of reconstruction approach proposed by Snavely, Seitz and Szeliski \cite{Snavely:2006:PTE:1179352.1141964} (see Section \ref{txt:reconstruction_pipeline}) the iterative version of bundle adjustment is used. In this case the most suitable image pair which has enough matches and large baseline is selected and the camera parameters as well as the 3D locations of matched points are estimated. In each next iteration a new camera is added to the optimization algorithm.
 
 %.........................................................................
 %.........................................................................
 \subsection{VisualSFM}
 
-VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index.html}} is a well established application for end-to-end scene reconstruction using multiple cameras which follows the standard pipeline described in Section \ref{fig:3d_reconstruction_pipeline} and adds another method for dense reconstruction. For sparse reconstruction the application uses parallel implementation of bundle adjustment \cite{ChangchangWu:2011:MBA:2191740.2191945} and for dense reconstruction the Patch-based Multi-view Stereo Software (PMVS) approach is utilized \cite{Furu:2010:PMVS}. The demonstration of dense reconstruction is depicted in Figure \ref{fig:visualsfm_tower}. Upon successful reconstruction the VisualSFM enables the 3D point cloud to be exported in standard PLY format which can be easily imported to OLS for instance with the use of Point Cloud Library (see Section \ref{txt:occlusion_prediction}).
+VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index.html}} is a well established application for end-to-end scene reconstruction using multiple cameras which follows the standard pipeline described in Section \ref{fig:3d_reconstruction_pipeline} and adds another method for dense reconstruction. For sparse reconstruction the application uses parallel implementation of bundle adjustment \cite{ChangchangWu:2011:MBA:2191740.2191945} and for dense reconstruction the Patch-based Multi-view Stereo Software (PMVS) approach is utilized \cite{Furu:2010:PMVS}. The demonstration of dense reconstruction is depicted in Figure \ref{fig:visualsfm_tower}. Upon successful reconstruction the VisualSFM enables the 3D point cloud to be exported in standard PLY format which could be imported to the OLS for instance with the use of Point Cloud Library (see Section \ref{txt:occlusion_prediction}).
 
 %% Visual SFM tower
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=0.9\textwidth]{fig/visualsfm_tower.png}
-	\caption{The 3D reconstruction performed by VisualSFM from only two photographs taken by the same camera in neighborhood Štýřice, Brno. Note that even mere two views suffice to reconstruct the church tower, however, the output data include a lot of noise.}
+	\caption{The 3D reconstruction performed by VisualSFM from only two photographs taken by the same camera in district Štýřice (Brno, Czech Republic). Note that even mere two views suffice to reconstruct the church tower, however, the output data include a lot of noise.}
 	\label{fig:visualsfm_tower}
 \end{figure}
 
 %=========================================================================
 %=========================================================================
-\chapter{Precision of the Localization in Multi Camera System} \label{txt:precision_of_the_localization}
+\chapter{Precision of the Localization in Multi-camera System} \label{txt:precision_of_the_localization}
 \todo{Rozdelit typy chyb}
 \todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
 \todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
@@ -664,7 +664,7 @@ The same target from the first part of the rectification is used, but two black 
 	\begin{minipage}{.59\textwidth}
 		\centering
 		\includegraphics[width=.99\linewidth]{fig/rect_azi_axis.pdf}
-		\captionof{figure}{Rectification target with the pairs of black crosses. The two crosses in a pair are $d_{ao}\ m$ appart. A digital corsshair is displayed in order to find the horizontal offset $d_{h}$.}
+		\captionof{figure}{Rectification target with the pairs of black crosses. The two crosses in a pair are $d_{ao}\ m$ apart A digital crosshair is displayed in order to find the horizontal offset $d_{h}$.}
 		\label{fig:rect_azi_axis}
 	\end{minipage}
 \end{figure}
@@ -708,15 +708,15 @@ For this purpose a pair of rectification targets, which consist of vertical blac
 %=========================================================================
 \chapter{Design of the Optical Localization System} \label{txt:design_of_the_OLS}
 
-This chapter describes the overall design of the OLS from both hardware and software perspective. First the main physical component of the system -- camera unit -- is presented, the hardware components it consists of are described and the suitable model based on the kinematic chain is proposed in Section \ref{txt:camera_unit}. Next Section \ref{txt:visual_tracking} delves into the specific requirements and proposed solutions for the visual tracking. The Section \ref{txt:target_localization_using_triangulation} explains the proposed approach to localizing the target in multi-view scenario given the noisy measurements and finally the Section \ref{txt:hw_and_sw_architecture} presents both hardware and software architecture of the system.
+This chapter describes the overall design of the OLS from both hardware and software perspective. First, the main physical component of the system -- the camera unit -- is presented. The hardware components which the camera unit consists of are described and the suitable model based on the kinematic chain is proposed in Section \ref{txt:camera_unit}. Next Section \ref{txt:visual_tracking} delves into the specific requirements and proposed solutions for the visual tracking. The Section \ref{txt:target_localization_using_triangulation} explains the proposed approach to localizing the target in multi-view scenario given the noisy measurements and Section \ref{txt:occlusion_prediction} describes the proposed approach to utilize the 3D model of the environment in order to predict the occlusion. Finally, Section \ref{txt:hw_and_sw_architecture} presents both hardware and software architecture of the system.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Camera Unit} \label{txt:camera_unit}
 
-The main building block of the OLS is a camera unit (CU) consisting of hardware modules necessary for capturing the images, manipulating the pose of the camera, estimating absolute geographical position and orientation of the station as well as relative position and orientation with regards to the rest of the stations and running the OLS software.
+The main building block of the OLS is a camera unit (CU) consisting of hardware modules necessary for capturing the images, for manipulating the pose of the camera, for estimating absolute geographical position and orientation of the station as well as relative position and orientation with regards to the rest of the stations and for running the OLS software.
 
-There are two type of CUs. The \textit{overview unit} is designed to be controlled manually by the human operator and is equipped with the zooming lens that allows achieving both a wider scanning range and a more detailed view of the farther objects. The \textit{tracking unit} consists of the fixed lens and takes part in the autonomous tracking of the moving objects and continuous reporting of the estimated directions towards the target.
+There are two type of CUs. The \textit{overview unit} is designed to be controlled manually by the human operator and it is equipped with the zooming lens that allows achieving both a wider scanning range and a more detailed view of the farther objects. The \textit{tracking unit} consists of the fixed lens and takes part in the autonomous tracking of the moving objects and continuous reporting of the estimated directions towards the target.
 
 The hardware components used for tracking stations are described in greater detail in Section \ref{txt:devices}. In order to triangulate the target, the 3D location of the camera as well as the direction of the optical axis must be known for each captured frame, thus a suitable model corresponding to the real hardware mus be designed. Proposed model based on the kinematic chain is introduced in Section \ref{txt:model}.
 
@@ -724,7 +724,7 @@ The hardware components used for tracking stations are described in greater deta
 %-------------------------------------------------------------------------
 \subsection{Devices and Components} \label{txt:devices}
 
-A CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}), a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted. Each CU is equipped with its own desktop computer for processing the image data and calculating the 3D position estimates.
+The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}), a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted. Each CU is equipped with its own desktop computer for processing the image data and calculating the 3D position estimates.
 
 %% A photo of a camera unit and an rviz model.
 \begin{figure}[tbh]
@@ -734,17 +734,17 @@ A CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying trip
 	\label{fig:camera_unit_photo_model}
 \end{figure}
 
-\paragraph{Manipulator Flir PTU-D46-70} A manipulator PTU D46-70\footnote{Website of product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is a lower middle class device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed $4.08~kg$ \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position.
+\paragraph{Manipulator Flir PTU-D46-70} A manipulator PTU D46-70\footnote{Website of the product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is a lower middle class device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed $4.08~kg$ \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could loose synchrony and report wrong position.
 
-\paragraph{Camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{Website of product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the company Allied Vision (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is an RGB camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the Precision Time Protocol (PTP) for precise time synchronization which is a crucial feature in each application relying on stereo vision as it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}. The manufacturer claims that Prosilica GT 1290C achieves the synchronization precision of $1~\mu s$.
+\paragraph{Camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{Website of the product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the company Allied Vision (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is an RGB camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the Precision Time Protocol (PTP) for precise time synchronization which is a crucial feature in each application relying on stereo vision and it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}. The manufacturer claims that Prosilica GT 1290C achieves the synchronization precision of $1~\mu s$.
 
-\paragraph{Lense Computar M5018-MP2} Each camera mounted on a tracking unit is equipped with a fixed-focus lense Computar M5018-MP2\footnote{Webiste of product Computar M5018-MP2: \url{http://computar.com/product/556/M5018-MP2}} (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). The focal length $50~mm$ was chosen as a most suitable trade-off between the wide field of view and capability of imaging distant targets. Given the camera sensor type 1/3'' the effective horizontal field of view $fov_{h}$ is approximately $5.5^{\circ}$.
+\paragraph{Lens Computar M5018-MP2} Each camera mounted on a tracking unit is equipped with a fixed-focus lens Computar M5018-MP2\footnote{Website of the product Computar M5018-MP2: \url{http://computar.com/product/556/M5018-MP2}} (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). The focal length $50~mm$ was chosen as a most suitable trade-off between the wide field of view and capability of imaging distant targets. Given the camera sensor type 1/3'' the effective horizontal field of view $fov_{h}$ is approximately $5.5^{\circ}$.
 
 %% Photos of Flir and Prosilica.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.9\linewidth]{fig/prosilica_gt1290c_flir_ptud4670_computar.png}
-	\caption{Product pictures of manipulator Flir PTU D46-70 (left), camera Prosilica GT 1290C (middle) and lense Computar M5018-MP2 (right).}
+	\caption{Product pictures of manipulator Flir PTU D46-70 (left), camera Prosilica GT 1290C (middle) and lens Computar M5018-MP2 (right).}
 	\label{fig:prosilica_gt1290c_flir_ptud4670}
 \end{figure}
 
@@ -761,7 +761,7 @@ M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
 \end{equation}
 where $M_{ele}$ is the transformation matrix of the joint \textsc{ele} which the joint \textsc{camera} is dependent on, and $T_{cam}$ and $R_{AXIS_{cam}}$ are transformation and rotation matrices describing transformation from the joint \textsc{ele} to the joint \textsc{camera}. 
 
-Note that from the implementation point of view, the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which will is used throughout the document (see Figure \ref{fig:frame_convention}).
+Note that from the implementation point of view the OLS is built on the ROS framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which is used throughout the document (see Figure \ref{fig:frame_convention}).
 
 %% ROS frame conventions
 \begin{figure}[htb]
@@ -775,7 +775,7 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.6\linewidth]{fig/camera_unit_kinematic_chain.pdf}
-	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles with black crosses. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \texttt{camera} and \texttt{focus} overlap as they both lie on the optical axis (the joint \texttt{focus} has a lower value of the Z coordinate).}
+	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \textsc{camera} and \textsc{focus} overlap as they both lie on the optical axis (the joint \textsc{focus} has a lower value of the Z coordinate).}
 	\label{fig:camera_unit_kinematic_chain}
 \end{figure}
 
@@ -784,22 +784,22 @@ Note that from the implementation point of view, the OLS is built on the ROS fra
 %-------------------------------------------------------------------------
 \section{Visual Tracking} \label{txt:visual_tracking}
 
-The visual tracking subsystem of the OLS is based on the TLD tracker (\ref{txt:tracking_learning_detection}) and BGFG tracker (\ref{txt:bgfg_tracker}). As explained in Section \ref{txt:precision_of_the_localization} the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking is concerned, the random error caused mostly by the common difficulties, such as the background clutter, varying illumination, target appearance change etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
+The visual tracking subsystem of the OLS is based on the TLD tracker (\ref{txt:tracking_learning_detection}) and the BGFG tracker (\ref{txt:bgfg_tracker}). As explained in Section \ref{txt:precision_of_the_localization} the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking is concerned, the random error caused mostly by the common difficulties such as the background clutter, varying illumination, target appearance change etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
 
-Therefore, the BGFG tracker was adjusted so as to assign a belief to each measurement which then enables the localization subsystem to combine the measurements in the weighted manner (see Section \ref{txt:measurement_belief}). Furthermore, the bootstrap particle filter (BPF) algorithm ofthe BGFG tracker was adjusted so as to alleviate the failures caused by the harsh camera motion (see Section \ref{txt:adjusting_prediction_step}). Finally, the most suitable strategy for regulating the motion of the manipulator based on predicting the 2D motion of the target is proposed (see Section \ref{txt:2d_motion_prediction_and_regulation}).
+Therefore, the BGFG tracker was adjusted so as to assign a belief to each measurement which then enables the localization subsystem to combine the measurements in the weighted manner (see Section \ref{txt:measurement_belief}). Furthermore, the bootstrap particle filter (BPF) algorithm of the BGFG tracker was adjusted so as to alleviate the failures caused by the harsh camera motion (see Section \ref{txt:adjusting_prediction_step}). Finally, the most suitable strategy for regulating the motion of the manipulator based on predicting the 2D motion of the target is proposed (see Section \ref{txt:2d_motion_prediction_and_regulation}).
 
 %.........................................................................
 %.........................................................................
 \subsection{Measurement Belief} \label{txt:measurement_belief}
 
-Since the OLS is designed as multi-camera system, the random error or failure of a single tracker might be compensated by the rest of the units, thus alleviating the total impact on the localization precision. In order to denote the certainty of the measurements coming from individual trackers, the notion of \textit{belief} is introduced for the BGFG tracker (the operation of BGFG tracker is described in Section \ref{txt:bgfg_tracker}).
+Since the OLS is designed as multi-camera system, the random error or failure of a single tracker might be compensated by the rest of the units; consequently the total impact on the localization precision is alleviated. In order to denote the certainty of the measurements coming from individual trackers the notion of \textit{belief} is introduced for the BGFG tracker (the operation of the BGFG tracker is described in Section \ref{txt:bgfg_tracker}).
 
 The \textit{belief} is calculated for each frame and it is based on the distance function (\ref{eq:bgfg_distance_function}) which BGFG tracker uses to evaluate the candidate states represented by the particles. Basically, the distance function corresponds to the visual similarity of two image patches -- the target template and current candidate weighted by its foreground mask. Therefore, the particle weight is normalized by the maximum possible similarity so as to obtain a percent value \textit{belief} representing the similarity (i.e. $\textit{belief} \in [0, 1]$):
 \begin{align}
 	belief = \frac{\sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}(1 - |I_{t}^{(x,y)} - I_{c}^{(x,y)}|)^{2}}}{\sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}}},
 \end{align}
 
-Therefore, the noisy measurements or a complete failure of the tracker can be detected and propagated to the rest of the system ((see Figure \ref{fig:belief})).
+Therefore, the noisy measurements or a complete failure of the tracker can be detected and propagated to the rest of the system (see Figure \ref{fig:belief}).
 
 %% Comparison of template-candidate match and resulting belief.
 \begin{figure}[htb]
@@ -813,9 +813,9 @@ Therefore, the noisy measurements or a complete failure of the tracker can be de
 %.........................................................................
 \subsection{Adjusting Prediction Step Using Frame Differencing} \label{txt:adjusting_prediction_step}
 
-One of the most common reasons for failure of the BGFG tracker is sudden and harsh motion of the camera mounted to the P\&T unit. In such a case the tracked target represented as a 2D location on the image plane of the camera abruptly changes its 2D position. BGFG tracker continuously computes the homography \cite{ObjectTrackinginMonochromaticVideo} in order to detect the camera motion and incorporate it to the motion model of the target, however, homography computation often fails mostly when the background is too uniform (e.g. a monotone field, a sky, etc.).
+One of the most common reasons for failure of the BGFG tracker is sudden and harsh motion of the camera mounted to the P\&T unit. In such a case the tracked target represented as a 2D location on the image plane of the camera abruptly changes its 2D position. The BGFG tracker continuously computes the homography \cite{ObjectTrackinginMonochromaticVideo} in order to detect the camera motion and incorporates it to the motion model of the target. However, the homography computation often fails mostly when the background is too uniform (e.g. a monotone field, a sky, etc.).
 
-To deal with such cases, the BGFG tracker was adjusted so that in a \textit{prediction} step of the BPF a subset of particles would be forced to take the image positions yielding the highest response of the frame differencing computed for subsequent frames. Such locations are expected to contain the moving target of interest. As compared to the original \textit{prediction} step (\ref{eq:bgfg_pos_prediction}), the parameters $pos_{dim_{n}}^{i}$ representing 2D position of the particle $i$ in the dimension $dim$ (i.e. $x$ or $y$) in time $n$ takes the following form:
+To deal with such cases, the BGFG tracker was adjusted so that in the \textit{prediction} step of the BPF a subset of particles would be forced to take the image positions yielding the highest response of the frame differencing computed for subsequent frames. Such locations are expected to contain the moving target of interest. As compared to the original \textit{prediction} step (\ref{eq:bgfg_pos_prediction}), the parameters $pos_{dim_{n}}^{i}$ representing 2D position of the particle $i$ in the dimension $dim$ (i.e. $x$ or $y$) in time $n$ takes the following form:
 \begin{align}
 	pos_{dim_{n+1}}^{i} =
 	\begin{cases}
@@ -838,21 +838,21 @@ where $fd_{dim_{n}}$ is the coordinate of maximal intensity $F_{max_{n}}$ of the
 %.........................................................................
 \subsection{2D Motion Prediction and Regulation} \label{txt:2d_motion_prediction_and_regulation}
 
-In order no to loose the moving target from the field of view, the manipulator has to rotate the camera around both azimuthal and elevation axis appropriately. A most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the manipulator to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
+In order not to loose the moving target from the field of view the manipulator has to rotate the camera around both azimuthal and elevation axis appropriately. A most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the manipulator to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
 
-Contrarily, it is necessary to predict the future 2D position of the target from two reasons. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of the sudden and rapid movement of the target. Second, the measurements are delayed (the tracking algorithm computation and communication delay) and the P\&T unit manifests considerable latency.
+Contrarily, there are two main reasons why it is necessary to predict the future 2D position of the target. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of the sudden and rapid movement of the target. Second, the measurements are delayed (due to the tracking algorithm computation and communication delay) and the P\&T unit manifests considerable latency.
 
-Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the taregt $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between the current and future 2D position in $T$ seconds:
+Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the target $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between current and future 2D position in $T$ seconds:
 
 \begin{align}
 	\vec{\omega_{t}} &= \frac{\sum_{i=0}^{N-2}{\alpha(\vec{p_{i+1}} - \vec{p_{i}}) + (\vec{m_{i+1}} - \vec{m_{i}})}}{\sum_{i=0}^{N-2}{t_{i+1} - t_{i}}},\\
 	\vec{d} &= \vec{\omega_{t}}T,
 \end{align}
-where $\alpha = \arctan{(\frac{cs}{f})}$ is the angular difference given by one \textit{pixel}, which can be computed with the knowledge of the physical size of one pixel $cs$ and focal length $f$.
+where $\alpha = \arctan{(\frac{cs}{f})}$ is the angular difference given by one \textit{pixel} which can be computed with the knowledge of the physical size of one pixel $cs$ and focal length $f$.
 
-Then the manipulator can be instructed to move by the given angular distance $\vec{d}$. It is necessary that the angular speed $\vec{\omega_{m}}$ of the manipulator decrease gradually and smoothly as the target position is approached since the harsh motion of the camera might causes the failure of the tracker (see Section \ref{txt:adjusting_prediction_step}).
+Then the manipulator can be instructed to move so as to reach the given angular distance $\vec{d}$. It is necessary that the angular speed $\vec{\omega_{m}}$ of the manipulator decreases gradually and smoothly as the target position is approached since the harsh motion of the camera might causes the failure of the tracker (see Section \ref{txt:adjusting_prediction_step}).
 
-Due to the fact the tracker measurements and consequently the motion commands sent to the manipulator are delayed, the regulation function must define a \textit{deadzone}, i.e. the minimal angular distance $d_{min}$ to the target from which the manipulator is instructed to stop, otherwise it would oscillate in the vicinity of the static target indefinitely. The angular distance $d_{max}$ then defines the maximal desired \textit{cutoff} angular speed $\omega_{m_{max}}$ of the manipulator. The regulation function is thus given as follows:
+Due to the fact the tracker measurements and consequently the motion commands sent to the manipulator are delayed, the regulation function must define a \textit{deadzone}, i.e. the minimal angular distance $d_{min}$ to the target from which the manipulator is instructed to stop, otherwise it would oscillate in the vicinity of the static target indefinitely. The angular distance $d_{max}$ then defines the maximal desired \textit{cutoff} angular speed $\omega_{m_{max}}$ of the manipulator. The regulation function is then given as follows:
 
 \begin{align}
 	\omega_{m} &=
@@ -868,7 +868,7 @@ where $f_{reg}$ is either linear ($f_{lin} = ax+b$) or power ($f_{pow} = ax^{k}+
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.75\linewidth]{fig/regulation_linear_power.pdf}
-	\caption{The linear and power regulation function used for controlling the angular speed of the manipulator in a given dimension (azimuth or elevation).}
+	\caption{The linear and power regulation function used for controlling the angular speed of the manipulator in the given dimension (azimuth or elevation).}
 	\label{fig:regulation_lin_power}
 \end{figure}
 
@@ -882,7 +882,7 @@ This section describes the proposed triangulation method in two-view scenario (s
 %.........................................................................
 \subsection{Triangulation} \label{txt:triangulation}
 
-As explained in Section \ref{txt:multi_camera_target_localization} the position of a target in 3-space as seen by the stereoscopic system with known cameras' parameters can be calculated using triangulation. In OLS, the intrinsics were estimated for each camera during calibration and extrinsics are known at each time due to the sensory data streamed from the manipulators. However, due to the random and systematic error the rays back-projected from each camera might not intersect in the 3D space (see Figure \ref{fig:triangulationSchematicView}). Therefore, the common plane for both (all) the back-projected rays must first be found.
+As explained in Section \ref{txt:multi_camera_target_localization} the position of the target in 3-space as seen by the stereoscopic system with known cameras' parameters can be calculated using triangulation. In case od the OLS the intrinsics were estimated for each camera during calibration and extrinsics are known at each time thanks to the sensory data streamed from the manipulators. However, due to the random and systematic error the rays back-projected from each camera might not intersect in the 3D space (see Figure \ref{fig:triangulationSchematicView}). Therefore, the common plane for both back-projected rays must first be found.
 
 The estimation of the 3D position of the target consists of the following steps. First, back-projection is used to find the vectors $\vec{u}$ and $\vec{v}$ which form the planes $C_{1}C_{2}U$ and $C_{1}C_{2}V$ with the angle $\alpha$ between them. Both vectors are then rotated around the axis $\vec{m}$ so that they lie in the same plane $C_{1}C_{2}W$: $\vec{u'} = R(\beta_{1})\vec{u}$, $\vec{v'} = R(\beta_{2})\vec{v}$. The rotation angles $\beta_{1}$ and $\beta_{2}$ correspond to the beliefs $bel_{1}$ and $bel_{2}$ obtained from both trackers: $|\beta_{1}| = |\alpha|\frac{bel_{2}}{bel_{1} + bel_{2}},~|\beta_{2}| = |\alpha| -\beta_{1}$. Finally, the intersection $W$ of the vectors $\vec{u'}$ and $\vec{v'}$ is found.
 
@@ -890,7 +890,7 @@ The estimation of the 3D position of the target consists of the following steps.
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.45\linewidth]{fig/triangulation.pdf}
-	\caption{A schematic view of a problem of 3D position estimation using triangulation in two-cameras scenario. The camera units $C_{1}$ and $C_{2}$ observe the target $T$ in the directions $\vec{u}$ and $\vec{v}$. The plane $C_{1}C_{2}W$ is used as a common plane where the projected vectors $\vec{u'}$ and $\vec{v'}$ intersect.}
+	\caption{A schematic view of a problem of 3D position estimation using triangulation in two-camera scenario. The camera units $C_{1}$ and $C_{2}$ observe the target $T$ in the directions $\vec{u}$ and $\vec{v}$. The plane $C_{1}C_{2}W$ is used as a common plane where the projected vectors $\vec{u'}$ and $\vec{v'}$ intersect.}
 	\label{fig:triangulationSchematicView}
 \end{figure}
 
@@ -898,15 +898,15 @@ The estimation of the 3D position of the target consists of the following steps.
 %.........................................................................
 \subsection{Incorporating Target-Base Geometry} \label{txt:incorporating_target-base_geometry}
 
-If multiple camera units are used, the location of the target in 3-space can be estimated as the weighted centroid of the estimates $T_{i}$ computed by each pair of the camera units forming the baseline $b_{i}$. The weights correspond to the angle between the baseline $b_{i}$ and the line intersecting the initially estimated position of the target $T'$ and the baseline center $bc_{i}$, since this angle significantly affects the localisation precision (see Section \ref{txt:localisationPrecision}).
+If multiple CUs are used, the location of the target in 3-space can be estimated as the weighted centroid of the estimates $T_{i}$ computed by each pair of the camera units forming the baseline $b_{i}$. The weights correspond to the angle $\gamma$ between the baseline $b_{i}$ and the line intersecting the initially estimated position of the target $T'$ and the baseline center $bc_{i}$ since this angle significantly affects the localization precision (see Section \ref{txt:precision_of_the_localization}).
 
 Basically, the location of the target in 3-space is estimated twice. First estimation $T'$ corresponds to the standard centroid of the individual estimates $T_{i}$. The second estimation refines the position $T'$ by using the weights corresponding to the target-baseline geometry (see Algorithm \ref{alg:3dPosEstimation}). The demonstration of the three-view scenario is shown in Figure \ref{fig:target-base_and_weighted_centroid}.
 
-% Target-base geometry and weighetd centroid compuation.
+% Target-base geometry and weighted centroid computation
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/target-base_and_weighted_centroid.pdf}
-	\caption{Left figure depicts the initial estimation of the target-baseline angles $\gamma_{i}$ in three-view localization scenario with one target $T_{GT}$. The right figure demonstrates the final estimation of the target location using the weights $w_{i} \sim \gamma_{i}$.}
+	\caption{Left figure depicts the initial estimation of the target-baseline angles $\gamma_{i}$ in three-view localization scenario with the target $T_{GT}$. The right figure demonstrates the final estimation of the target location using the weights $w_{i} \sim \gamma_{i}$.}
 	\label{fig:target-base_and_weighted_centroid}
 \end{figure}
 
@@ -940,33 +940,37 @@ Basically, the location of the target in 3-space is estimated twice. First estim
 %.........................................................................
 \subsection{3D Motion Prediction} \label{txt:3d_motion_predicition}
 
-The final estimates of the position of the target in 3-space are noisy and thus do not represent the motion of the tracked target well. In order to estimate current speed of the target and to predict its future locations (which can be used for occlusion prediction), the individual estimates must be smoothed. For this purpose a suitable motion model of a target must be proposed.
+The final estimates of the position of the target in 3-space are noisy and thus do not represent the motion of the tracked target well. In order to estimate current speed of the target and to predict its future locations (which can be used for occlusion prediction), the individual estimates must be smoothed. For this purpose a suitable model of the target motionmust be proposed.
 
-The OLS is designed to localize arbitrary moving targets, therefore it is not possible to utilize one general motion model. Nevertheless, it is assumed that the complex trajectory of a target can be locally approximated by a simple linear motion model with constant velocity and zero acceleration, i.e. the trajectory is modeled as a line in 3-space.
+The OLS is designed to localize arbitrary moving targets, therefore it is not possible to utilize one universal motion model. Nevertheless, it is assumed that the complex trajectory of a target can be locally approximated by a simple linear motion model with constant velocity and zero acceleration, i.e. the trajectory is modeled as a line in 3-space.
 
 The method RANSAC is used in order to fit the line model to the observed time stamped measurements since it is fast and it can cope well with a large proportion of outliers \cite{Hartley:2003:MVG:861369}. First, the parameters of a line fitting to last $N$ observations $\vec{o_{i}}$ with the tolerance range $d~m$ are estimated. The inliers are then projected to the line and the speed $\vec{v}$ of a target is computed as the average weighted by the time durations $t_{i}$ between consecutive observations $\vec{o_{i}}$ and $\vec{o_{i-1}}$:
 \begin{align}
 	\vec{v} = \sum_{i=1}^{N-1}{\frac{\vec{o_{i}} - \vec{o_{i-1}}}{t_{i} - t_{i-1}}}
 \end{align}
 
-The future position $\vec{p_{t}}$ of the target can be then simply estimated as $\vec{p} = \vec{p_{0}} + \vec{v}t$ given the current position $\vec{p){0}}$. The tolerance $d$ was empirically set to $2~m$ and RANSAC is somputed for $N = 30$ last observations (see Figure \ref{fig:ransac}).
+The future position $\vec{p_{t}}$ of the target can be then simply estimated as $\vec{p} = \vec{p_{0}} + \vec{v}t$ given current position $\vec{p_{0}}$. The tolerance $d$ was empirically set to $2~m$ and RANSAC is computed for $N = 30$ last observations (see Figure \ref{fig:ransac}).
 
 %% RANSAC
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/ransac_theory_rviz.png}
-	\caption{RANSAC algorithm is capable of estimating the model parameters given the noisy data and it is robust even in the presence of outliers which are effectively disregarded (left). RANSAC is used in OLS in order to estimate the direction and speed of the target with the assumption of linear motion model (right). The three-view scenario where the 3D line (yellow) is fitted to the noisy measurements (white spheres) and where the speed is estimated (red arrow) is demonstrated in \textit{rviz} environment.}
+	\caption{The RANSAC algorithm is capable of estimating the model parameters given the noisy data and it is robust even in the presence of outliers which are effectively disregarded (left). This method is used in the OLS in order to estimate the direction and speed of the target with the assumption of linear motion model (right). The three-view scenario where the 3D line (yellow) is fitted to the noisy measurements (white spheres) and where the speed is estimated (red arrow) is demonstrated in \textit{rviz} environment.}
 	\label{fig:ransac}
 \end{figure}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Occlusion Prediction} \label{txt:occlusion_prediction}
+
+\todo{dokoncit}
+
 %- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
 %- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
 %- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
 %- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
 %- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
+% zminit pozuiti PCL (odkazuji se na ni z textu sem)
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -978,9 +982,9 @@ In order to support scalability and to meet the computational demands, the OLS i
 %.........................................................................
 \subsection{Hardware Topology} \label{txt:hardware_topology}
 
-Considering the big picture of the system, OLS is designed as a simple two layer tree topology, where each node is represented as either tracking unit or overview unit (TU/OU) -- a standalone independent device continuously capturing the camera image stream, performing visual tracking and regulating the motion of the manipulator. All TU/OUs are interconnected via the Gigabit Ethernet switch. 
+Considering the big picture of the system, OLS is designed as a simple two layer tree topology, where each node is represented as either tracking unit or overview unit (TU/OU)~--~a~standalone independent device continuously capturing the camera image stream, performing visual tracking and regulating the motion of the manipulator. All TU/OUs are interconnected via the Gigabit Ethernet switch. 
 
-One of the TU/OUs is selected as the \textsc{master} -- a root of the tree topology which is continuously receiving the tracking estimates from all the TU/OUs and estimating the 3D location of the target (see Figure \ref{fig:hw_ols}). Additionally, \textsc{master} serves the purpose of the interface between the OLS and the human operators and enables them to manually initialize the system and control each TU/OU (using keyboard and/or joystick) during runtime if necessary. All the TU/OUs are synchronized using PTP, which is ensured by the hardware support provided by Prosilica cameras.
+One of the TU/OUs is selected as the \textsc{master} -- a root of the tree topology which is continuously receiving the tracking estimates from all the TU/OUs and estimating the 3D location of the target (see Figure \ref{fig:hw_ols}). Additionally, \textsc{master} serves the purpose of the interface between the OLS and the human operators and enables them to manually initialize the system and control each TU/OU (using keyboard and/or joystick) during runtime if necessary. All the TU/OUs are synchronized using PTP which is ensured by the hardware support provided by Prosilica cameras.
 
 
 %% The big picture diagram of the hardware components of the OLS
@@ -995,7 +999,7 @@ One of the TU/OUs is selected as the \textsc{master} -- a root of the tree topol
 %.........................................................................
 \subsection{Components of the Camera Unit} \label{txt:components_of_cu}
 
-As described in \ref{txt:devices} a camera unit itself consists of a P\&T unit, a camera, sensors used for stationing and a desktop computer running the OLS software. The P\&T unit and all the sensors communicate through the RS-232 bus with the controller (based on $\mu$P STM32F4007) serving the purpose of the hub aggregating the communication with the desktop PC. The controller was designed and produced by the Department of Measurement at Faculty of Electrical Engineering, CTU in Prague. The camera is connected via GigE bus and finally the desktop computer is linked to the Ethernet Switch via Ethernet bus (see Figure \ref{fig:hw_camera_unit})).
+As described in \ref{txt:devices} a camera unit itself consists of a P\&T unit, a camera, sensors used for stationing and a desktop computer running the OLS software. The P\&T unit and all the sensors communicate through the RS-232 bus with the controller (based on $\mu$P STM32F4007) serving the purpose of the hub aggregating the communication with the desktop PC. The controller was designed and produced by the Department of Measurement at Faculty of Electrical Engineering, CTU in Prague. The camera is connected via GigE bus and finally the desktop computer is linked to the Ethernet Switch via Ethernet bus (see Figure \ref{fig:hw_camera_unit}).
 
 %% The diagram of the hardware components of the camera unit
 \begin{figure}[htb]
@@ -1009,9 +1013,9 @@ As described in \ref{txt:devices} a camera unit itself consists of a P\&T unit, 
 %.........................................................................
 \subsection{Software Pipeline} \label{txt:sw_pipeline}
 
-The operation of the OLS in the means of data flow is depicted in the Figure \ref{fig:pipeline}. The OLS is initialized by the human operator who directs the CUs to the desired target and starts the tracking process. All the selected tracking units then visually track the target, continuously stream current measurements to the \textsc{master} and regulate the motion of the P\&T unit so that the target would not disappear from their fields of view.
+The operation of the OLS in the means of data flow is depicted in Figure \ref{fig:pipeline}. The OLS is initialized by the human operator who directs the CUs to the desired target and starts the tracking process. All the selected tracking units then visually track the target, continuously stream current measurements to the \textsc{master} and regulate the motion of the P\&T unit so that the target would not disappear from their fields of view.
 
-The localization component continuously estimates the location of the target in 3-space given the observations from the single tracking units. Given the knowledge of the target positions history and the suitable motion model the speed and future trajectory of the target can be estimated and used in order to refine tracking. The final estimate of the current target location is continuously emitted and presented to the operator. Should the operators decide to interfere, the peripherals (keyboard/mouse/joystick) can be used to manually adjust the tracking and regulation.
+The localization component continuously estimates the location of the target in 3-space given the observations from the single tracking units. Given the knowledge of the target positions history and the suitable motion model the speed and future trajectory of the target can be estimated and used in order to refine the tracking. The final estimate of the current target location is continuously emitted and presented to the operator. Should the operators decide to interfere, the peripherals (keyboard/mouse/joystick) can be used to manually adjust the tracking and regulation.
 
 %% OLS runtime pipeline
 \begin{figure}[htb]
@@ -1079,7 +1083,7 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 			distribution of computation among multiple computers & provides abstraction layer for distributing nodes across devices \\
 			simple data exchange among subsystems & the publisher/subscriber paradigm \cite{O'Kane201310}, support for custom message formats \\
 			real time performance & C++ implementation \\
-			modelling and simulating the robot & custom language \texttt{URDF}\footnotemark ~for robot modeling, integration with Gazebo \\
+			modeling and simulating the robot & custom language \texttt{URDF}\footnotemark ~for robot modeling, integration with Gazebo \\
 			specifying a kinematic chain, heavy 3D transformation computation & native support for computing transformation between frames using package \texttt{tf} \\
 			complex visualization, debugging & a visualization tool \texttt{rviz}\footnotemark ~for visualizing frames, transformations, robot models, image streams etc. \\
 			physical simulation & integration with Gazebo \\
@@ -1089,7 +1093,7 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 	\end{table}}
 	
 	\footnotetext{Modeling language \texttt{URDF}: \url{http://wiki.ros.org/urdf}}
-	\footnotetext{Vsisualization tool \texttt{rviz}: \url{http://wiki.ros.org/rviz}}
+	\footnotetext{Visualization tool \texttt{rviz}: \url{http://wiki.ros.org/rviz}}
 	
 	%.........................................................................
 	%.........................................................................
@@ -1173,15 +1177,15 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 %=========================================================================
 \chapter{Experimental Results}
 
-The OLS was tested both in simulated and real world environment. The simulation was based on Gazebo and utilized hardware-in-the-loop approach. Section \ref{txt:test_regulation} describes the first test which compares various regulation functions and finds the most suitable parameters. Section \ref{txt:multi-camera_scenario} looks closely on the geometrical limitations of the OLS and verifies the sanity of the proposed approach to localize the target using geometry based weights. Finally, Section \ref{txt:real_world_testing} explains how the real world datasets were obtained and what precision the OLS achieves.
+The OLS was tested both in simulated and real world environment. The simulation was based on Gazebo and utilized hardware-in-the-loop approach. Section \ref{txt:test_regulation} describes the first test which compares various regulation functions and finds the most suitable parameters. Section \ref{txt:multi-camera_scenario} looks closely on the geometrical limitations of the OLS and verifies the proposed approach to localize the target using geometry based weights. Finally, Section \ref{txt:real_world_testing} explains how the real world datasets were obtained and what precision the OLS achieves.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Regulation of the Manipulator Motion} \label{txt:test_regulation}
+\section{Regulation of the P\&T Unit Motion} \label{txt:test_regulation}
 
 As explained in Section \ref{txt:2d_motion_prediction_and_regulation} it is desirable to keep the tracked target as close to the image center as possible by instructing the P\&T unit to rotate the camera. Furthermore, the motion should be smooth and as fast as possible, however, it should cope with the delays imposed by the visual tracker computation, the communication latency and the latency of the hardware (P\&T unit). Hardware-in-the-loop approach was taken in order to test the real P\&T unit in the simulated environment and the \textit{GT tracker} (see Section \ref{txt:implementation}) was utilized.
 
-In the first test both proposed regulation functions (linear and power, see Section \ref{txt:2d_motion_prediction_and_regulation}) with various settings of parameters $a$ and $k$. In this scenario the objective was to position the camera so as to aim directly on the static target. The constants $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 0~px$ were selected for the \textit{GT tracker} to simulate the worst case delay scenario of the visual tracker performance.
+First, both proposed regulation functions (linear and power, see Section \ref{txt:2d_motion_prediction_and_regulation}) with various settings of parameters $a$ and $k$ were tested. In this scenario the objective was to position the camera so as to aim directly on the static target. The constants $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 0~px$ were selected for the \textit{GT tracker} to simulate the worst case delay scenario of the visual tracker performance.
 
 As can be seen in Figure \ref{fig:test_reg_lin_pow}, the linear function cannot be too steep (high value of derivative $a$), otherwise the P\&T unit overshoots the target position and it must return (the cases of linear functions where $a = 1.0$ and $a = 5.0$) which is inadmissible behavior. Contrarily, if set correctly the power functions do not cause the overshoot and converge faster. As the result the power function with parameters $a = 2.26,~k = 1.5$ is used in the OLS.
 
@@ -1189,7 +1193,7 @@ As can be seen in Figure \ref{fig:test_reg_lin_pow}, the linear function cannot 
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.75\linewidth]{fig/test_regulation_lin_pow.pdf}
-	\caption{The figure depicts the Euclidean distance between the target and center of the image plane (given in pixels) as the function of time for both linear and power regulation functions with various settings of parameters. The power function tend to converge more quickly to the minimal distance.}
+	\caption{The figure depicts the Euclidean distance between the target and the center of the image plane (given in pixels) as the function of time for both linear and power regulation functions with various settings of parameters. The power function tends to converge more quickly towards the minimal distance.}
 	\label{fig:test_reg_lin_pow}
 \end{figure}
 
@@ -1209,11 +1213,11 @@ Therefore, in the second test a simple scenario consisting of one P\&T unit and 
 %-------------------------------------------------------------------------
 \section{Multi-camera Scenario} \label{txt:multi-camera_scenario}
 
-As was shown in Chapter \ref{txt:precision_analysis} the precision of localizing the target in 3-space significantly depends on the angle $\gamma$ between the baseline and the direction to the target. However, this geometry limitation can be alleviated by using multiple CUs which are appropriately placed within the environment so that there could be always chosen at least one baseline which is oriented conveniently with regards to the target.
+As was shown in Chapter \ref{txt:precision_analysis} the precision of localizing the target in 3-space significantly depends on the angle $\gamma$ between the baseline and the direction to the target. However, this geometry limitation can be alleviated by using multiple CUs which are appropriately placed within the environment so that at least one baseline which is oriented conveniently with regards to the target could always be chosen .
 
-In order to test the proposed approach of incorporating the target-base geometry by weighting the measurements from separate baselines (see Section \ref{txt:incorporating_target-base_geometry}) two scenarios comparing the localization precision of two and three CUs was created. In both cases the goal was to localize the target moving with constant speed along the circle. In order to simulate the random error of single visual trackers, the \textit{GT tracker} with parameters $\mu_{d} = 0.120~s, \sigma_{d} = 0.010~s, \mu_{n} = 0~px, \sigma_{n} = 15~px$ was used. 
+In order to test the proposed approach of incorporating the target-base geometry by weighting the measurements from separate baselines (see Section \ref{txt:incorporating_target-base_geometry}) two scenarios comparing the localization precision of two and three CUs were created. In both cases the goal was to localize the target moving with constant speed along the circle. In order to simulate the random error of single visual trackers, the \textit{GT tracker} with parameters $\mu_{d} = 0.120~s,~\sigma_{d} = 0.010~s,~\mu_{n} = 0~px,~\sigma_{n} = 15~px$ was used. 
 
-In the first scenario only two CUs ($CU_{1}$, $CU_{2}$) are used and thus there are two critical regions $CR_{1}$ and $CR_{2}$ along the baseline within which the localization error is expected to be high. In the second scenario the third $CU_{3}$ was added so that all three CUs would form regular triangle. It was expected that both critical regions would be covered by two newly created baselines. As can be seen in Figure \ref{fig:test_two_vs_three_cus}) the expectations were met.
+In the first scenario only two CUs ($CU_{1}$, $CU_{2}$) are used and thus there are two critical regions $CR_{1}$ and $CR_{2}$ along the baseline within which the localization error is expected to be high. In the second scenario the third $CU_{3}$ was added so that all three CUs would form a regular triangle. It was expected that both critical regions would be covered by two newly created baselines. As can be seen in Figure \ref{fig:test_two_vs_three_cus} the expectations were met.
 
 % Schema of testing two vs three units and plot with error results.
 \begin{figure}[htb]\centering
@@ -1227,7 +1231,7 @@ In the first scenario only two CUs ($CU_{1}$, $CU_{2}$) are used and thus there 
 %-------------------------------------------------------------------------
 \section{Real World Testing} \label{txt:real_world_testing}
 
-In order to test the real world performance of the OLS two datasets were created using a basic two-cameras setup. The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebetín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the baseline would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was no longer available and thus the marks measuring the distance painted on the running pitch were used to station the CUS which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}) and presumably in the same altitude.
+In order to test the real world performance of the OLS two datasets were created using a basic two-camera setup. The first dataset (\textsc{meadow}) was obtained on the meadow located between districts Bystrc and Žebětín (Brno, Czech Republic). The CUs were precisely positioned using differential GPS sensor so that the baseline would be $30~m$ long. To create the second dataset (\textsc{pitch}) the athletics stadium VUT SAPPV located in district Královo Pole (Brno, Czech Republic) was chosen since the DGPS sensor was no longer available and thus the marks measuring the distance painted on the running pitch were used to station the CUs which were placed $10~m$ apart (see Figure~\ref{fig:dataset_zebetin_vut}) and presumably in the same altitude.
 
 In both datasets the local heading was estimated by aiming the units on each other as explained in Section \ref{txt:stationing} and the global heading was computed as the rotation of the baseline with regards to the UTM coordinate frame. Standalone digital inclinometer was used to level both stations by manually adjusting the lengths of surveying tripod legs.
 
@@ -1243,7 +1247,7 @@ In both datasets the local heading was estimated by aiming the units on each oth
 %.........................................................................
 \subsection{Setup and Methodology} \label{txt:setup_and_methodology}
 
-The system was tested in two different real-world environments and a basic two-cameras setup was used in both cases. The first testing was performed on a meadow (\textsc{meadow} dataset) and the second one on the running pitch (\textsc{pitch} dataset). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map. In case of \textsc{meadow} dataset, a moving target equipped with the handheld GPS sensor was tracked and localized as well. During all measurements only horizontal position (i.e. northing and easting parameters of the UTM coordinate frame) was considered.
+The system was tested in two different real-world environments and a basic two-camera setup was used in both cases. The first testing was performed on a meadow (\textsc{meadow} dataset) and the second one on the running pitch (\textsc{pitch} dataset). Multiple static targets corresponding to the visually significant landmarks were chosen so that it would be possible to find their precise geographical coordinates using the cadastral map. In case of \textsc{meadow} dataset, a moving target equipped with the handheld GPS sensor was tracked and localized as well. During all measurements only horizontal position (i.e. northing and easting parameters of the UTM coordinate frame) was considered.
 
 For each target, the expected \textit{localization error} $E_{est}$ was computed based on the theory presented in chapter \ref{txt:precision_of_the_localization} and it was compared to the real measured error. Note that the \textit{localization error} $E_{meas}$ is defined as the Euclidean distance between the estimated and ground truth geographical location of the given target given in UTM coordinates:
 
@@ -1256,7 +1260,7 @@ where $n$ and $e$ are the northing and easting coordinates and subscripts $gt$ a
 %.........................................................................
 \subsection{Static Targets}
 
-Nine landmarks in case of \textsc{meadow} dataset and three landmarks in case of \textsc{pitch} dataset were selected to test localization. Tables \ref{tab:static_targets_zebetin} and \ref{tab:static_targets_vut_pitch} summarize ground truth and measured UTM coordinates of the targets as well as the position of the targets with regards to the baseline (angle $\omega$ and distance $d$) which influences the total localization error (see Section~\ref{txt:precision_of_the_localization}). 
+Nine landmarks in case of \textsc{meadow} dataset and three landmarks in case of \textsc{pitch} dataset were selected to test localization. Tables \ref{tab:static_targets_zebetin} and \ref{tab:static_targets_vut_pitch} summarize ground truth and measured UTM coordinates of the targets as well as the position of the targets with regards to the baseline (angle $\gamma$ and distance $d$) which influences the total localization error (see Section~\ref{txt:precision_of_the_localization}). 
 
 Note that due to the fact the angle $\gamma$ (see Figure \ref{fig:target-base_and_weighted_centroid}) do not vary much the overall estimated error $E_{est}$ is mainly influenced by the distance of the target $d$ which varies significantly. Therefore the targets are sorted in ascending order with respect to the distance $d$. The estimated error $E_{est}$ was calculated with assumption of the random error worth $p = 4~px$ (see Section \ref{txt:precision_of_the_localization}). 
 
@@ -1318,15 +1322,15 @@ Figure \ref{fig:plot_error_estatic_targets} compares the estimated and measured 
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.98\linewidth]{fig/plot_static_targets.pdf}
-	\caption{The plot displays both measured $E_{meas}$ and estimated $E_{est}$ localization error for all static targets, which are sorted in ascending order with respect to the estimated error.}
+	\caption{The plot displays both measured $E_{meas}$ and estimated $E_{est}$ localization error for all static targets, which are sorted in ascending order with respect to the distance (and consequently estimated error $E_{est}$).}
 	\label{fig:plot_error_estatic_targets}
 \end{figure}
 
 As for the \textsc{meadow} dataset the achieved precision is approximately 4--5 times worse than expected ranging from 4.41 to 34.21 $m$. Note that the targets were selected manually in the images, hence the random error plays insignificantly small role in the total imprecision. The main source of the deflections is the systematic error caused by both imprecise rectification and stationing. 
 
-In case of \textsc{pitch} dataset the achieved precision is approximately 6--10 times worse than expected ranging from 7.77 to 89.46 $m$. The impact of the systematic error is even grater. One of the reason is the fact the CUs were not stationed using GPS, contrarily their geographical positions were estimated by finding the pitch marks (on which the CUs were placed) on the ortophotomap. It has been noted that all the wrong estimations tend to be placed in more less correct direction, however too close to the baseline which is another clue which points to the systematic error (i.e. the mounting of the cameras might have moved slightly during the transportations).
+In case of \textsc{pitch} dataset the achieved precision is approximately 6--10 times worse than expected ranging from 7.77 to 89.46 $m$. The impact of the systematic error is even greater. One of the reason is the fact the CUs were not stationed using GPS, contrarily their geographical positions were estimated by finding the pitch marks (on which the CUs were placed) on the ortophotomap. It has been noted that all the wrong estimations tended to be placed in more less correct direction, however too close to the baseline which is another clue which points to the systematic error (i.e. the mounting of the cameras might have moved slightly during the transportations).
 
-\paragraph{Conclusion} In order to achieve higher precision more thorough elimination of systematic error must be performed. In case of rectification the human error as well as non-robust construction of the camera mounting is the main limitation (see Section \ref{txt:rectification}). In case of stationing, the more robust approach to leveling the stations as well as estimating the heading should be taken.
+\paragraph{Conclusion} In order to achieve higher precision more thorough elimination of systematic error must be performed. In case of rectification the human error as well as non-robust construction of the camera mounting is the main limitation (see Section \ref{txt:rectification}). In case of stationing more robust approach to leveling the stations as well as estimating the heading should be taken.
 
 %.........................................................................
 %.........................................................................
@@ -1337,7 +1341,7 @@ In case of \textsc{meadow} dataset the system was tested against one dynamic ter
 \begin{figure}[!h]\centering
 	\centering
 	\includegraphics[width=0.98\linewidth]{fig/tracking_and_map.png}
-	\caption{The two-camera setup, where a distant target is tracked by both CUs (left and right). The estimated position of the target is displayed in the map (center).}
+	\caption{The two-camera setup where the distant target is tracked by both CUs (left and right). The estimated position of the target is displayed in the map (center).}
 	\label{fig:trackingAndMap}
 \end{figure}
 
@@ -1364,7 +1368,7 @@ An attempt was made to localize another moving target in \textsc{pitch} dataset 
 
 This work presents a novel system for autonomous optical localization of aerial targets. The principle of triangulation is well known and widely used, however the main contribution of the system is the fact it is designed to operate autonomously from detecting the object to estimating its position. As the first step, a suitable placement of available camera units had to be designed and the proper hardware components, which each camera station consists of, had to be selected. A model of the camera unit represented by a kinematic chain was proposed and all camera units were then rectified in order to minimize the difference between the model and the real construction of the camera units.
 
-As fo the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
+As for the software solution, the most promising computer vision techniques for both detection and tracing of the target were proposed and one of them, a free implementation of the TLD algorithm was eventually integrated in the system. The architecture of the system based on the ROS framework was designed and implemented and the physical simulation software Gazebo was used to experiment with the system placed in a virtual scene.
 
 As far as the further development is concerned, the autonomous detection algorithm will be implemented and the tracking algorithm will be improved on since the OLS system expects a static background (as opposed to the TLD) so the background modeling could be incorporated to further improve the tracker performance. The subsystem for target handoff among the cameras will be designed and implemented and the localization algorithm will be improved on to reflect the uncertainty of the locations and orientations of the separate joints in the kinematic models and to provide the result in global geographical coordinates (most likely UTM). A proper dataset will be acquired and the system will be tested thoroughly.
 
