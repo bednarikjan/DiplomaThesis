@@ -844,7 +844,7 @@ where $fd_{dim_{n}}$ is the coordinate of maximal intensity $F_{max_{n}}$ of the
 
 In order no to loose the moving target from the field of view, the manipulator has to rotate the camera around both azimuthal and elevation axis appropriately. A most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the manipulator to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
 
-Contrarily, it is necessary to predict the future 2D position of the target from two reasons. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of the sudden and rapid movement of the target. Second, the measurements are delayed (the tracking algorithm computation and communication delay).
+Contrarily, it is necessary to predict the future 2D position of the target from two reasons. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of the sudden and rapid movement of the target. Second, the measurements are delayed (the tracking algorithm computation and communication delay) and the P\&T unit manifests considerable latency.
 
 Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the taregt $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between the current and future 2D position in $T$ seconds:
 
@@ -1029,6 +1029,8 @@ The localization component continuously estimates the location of the target in 
 %=========================================================================
 %=========================================================================
 \chapter{Implementation} \label{txt:implementation}
+
+\todo{popsat ground truth tracker - dkazuji se na nej z testovani regulace}
 
 /todo{sekce gui - vysvetlit, ze neni gui, ale nekolik oken, vypis aktualnich info, crosshait apod, ovladani mysi a klavesnici}
 
@@ -1313,19 +1315,29 @@ An attempt was made to localize another moving target in \textsc{pitch} dataset 
 %-------------------------------------------------------------------------
 \section{Regulation of the Manipulator Motion} \label{txt:test_regulation}
 
+As explained in Section \ref{txt:2d_motion_prediction_and_regulation} it is desirable to keep the tracked target as close to the image center as possible by instructing the P\&T unit to rotate the camera. Furthermore, the motion should be smooth and as fast as possible, however, it should cope with the delays imposed by the visual tracker computation, the communication latency and the latency of the hardware (P\&T unit). Hardware-in-the-loop approach was taken in order to test the real P\&T unit in the simulated environment and the \textit{GT tracker} (see Section \ref{txt:implementation}) was utilized.
+
+In the first test both proposed regulation functions (linear and power, see Section \ref{txt:2d_motion_prediction_and_regulation}) with various settings of parameters $a$ and $k$. In this scenario the objective was to position the camera so as to aim directly on the static target. The constants $\mu_{d} = 0.120 s, \sigma_{d} = 0.010 s, \mu_{n}, \sigma_{n}$ were selected for the \textit{GT tracker} to simulate the worst case delay scenario of the visual tracker performance.
+
+As can be seen in Figure \ref{fig:test_reg_lin_pow}, the linear function cannot be too steep (high value of derivative $a$), otherwise the P\&T unit overshoots the target position and it must return (the cases of linear functions where $a = 1.0$ and $a = 5.0$) which is inadmissible behavior. Contrarily, if set correctly the power functions do not cause the overshoot and converge faster. As the result the power function with parameters $a = 2.26,~k = 1.5$ is used in the OLS.
+
 % Comparison of different regulation functions as tested in the hardware-in-the-loop manner.
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.75\linewidth]{fig/test_regulation_lin_pow.pdf}
-	\caption{.}
+	\caption{The figure depicts the Euclidean distance between the target and center of the image plane (given in pixels) as the function of time for both linear and power regulation functions with various settings of parameters. The power function tend to converge more quickly to the minimal distance.}
 	\label{fig:test_reg_lin_pow}
 \end{figure}
+
+In order to keep the moving targets close to the center of the image plane, the prediction of future position of the target must be employed (see Section \ref{txt:2d_motion_prediction_and_regulation}). A suitable value of variable $T_{pred}$ specifying the time in the future for which the position of the target is predicted should be chosen. If $T_{pred}$ is too small the P\&T unit is not able to keep up with the motion of the target and the center of the image screen always falls behind the target. Contrarily, if $T_{pred}$ is too high, the P\&T unit overshoots to the \textit{cutoff} region (see Figure \ref{fig:regulation_lin_power}) and anticipates the position of the target.
+
+Therefore, in the second test a simple scenario consisting of one P\&T unit and the simulated target moving with a constant speed along a line between two boundaries was created. Different values for prediction time $T_{pred}$ were set and the horizontal distance $d_{h}$ between the center of the image $PP$ and the projection $t$ of the target $T$ was measured (see Figure \ref{fig:test_motion_predict}). As ws expected, with increasing value of $T_{pred}$ the overall distance $d_{h}$ decreases up to the point where the P\&T unit starts to overshoot. Note that it is not possible to select the best universal value since the performance depends on the distance, speed and motion model of the target. Therefore, it is necessary to choose the right value with regards to the given scenario.
 
 % Comparison of amount of time for future position prediciton.
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.95\linewidth]{fig/schema_defile_and_motion_prediction.pdf}
-	\caption{.}
+	\caption{Left figure depicts the schema of the perpetual linear motion of the target moving to and fro between two boundaries. Right figure shows $d_{h}$ as the function of time for different settings of prediction time $T_{pred}$.}
 	\label{fig:test_motion_predict}
 \end{figure}
 
