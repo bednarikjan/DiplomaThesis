@@ -112,7 +112,7 @@ An \textit{appearance} model is represented either by rectangular template \cite
 %% Object models - shape and appearance representation.
 \begin{figure}[tbh]
 	\centering
-	\includegraphics[width=0.7\textwidth]{fig/object_model.png}
+	\includegraphics[width=0.7\textwidth]{fig/object_model.pdf}
 	\caption{Various approaches to tracked object modeling. (a) Keypoints, (b) contour and (c) articulated model fall into the \textit{shape representation} category whereas (d) template and (e) kernel belong to the \textit{appearance representation} category. The intensity of a red color in case (e) denotes the weight of the given pixel in the given (ellipse shaped) kernel.}
 	\label{fig:object_models}
 \end{figure}
@@ -558,7 +558,7 @@ As for the network topology, the OLS is based on a star pattern where each track
 %-------------------------------------------------------------------------
 \section{Stationing} \label{txt:stationing}
 
-The main purpose of the \textit{stationing} process is to find the positions and orientations of all CUs with regards to the global (world) coordinate system. The stationing consists of four subtasks: finding the global position (using DGPS sensor), ensuring horizontality, finding absolute heading\footnote{\textit{Heading} is the term used to describe the angle between the torso of the human body and the geographical north \cite{Henriksson648760}.} and finding relative heading. Great care should be taken when performing the stationing since imprecise estimates of the position and/orientation are the main source of the systematic error which significantly impacts the overall localization precision of the system.
+The main purpose of the \textit{stationing} process is to find the positions and orientations of all CUs with regards to the global (world) coordinate system. The stationing consists of four subtasks: finding the global position (using DGPS sensor), ensuring horizontality, finding absolute heading\footnote{\textit{Heading} is the term used to describe the angle between the torso of the human body and the geographical north \cite{Henriksson648760}.} and finding relative heading. Great care should be taken when performing stationing since imprecise estimates of the position and/orientation are the main source of the systematic error which significantly impacts the overall localization precision of the system.
 
 %.........................................................................
 %.........................................................................
@@ -595,52 +595,54 @@ The process of relative heading estimation is run separately for each pair of CU
 %-------------------------------------------------------------------------
 \section{Rectification} \label{txt:rectification}
 
-the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
-
-The process of rectification serves the purpose of reducing the system error caused by the imprecise attachment of the camera to the manipulator. The model of the camera unit assumes that the camera is precisely attached to the manipulator so that the camera image sensor is positioned perpendicular to the azimuthal axis and the rows of the image sensor are parallel to the elevation axis (i.e. the camera is not rotated along the optical axis).
-
-Regarding these requirements the rectification consists of three parts: rotation along the optical axis, rotation along the azimuthal axis, finding the default elevation angle.
-
+The \textit{rectification} process serves the purpose of reducing the systematic error caused by the imprecise attachment of the camera to the P\&T unit. The objective is to fix the camera in such a position that the image sensor becomes parallel  with both azimuthal and elevation axis. At the same time the rows of the image sensor must remain parallel with the elevation axis (i.e. the camera is not rotated around the optical axis). If it is not possible to fix the camera precisely in required position (mechanical limitations of the camera mount) the error angles must be measured and integrated to the CU model. The rectification process consists of three parts: \textit{eliminating rotation along the optical axis}, \textit{measuring rotation along the azimuthal axis} and \textit{finding the default elevation angle}.
 
 %.........................................................................
 %.........................................................................
-\subsection{Rotation Along the Optical Axis}
+\subsection{Eliminating Rotation Along the Optical Axis}
 
-A custom made metal mount is attached to the bottom side of the camera. The mount is then attached to the manipulator using two opposing round tenons enabling for the rotation of the mount (together with camera) along the axis parallel to the optical axis of the camera (see Figure \ref{fig:rect_model_front_view}).
+The camera is attached to a custom made metal mount. The mount itself is then attached to the P\&T unit using two opposing round tenons enabling for the rotation around the axis parallel with the optical axis of the camera (see Figure \ref{fig:rect_model_front_view}).
 
 %% The front view of the model of the camera unit
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=10cm]{fig/rect_model_front_view.png}
-	\caption{Front view of the top part of the camera unit. The red arrow shows the possible rotation of the camera along the axis parallel to the optical axis. The Figure is adopted from company Oprox, a.s.}
+	\includegraphics[width=10cm]{fig/rect_model_front_view.pdf}
+	\caption{Front view of the top part of the CU. The red arrow denotes the possible rotation of the camera along the axis parallel to the optical axis. Image courtesy of company Oprox, a.s.}
 	\label{fig:rect_model_front_view}
 \end{figure}
 
-In this part the rectification target with three parallel horizontal black lines is used. Each line has a different width so that the operator can select the most suitable one (given the distance of the target, ambient lighting conditions, etc.). As the first step a surveying automatic level is used to rotate the target so that the black lines become horizontal. Then the camera is pointed approximately to the center of the target. The camera image stream is blended with the same stream mirrored across the vertical axis. The operator then manually rotates the camera so that the black lines in this blended image stream appear visually aligned (see Figure \ref{fig:rect_mirrored_stream}). Once set, the mount with the camera is fixed to the manipulator using two set screws.
+In this part the rectification target with three parallel horizontal black lines is used. As the first step a surveying automatic level is used to rotate the target so that the black lines become horizontal. The camera is then positioned so as to aim approximately at the center of the target. The camera image stream is blended with the same stream mirrored across the vertical axis. Finally, the objective is to manually rotate the camera so that the black lines in blended image stream appear visually aligned (see Figure \ref{fig:rect_mirrored_stream}). Once set, the mount with the camera is fixed to the manipulator using two set screws.
 
 %% Rectification of the rows of the camera image sensor - original stream blended with the mirrored stream
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=12cm]{fig/rect_mirrored_stream.png}
+	\includegraphics[width=0.75\textwidth]{fig/rect_mirrored_stream.png}
 	\caption{A blended image stream from the camera before (left) and after (right) rotating the camera along the optical axis to the correct position.}
 	\label{fig:rect_mirrored_stream}
 \end{figure}
 
 %.........................................................................
 %.........................................................................
-\subsection{Rotation Along the Azimuthal Axis}
+\subsection{Measuring Rotation Along the Azimuthal Axis}
 
-The mount can still rotate along the axis parallel to the azimuthal axis (see Figure \ref{fig:rect_model_top_view}). It is necessary to ensure that the optical axis of the camera is perpendicular to the elevation axis. 
+The mount can still rotate around the axis parallel with the azimuthal axis (see Figure \ref{fig:rect_model_top_view}). It is necessary to ensure that the optical axis of the camera is perpendicular to the elevation axis. The same target from the first part of the rectification is used but two black crosses are added to the selected horizontal black line. The distance $d_{ao}\ m$ between two crosses equals to the distance between the azimuthal and optical axis (which is known from the engineering design, see Figure \ref{fig:rect_azi_axis}).
 
 %% The top view of the model of the camera unit
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=11cm]{fig/rect_model_top_view.png}
-	\caption{Top view of the top part of the camera unit. The red arrow shows the possible rotation of the camera along the axis parallel to the azimuthal axis. The Figure is adopted from company Oprox, a.s.}
+	\includegraphics[width=11cm]{fig/rect_model_top_view.pdf}
+	\caption{Top view of the top part of the CU. The red arrow shows the possible rotation of the camera along the axis parallel to the azimuthal axis. Image courtesy of company Oprox, a.s.}
 	\label{fig:rect_model_top_view}
 \end{figure}
 
-The same target from the first part of the rectification is used, but two black crosses are added to the selected horizontal black line. The distance $d_{ao}\ m$ between two crosses equals to the distance between the azimuthal and optical axis (which is known from the engineering design, see Figure \ref{fig:rect_azi_axis}). 
+A military monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the manipulator. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis intersects the right cross and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset $d_{h}$ expressed in pixels is transformed to the default rotation angle $\beta$ (see Figure \ref{fig:rect_pixel_offset}) of the joint \textsc{camera} in the CU model:
+
+\begin{equation}
+\begin{aligned}
+\beta &= \arctan\frac{d_{h}cs}{f},
+\end{aligned}
+\end{equation}
+where $f$ is the focal length and $cs$ is the physical size of one pixel.
 
 %% Photograph of the camera unit with the telescope mounted on the top
 %% Screenshot of the digital crosshair and the offset
@@ -648,33 +650,27 @@ The same target from the first part of the rectification is used, but two black 
 	\centering
 	\begin{minipage}{.37\textwidth}
 		\centering
-		\includegraphics[width=.99\linewidth]{fig/rect_telescope.png}
-		\captionof{figure}{A telescope mounted on top of the manipulator. A person looking through a telescope sees a crosshair.}
+		\includegraphics[width=.99\linewidth]{fig/rect_telescope.pdf}
+		\captionof{figure}{A telescope mounted on top of the P\&T unit. A person looking through a telescope sees the black crosshair.}
 		\label{fig:rect_telescope}
 	\end{minipage}
 	\hfill
 	\begin{minipage}{.59\textwidth}
 		\centering
 		\includegraphics[width=.99\linewidth]{fig/rect_azi_axis.pdf}
-		\captionof{figure}{Rectification target with the pairs of black crosses. The two crosses in a pair are $d_{ao}\ m$ apart A digital crosshair is displayed in order to find the horizontal offset $d_{h}$.}
+		\captionof{figure}{Rectification target with the pairs of black crosses. The two crosses in a pair are $d_{ao}\ m$ apart. A digital crosshair is displayed in order to find the horizontal offset $d_{h}$.}
 		\label{fig:rect_azi_axis}
 	\end{minipage}
 \end{figure}
 
-A military optical monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the manipulator. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis (represented by the digital crosshair) intersects the right cross on the target and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset expressed in pixels is recorded and transformed to the default angle $\beta$ expressed in milliradians (see Figure \ref{fig:rect_pixel_offset}) of rotation along Z-axis of the joint \texttt{camera} in the camera unit model (see Section \ref{txt:camera_unit}):
 
-\begin{equation*}
-	\begin{aligned}
-		\beta &= \arccos\frac{focal\_length}{offset}, \\
-		offset &= pixel\_offset * pixel\_size
-	\end{aligned}
-\end{equation*}
+
 
 %% Geometry schema showing how to calculate angle beta - pixel offset
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=13cm]{fig/rect_pixel_offset.pdf}
-	\caption{The top view schema of a rectification target being projected to the image sensor of the camera. The value of the angle $\beta$ is one of the output of the rectification process.}
+	\includegraphics[width=0.65\linewidth]{fig/rect_pixel_offset.pdf}
+	\caption{The top view schema of a rectification target being projected to the image sensor of the camera.}
 	\label{fig:rect_pixel_offset}
 \end{figure}
 
@@ -683,9 +679,9 @@ A military optical monocular telescope (see Figure \ref{fig:rect_telescope}) is 
 %.........................................................................
 \subsection{Finding the Default Elevation Angle}
 
-Given the application of the system the camera is expected to mainly observe the sky. Considering the limited elevation range of the manipulator \texttt{Flir PTU D46-70} (see Section \ref{txt:camera_unit}), the camera must be mounted to the manipulator with the default elevation angle approximately $-60^{\circ}$. However, after fixing the camera it is necessary to find default elevation angle precisely. 
+Considering the limited elevation range of the P\&T unit \texttt{Flir PTU D46-70} (see Section \ref{txt:camera_unit}) the camera must be mounted pre-rotated around the elevation axis by approximately $-60^{\circ}$. However, after fixing the camera it is necessary to find this default angle precisely. 
 
-For this purpose a pair of rectification targets, which consist of vertical black and white lines representing the marks of a ruler. The targets are positioned in a row with the distance of a few meters so that the front target would overlap approximately half of the rare target when observed from the camera. Both targets must be rotated so that the lines become horizontal, then the operator manually adjusts the elevation of the manipulator so that the digital crosshair would intersect the same mark on both targets where the two marks form a straight line (see figure \ref{fig:rect_default_elevation_angle}). Once found the current elevation angle is recorded and integrated to the model of the camera unit as an angle of rotation along the Y-axis of the joint \texttt{camera} (see Section \ref{txt:camera_unit}).
+For this purpose a pair of rectification targets which consist of horizontal black and white lines representing the marks of a ruler are used. The targets are positioned in a row with the distance of a few meters so that the front target would overlap approximately half of the rare target when observed from the camera. The operator manually adjusts the elevation of the manipulator until the digital crosshair intersects the same mark on both targets where the two marks form a straight line (see figure \ref{fig:rect_default_elevation_angle}). Once such an elevation is found the angle is recorded and integrated to the model of the camera unit as an angle of rotation around the Y-axis of the joint \textsc{camera} (see Section \ref{txt:camera_unit}).
 
 %% The rectification target for finding the default elevation angle.
 \begin{figure}[htb]
