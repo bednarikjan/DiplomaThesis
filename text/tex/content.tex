@@ -481,9 +481,6 @@ VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index
 %=========================================================================
 %=========================================================================
 \chapter{Precision of the Localization in Multi-camera System} \label{txt:precision_of_the_localization}
-\todo{Rozdelit typy chyb}
-\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
-\todo{Zavislost presnosti na chybe trackeru v px - v simulatoru}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -516,6 +513,9 @@ As for the network topology, the OLS is based on a star pattern where each track
 %-------------------------------------------------------------------------
 \section{Precision Analysis} \label{txt:precision_analysis}
 
+\todo{Rozdelit typy chyb}
+\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
+\todo{Zavislost presnosti na chybe trackeru v px -> otestovano v simulatoru n sekci Experimental Results}
 
 %=========================================================================
 %=========================================================================
@@ -558,52 +558,44 @@ As for the network topology, the OLS is based on a star pattern where each track
 %-------------------------------------------------------------------------
 \section{Stationing} \label{txt:stationing}
 
-The precision of the whole system is dependent on the uncertainty of the system input as well as on the imprecision of the camera unit construction. The process of stationing aims to alleviate the uncertainty of the system input while the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
-
-Since the stationing is considered to be already a working subsystem of the whole project (and thus is not dealt with within the scope of this work) only the main principle will be briefly described. The stationing is composed of two parts: finding the geographical north and finding the relative azimuthal and elevation angles between each pair of camera units.
-
-%.........................................................................
-%.........................................................................
-\subsection{Geographical North} \label{txt:geographical_north}
-
-Though it is a common practice to estimate the heading\footnote{Heading is the term used to describe the angle between the torso of the human body and the geographical north \cite{Henriksson648760}} using a magnetometer, this device is unsuitable for this project since the accuracy of the current professional class magnetometers is insufficient. For instance the accuracy of the magnetometers meant for compassing applications produced by Honeywell company range from hundreds to thousands of milliradians \cite{Honeywell:compassing_catalog}.
-
-In order to find the orientation of each camera unit placed in the outdoor environment, distinctive landmarks (created either by human or nature) with known geographical positions are used. For each such landmark, the manipulator is rotated so that the optical axis of the camera would intersect that landmark and both the azimuth and elevation value is registered. Using triangulation the geographical position of the camera unit is derived. 
-
-A different possible approach takes advantage of the celestial objects, such as the moon, sun or stars for which the current geographical position is known as well. Nevertheless, this approach can only be used between the sunset and the dawn.
-
-%.........................................................................
-%.........................................................................
-\subsection{Relative Azimuth and Elevation}
-
-To further reduce the impact of the uncertainty of the system input produced by the GPS and the system error given by the imprecision of the heading estimation (see Section \ref{txt:geographical_north}) it is convenient to find the relative position of each camera unit with regards to the rest of the camera units.
-
-The information about the geographical position of all camera units as obtained from the GPS sensors is distributed across the whole system. Each pair of camera units then automatically performs the following:
-
-\begin{enumerate}
-	\item Set the azimuth and elevation of the manipulator so that the optical axis of the camera would intersect the expected location of the LED target of the other camera unit.
-	\item Using the visual clue adjust the azimuth and elevation so that the optical axis of the camera would intersect the center of the LED target of the other unit (see Figure~\ref{fig:stationing_aiming}).
-	\item Save the current azimuth and elevation values of both camera units and use those values to update the model of the system.
-\end{enumerate}
-
-%% Stationing process of one pair of the camera units
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=8cm]{fig/stationing_aiming.png}
-	\caption{Schema of the stationing process where two camera units attempt to align the optical axes of their cameras so that they would intersect the LED target of the other unit.}
-	\label{fig:stationing_aiming}
-\end{figure}
-
+The main purpose of the \textit{stationing} process is to find the positions and orientations of all CUs with regards to the global (world) coordinate system. The stationing consists of four subtasks: finding the global position (using DGPS sensor), ensuring horizontality, finding absolute heading\footnote{\textit{Heading} is the term used to describe the angle between the torso of the human body and the geographical north \cite{Henriksson648760}.} and finding relative heading. Great care should be taken when performing the stationing since imprecise estimates of the position and/orientation are the main source of the systematic error which significantly impacts the overall localization precision of the system.
 
 %.........................................................................
 %.........................................................................
 \subsection{Horizontality}
-Since the camera unit is expected to be placed in an unknown outdoor terrain, it will never stand on an ideally horizontal surface. Therefore, it is necessary to either ensure that the unevenness of the surface is compensated by the suitable setting of the camera unit's stand or both the side tilt and front tilt angles of the stand must be estimated and integrated to the model of the given camera unit. For these purposes the inclinometer attached to the base plane of the camera unit (see Section \ref{txt:camera_unit}) is used.
+Since the CU is expected to be placed in an unknown outdoor terrain it will never stand on an ideally horizontal surface. Therefore, it is necessary to either ensure that the unevenness of the surface is compensated by the suitable setting of the CU's stand or both the side tilt and front tilt angles of the stand must be estimated and integrated to the CU model. For these purposes the inclinometer attached to the base plane of the camera unit (see Section~\ref{txt:camera_unit}) is used.
 
+%.........................................................................
+%.........................................................................
+\subsection{Absolute Heading} \label{txt:absolute_heading}
+
+Though it is a common practice to estimate the heading using a magnetometer, this device is unsuitable for the OLS since the accuracy of the current professional class magnetometers starts at ca $10~mrad$ \cite{Honeywell:compassing_catalog} which is insufficient.
+
+In order to find the orientation of each camera unit placed in the outdoor environment, distinctive landmarks with known geographical positions are used. For each such landmark the P\&T unit is rotated so that the optical axis of the camera would intersect that landmark and the azimuth value is registered. Using triangulation the geographical position of the camera unit is derived.
+
+A different possible approach takes advantage of the celestial objects such as the moon, sun or stars for which the current geographical position is known as well. Nevertheless, this approach can only be used between the sunset and the dawn.
+
+%.........................................................................
+%.........................................................................
+\subsection{Relative Heading}
+
+To further reduce the impact of both random error produced by the GPS sensor and the systematic error given by the imprecision of absolute heading estimation it is reasonable to find the relative heading of each camera unit with regards to the rest of the camera units. Furthermore, relative heading estimation is inevitable in case the absolute heading cannot be measured at all. In case of the OLS, the absolute heading was not measured during testing (see Section \ref{txt:real_world_testing}) and the system relied only on the relative hading estimation.
+
+The process of relative heading estimation is run separately for each pair of CUs. First, the azimuth and elevation of both P\&T units is set so that the optical axis of the camera would intersect the expected location of the LED target of the other CU. Then the position is refined so that the camera would aim directly at the center of the LED target (see Figure \ref{fig:stationing_aiming}). Current azimuth and elevation values of both CUs are saved and the whole model of the system is updated accordingly.
+
+%% Stationing process of one pair of the camera units
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/stationing.pdf}
+	\caption{Schema of the stationing process where two CUs attempt to align the optical axes of their cameras.}
+	\label{fig:stationing_aiming}
+\end{figure}
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Rectification} \label{txt:rectification}
+
+the main purpose of the rectification is to reduce the difference between the real camera unit and its model.
 
 The process of rectification serves the purpose of reducing the system error caused by the imprecise attachment of the camera to the manipulator. The model of the camera unit assumes that the camera is precisely attached to the manipulator so that the camera image sensor is positioned perpendicular to the azimuthal axis and the rows of the image sensor are parallel to the elevation axis (i.e. the camera is not rotated along the optical axis).
 

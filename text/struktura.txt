@@ -130,6 +130,8 @@ STRUTKTURA DETAILNE
 
 7) Conclusion [1.0]
 
+x) seznam obrazku, tabulek, seznam zkratek
+
 Appendix
 	- clanek a poster z Excelu
 	
