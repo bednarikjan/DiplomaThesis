@@ -482,7 +482,7 @@ VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index
 %=========================================================================
 \chapter{Precision of the Localization in Multi-camera System} \label{txt:precision_of_the_localization}
 
-\vata[2]
+The whole chapter is devoted to exploring the problematics of error analysis which must be performed prior to the system design. The objective is to find prospectively most severe sources of error already in the early stages of the system development and to take appropriate measures in order to eliminate them. First, the proposed topology of the OLS design so as to maximize the system precision is proposed and described in Section \ref{txt:system_topology}. Section \ref{txt:precision_analysis} then discusses the main sources of error in the system, categorizes them and provides a detailed analysis of impact each error poses on the OLS. Finally, Sections \ref{txt:stationing} and \ref{txt:rectification} explain the processes of \textit{stationing} and \textit{rectification} which aim on eliminating certain types of errors.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -501,6 +501,8 @@ As was explained in Section \ref{txt:triangulation_with_noisy_measurements} a sy
 	\label{fig:cu_and_topology}
 \end{figure}
 
+~\\
+~\\
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
 \section{Precision Analysis} \label{txt:precision_analysis}
@@ -516,52 +518,46 @@ Since the precision can be affected severely by multiple independent factors it 
 %.........................................................................
 \subsection{Sources of Error}
 
-- vysvetleni typu chyb:
-	- system error (systemova chyba)
-		- nesoulad modelu CU s realnou konstrukci
-		- nespravne mereni heading, horizontality
-		- nespravne urceni GPS pozice stanic
-		- detekce a tracking ?
-		- kalibrace kamer
-	- random error
-		- tracker (spatne urceni, turbulence, refrakce, ...)
-		- mereni z PT unit
-		- delay
-		- synchronizace casu
+The precision of estimating the target position is subject to various types of errors which have different impact on the overall deflection. Basically, there two main categories of errors can be distinguished, the \textit{systematic error} and the \textit{random error} \cite{taylor1997introduction}.
 
-- vysvetlit, ze budu analyzovat presnost pro obecnou chybu, ktera muze byt zpusobena jak random tak system
-- vysvetlit, ze system je nachylny hlavne na uhly, ne na translace (mozna obrazek)
-- vysvetlit a odkazat se, ze systematic error je potlacena rektifikaci, zastanicenim, kalibraci; random error je potlacena vychytavkama v trackeru a PTP synchronizaci
+\paragraph{Systematic error} The main property of systematic error is the fact that it cannot be revealed by repeating the measurement. I.e. this error is intrinsicly integrated in the system itself and it always distorts the measurements the same way. In case of the OLS the sources of the systematic error are the discrepancy between the physical CU and its model (imprecise mechanical construction) and imprecise stationing (i.e. finding the global orientation and geographical coordinates of each CU). In order to eliminate the systematic error in the OLS the process of stationing (see Section \ref{txt:stationing}) and rectification (see Section \ref{txt:rectification}) were designed.
 
-=== obr. rotace vs translace -> system nachylny na rotaci ===
---- p
+\paragraph{Random error} This type of error can be usually described by a probability distribution i.e. it behaves in a random manner. As for the OLS the main source of random error is the visual tracker which typically outputs the measurements oscillating around the correct target position. This phenomenon is caused jointly by non-maturity of the tracking algorithms and by the clutter present in the environment such as the atmospheric turbulences or refractive index fluctuations. Another source of the random error are the measurements of the current azimuth and elevation of the P\&T unit and time synchronization among the cameras. The random error can be alleviated by making the visual tracker more robust (see Section \ref{txt:visual_tracking}).\\
 
-The precision of estimating the target position is subject to systematic error (miscalibration of the instruments) and random error (wrong measurements and disturbances in the environment) \cite{taylor1997introduction}. Atmospheric turbulence, refractive index fluctuations and uncertainty of the visual tracker are the main causes of the random error which is analysed in section \ref{txt:randomErrorAnalysis}. The systematic error was alleviated and/or measured using the custom designed stationing and rectification process.
+Whether being systematic or random, in the OLS the error eventually reflects in undesirable rotation and/or translation of the CU model with regards to its real physical counterpart and consequently, when computing the triangulation the rays are back-projected in the wrong direction and/or from the wrong position. Note that given the nature of triangulation (see Section \ref{txt:triangulation}) the OLS is extremely sensitive to error angles (caused e.g. by wrong estimation of heading). Contrarily, the error translations (caused e.g. by faulty GPS measurement) are not of major concern (see Figure \ref{fig:rotation_vs_translation}).
 
-%- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
+%% Transaltion vs rotation error.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.55\linewidth]{fig/rotation_vs_translation.pdf}
+	\caption{The impact of undesirable error translation $t_{\epsilon}$ (left) and error rotation angle $r_{\epsilon}$ (right) of the CU model which causes the back-projection of incorrect ray $r'$ instead of correct $r$. Note that in case of $t_{\epsilon}$ the localization error $E_{i}$ is invariant to the distance $D_{i}$ of target $T_{i}$. Contrarily, in case of $r_{\epsilon}$ the more distant the target $T_{i}$ is the higher value the localization error $E_{i}$ reaches.}
+	\label{fig:rotation_vs_translation}
+\end{figure}
 
 %.........................................................................
 %.........................................................................
 \subsection{Error in Two-View System}
 
-- zavislost chyby na dvou hlavnich velicinach (za predpokladu, ze system dela constant chybu v uhlu)
-	- vzdalenost cile
-	- velikost baze
+Stereoscopic systems are affected by a phenomenon of diminishing accuracy of depth measurement with increasing distance of the target from the cameras \cite{Cyganek:2007:ICV:1214366}. The depth measurement resolution for canonical stereo setup is:
+\begin{align}
+R = \frac{rd^{2}}{fB - rD},
+\end{align}
+where $f$ is the focal length, $B$ is the baseline length, $r$ is the horizontal size of one pixel and $D$ is the target distance. By substituting $r$ by $pr$, where $p$ is the random error represented by integer number of pixels we obtain the \textit{position estimation error function}
+\begin{align}
+E = \frac{prD^{2}}{fB - prD}.
+\end{align}
 
-- Monza Zavislost presnosti na chybe trackeru v px -> 3D funkce, Z = chyba, X = velikost chyby v px, Y = vzdlaenost cile (pocitam stereosystem, cil je presne uprostred proti bazi kolmo)
-- Pridat zaver, ze i male chybove uhly, jako jsou desetiny stupne, ma smysl resit, a pridat sample vypocet, jakou to udela chybu (aby se dalo odkazovat dale z testu) -> tedy je nezbytne udelat precizni rektifikaci a stationing.
+The OLS does not conform to the canonical stereo setup (all cameras can rotate freely) so the dependence of the error on the target distance is no longer quadratic (considering the setup of two cameras where only one of them makes error): 
+\begin{align}
+E = B\tan(\arctan(\frac{D}{B}) + \arctan(\frac{r}{f})) - D.
+\end{align}
 
-
-
-Stereoscopic systems are affected by a phenomenon of diminishing accuracy of depth measurement with increasing distance of the target from the cameras \cite{Cyganek:2007:ICV:1214366}. The depth measurement resolution for canonical stereo setup is $R = \frac{rZ^{2}}{fb - rZ}$, where $f$ is the focal length, $b$ is the base length, $r$ is the horizontal size of one pixel and $Z$ is the target distance. By substituting $r$ by $pr$, where $p$ is the random error represented by integer number of pixels we obtain the position estimation error function $E = \frac{prZ^{2}}{fb - prZ}$.
-
-The OLS does not conform to the canonical stereo setup (all cameras can rotate freely), so the dependence of the error on the target distance is no longer quadratic (considering the setup of two cameras where only one of them makes error): $E = B\tan(\arctan(\frac{D}{B}) + \arctan(\frac{r}{f})) - D$. The cameras setup as well as the error shown as the function of the base length and target distance is depicted in Figure \ref{fig:errorGivenBaseAndDistance}.
+The cameras setup as well as the error shown as the function of the baseline length and target distance is depicted in Figure \ref{fig:errorGivenBaseAndDistance}. Note that the higher the distance of the target and at the same time the lower the baseline length the higher the precision error.
 
 \begin{figure}[htb]\centering
 	\centering
-	\includegraphics[width=0.27\linewidth]{fig/error_2units.pdf}
-	\includegraphics[width=0.66\linewidth, height=6.0cm]{fig/error_analysis_base_distance.pdf}
-	\caption{Left figure depicts the setup of two cameras $C1$ and $C2$, where only $C2$ makes an error worth $p$ pixels. $T$ represents the ground truth position of the target whereas $T'$ is the wrongly estimated position. Right figure shows the position estimation error as the function of base size and target distance (given the random error $p~=~10~px$ and following constants: $r~=~3.75e^{-6}~m,\ f~=~50e^{-3}~m$).}
+	\includegraphics[width=0.9\linewidth]{fig/error_2_units_baseline_distance}
+	\caption{Left figure depicts the setup of two cameras $CU_{1}$ and $CU_{2}$ where only $CU_{2}$ makes an error worth $p$ pixels. $T$ represents the ground truth position of the target whereas $T'$ is the wrongly estimated position. Right figure shows the position estimation error as the function of baseline length and the target distance (given the random error $p~=~10~px$ and following constants corresponding to the hardware used in the OLS: $r~=~3.75e^{-6}~m,\ f~=~50e^{-3}~m$).}
 	\label{fig:errorGivenBaseAndDistance}
 \end{figure}
 
@@ -569,15 +565,28 @@ The OLS does not conform to the canonical stereo setup (all cameras can rotate f
 %.........................................................................
 \subsection{Error in Multiple-View System}
 
-=== obrazek schema chyba podle vrcholoveho uhlu, schema vypoctu chyby ===
+A more realistic scenario where each camera makes a random error $p$ is depicted in Figure \ref{fig:errorMapGivenTargetPosition}. A significant advantage of using multiple cameras is demonstrated --- the geometrical limitations of the two-camera setup make it impossible to precisely evaluate the position of the target placed close to the line collinear with the baseline (see Figure \ref{fig:target_base_geometry_and_worst_error}). In the multi-camera setup, on the other hand, the subset of two cameras forming the baseline $B_{i}$ is used for each position of the target, following the rule: 
 
-A more realistic scenario, where each camera makes a random error $p$, is depicted in Figure \ref{fig:errorMapGivenTargetPosition}. A significant advantage of using multiple cameras is demonstrated --- geometrical limitations of the two-camera setup make it impossible to precisely evaluate the position of the target placed close to the line collinear with the baseline. In the multi-camera setup, on the other hand, the subset of two cameras forming the baseline $B_{i}$ is used for each position of the target, following the rule: $i = \argmax_{i}\ \vec{t_{i}}\vec{n_{i}}$, where $\vec{t_{i}}$ is the direction of the line segment linking the center of the baseline and the target and $n_{i}$ is the normal vector of the baseline $B_{i}$.
+\begin{align}
+i = \argmax_{i}\ \vec{t_{i}}\vec{n_{i}},
+\end{align}
+where $\vec{t_{i}}$ is the direction of the line segment linking the center of the baseline $CU_{c}$ and the target and $n_{i}$ is the normal vector of the baseline $B_{i}$. Put in other way, the baseline $B_{i}$ yielding the highest absolute value of angle $\gamma$ is chosen to compute the position of the target.
 
+% Target-base geometry.
+% MEthodology of worst error estimation.
 \begin{figure}[htb]\centering
 	\centering
-	\includegraphics[width=0.49\linewidth]{fig/error_analysis_2units.pdf}
-	\includegraphics[width=0.49\linewidth]{fig/error_analysis_3units.pdf}
-	\caption{The position estimation error as a function of the horizontal position of the target. Two-camera (left) and three-camera (right) setup with $b = 20\ m$ are confronted, where utilization of more cameras always yields lower errors. The first two cameras are placed on the X axis with the coordinate frame center in the middle of their baseline. The third camera is placed on the Y axis, so that all the cameras form a regular triangle.} 
+	\includegraphics[width=0.75\linewidth]{fig/target_base_geometry.pdf}
+	\caption{Left figure demonstrates the basic geometrical limitation of the two-view system which causes the position estimation error $E$ to increase rapidly as the angle $\gamma$ between the baseline and the target decrease up to the point where $\gamma$ is zero and $E$ becomes infinitely large. Note that both CUs make the same random error depicted as error angle $\epsilon$. Right figure shows four possible intersections of the rays back-projected from both CUs making random error given as the angle $\epsilon$. When analyzing the precision the worst error $E_{i}$ is always chosen.}
+	\label{fig:target_base_geometry_and_worst_error}
+\end{figure}
+
+The Figure \ref{fig:errorMapGivenTargetPosition} depicts the position estimation error as the function of the target's position with regards to the CUs for both two-camera and three-camera setup. In this scenario only horizontal position of the target is considered (i.e. its height is disregarded) and it is assumed that each tracker makes the random error worth $p = 10~px$. For each position of the target the worst possible location estimation is considered (see Figure \ref{fig:target_base_geometry_and_worst_error}).
+
+\begin{figure}[!htb]\centering
+	\centering
+	\includegraphics[width=0.95\linewidth]{fig/2_vs_3_cus.pdf}
+	\caption{The position estimation error as the function of the horizontal position of the target. Two-camera (left) and three-camera (right) setup with $B = 20\ m$ are confronted where utilization of more cameras always yields lower errors. The first two cameras are placed on the X axis with the coordinate frame center in the middle of their baseline. The third camera is placed on the Y axis, so that all the cameras form a regular triangle.} 
 	\label{fig:errorMapGivenTargetPosition}
 \end{figure}
 
