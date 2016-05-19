@@ -334,7 +334,7 @@ In \textit{general stereo setup} the collinearity of the optical axes is not req
 \end{align}
 where $P^{+}$ is the pseudo-inverse of $P$ ($P^{+} = P^{T}(PP^{T})^{-1}$). The location of the target in 3-space is then given as an intersection of all back-projected lines. Given its nature the OLS can be modeled as a general stereo setup extended to use arbitrary number of cameras (instead of only two cameras).
 
-\subsection{Triangulation with Noisy Measurements}
+\subsection{Triangulation with Noisy Measurements} \label{txt:triangulation_with_noisy_measurements}
 
 The process of finding the location of a target in 3-space as an intersection of back-projected lines is called \textit{triangulation}. In ideal case the projection matrices $P_{i}$ and calibration parameters are known precisely for both cameras and the lines in 3-space intersect. However, in real world the system is subject to both systematic and random error (see Chapter \ref{txt:precision_of_the_localization}), consequently the lines in 3-space might become skew (i.e. they are not guaranteed to intersect anymore) since the stereo system does not satisfy the epipolar constraint \cite{Hartley:2003:MVG:861369} (more detailed explanation can be found in Section \ref{txt:3d_environment_reconstruction}):
 \begin{align}
@@ -358,7 +358,7 @@ A similar approach to finding the closest distance between each pair of cameras 
 	\label{fig:multi_view_intersection}
 \end{figure}
 
-\subsection{Estimation of Target Location}
+\subsection{Estimation of Target Location} \label{txt:estimation_of_target_location}
 
 Since the back-projected lines are skew, there is not the only correct solution to the localization problem. Contrarily, the position of the target must be estimated. Hartley and Zisserman \cite{Hartley:2003:MVG:861369} propose a couple of methods where the approaches basically boil down either to solving the overdetermined system of linear equations or to minimization of the geometric error. Both approaches are briefly described below.
 
@@ -482,31 +482,23 @@ VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index
 %=========================================================================
 \chapter{Precision of the Localization in Multi-camera System} \label{txt:precision_of_the_localization}
 
+\vata[2]
+
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{System Topology}
+\section{System Topology} \label{txt:system_topology}
 
-The main building block of the OLS system is a \texttt{camera station} (CS). CS consists of the \texttt{camera unit} (CU), which is a collection of hardware necessary for capturing the images, manipulating the position of the camera and estimating the geographical coordinates of the CS (for detailed description see Chapter \ref{txt:camera_unit}), and the computation unit processing the data (a PC or other device). In general, the OLS is designed to work with an arbitrary number of CSs (of course, there must be at least two stations).
+The main building block of the OLS is a \textit{camera unit} (CU) -- an independent collection of hardware modules necessary for capturing the images, manipulating the pose of the camera and estimating its own geographical coordinates (see Figure \ref{fig:cu_and_topology}). Detailed description of the CU will be given in Section \ref{txt:camera_unit}, however, for the purpose of precision analysis it suffice to remark that each CU is equipped with a camera which is free to rotate around azimuthal and elevation axes and which is used for the visual tracking of a target.
 
-As for the network topology, the OLS is based on a star pattern where each tracking station communicates only with the overview station (see Section \ref{txt:hardware}). The positional organization of the CSs depends on the number of tracking stations, which should always be placed so that their positions projected to the horizontal plane would form a regular polygon with the overview unit in the center (see Figure \ref{fig:system_overview}), however, in more complex environments this condition does not have to strictly hold (see Figure \ref{fig:spilberk_camera_units}).
+As was explained in Section \ref{txt:triangulation_with_noisy_measurements} a system consisting of at least two cameras is capable of estimating the position of the target in 3-space using triangulation. The main strength of the OLS is the fact it is designed to work with an arbitrary number of CUs, therefore the estimated position of the target can be refined by incorporating multiple hypotheses. As will be explained in Section \ref{txt:precision_analysis} the geometric limitations of the stereo-view systems significantly affect the localization precision. Therefore, the CUs should be positioned so that their positions projected to the horizontal plane would form approximately regular polygon. A sample setup of the OLS is depicted in Figure \ref{fig:cu_and_topology}.
 
-%% Schema of camera units organized in triangle.
+%% Photograph of the CU.
 %% Use case of camera units - placed on map of Brno's Spilberk
-\begin{figure}[htb]
+\begin{figure}[htb]\centering
 	\centering
-	\begin{minipage}{.45\textwidth}
-		\centering
-		\includegraphics[width=.99\linewidth]{fig/system_overview.pdf}
-		\captionof{figure}{Schematic view of the ideal-case organization of all camera units where all three tracking units make up an equilateral triangle with the overview unit in the middle. The initial orientation of the tracking units is shown as well as their FOVs $\gamma_{1-3} = 38^{\circ}$ (assuming camera Prosilica GT 1290C and a lens with equivalent 50mm focal length).}
-		\label{fig:system_overview}
-	\end{minipage}
-	\hfill
-	\begin{minipage}{.48\textwidth}
-		\centering
-		\includegraphics[width=.99\linewidth]{fig/spilberk_camera_units.pdf}
-		\captionof{figure}{Use case scenario showing the organization of the camera units within the system set to protect a real world area (the castle Spilberk in Brno, Czech Republic). As can be seen in the Figure, given the possibilities of the protected area (some CUs mounted on the rooftops) the CUs do not form an equilateral triangle, neither is the overview unit positioned in the middle.}
-		\label{fig:spilberk_camera_units}
-	\end{minipage}
+	\includegraphics[width=0.75\linewidth]{fig/cu_and_spilberk_camera_units.pdf}
+	\caption{The photograph of the CU (left) and a use case scenario (right) showing four CUs (red dots) positioned so as to protect a real world area (castle Špilberk in Brno, Czech Republic). Note that in general each camera might have different FOV depicted as an angle~$\omega$.}
+	\label{fig:cu_and_topology}
 \end{figure}
 
 %-------------------------------------------------------------------------
@@ -516,6 +508,7 @@ As for the network topology, the OLS is based on a star pattern where each track
 \todo{Rozdelit typy chyb}
 \todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
 \todo{Zavislost presnosti na chybe trackeru v px -> otestovano v simulatoru n sekci Experimental Results}
+\todo{system je extremne citlivy an uhlove chyby - at uz se jedna o pixelovou chybu trackeru nebo uhlovou chybu pri rektifikaci - pouzit graf Figure 3 z excelu}
 
 %=========================================================================
 %=========================================================================

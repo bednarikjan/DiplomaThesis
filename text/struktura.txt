@@ -82,7 +82,6 @@ STRUTKTURA DETAILNE
 	= Preision Analysis [2.5+ s]
 	= Stationing [5.5 s vvv]
 	= Rectification
-	= Camera Calibration (?)
 
 4) Design of the Optical Localisation System [8.0 s]
 	= Camera Station [1.5 s]
