@@ -40,6 +40,9 @@ Related Work
 Seznam zkratek
 	- NCC - normalised cross-correlation
 	- SSD - sum of squared differences
+	
+- opravit text podle pripominek od Herouta
+- opravit text podle pripominek od Davida
 
 ====================================================================
 STRUTKTURA DETAILNE

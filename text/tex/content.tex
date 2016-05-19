@@ -505,47 +505,82 @@ As was explained in Section \ref{txt:triangulation_with_noisy_measurements} a sy
 %-------------------------------------------------------------------------
 \section{Precision Analysis} \label{txt:precision_analysis}
 
-\todo{Rozdelit typy chyb}
-\todo{Error map - zavislost chyby lokalizace na vrcholovem uhlu a velikosti baze a poctu jednotek}
-\todo{Zavislost presnosti na chybe trackeru v px -> otestovano v simulatoru n sekci Experimental Results}
-\todo{system je extremne citlivy an uhlove chyby - at uz se jedna o pixelovou chybu trackeru nebo uhlovou chybu pri rektifikaci - pouzit graf Figure 3 z excelu}
+The precision of the system can be defined in the means of the frame-by-frame Euclidean distance $E$ between the estimated location $\vec{T_{est}}$ and the real (ground truth) location $\vec{T_{GT}}$ of the tracked target:
+\begin{align}
+	E = \lVert \vec{T_{GT}} - \vec{T_{est}} \rVert.
+\end{align}
 
-%=========================================================================
-%=========================================================================
-%\chapter{Sensitivity analysis} \label{txt:sensitivity_analysis}
-%The precision of the system can be defined in the means of the frame-by-frame Euclidean distance between the estimated location and the real (ground truth) location of the given target. The precision is impacted by multiple independent factors, thus it is essential to perform the sensitivity analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error. 
-%
-%- vysvetleni typu chyb:
-%	- system error (systemova chyba)
-%		- nesoulad modelu CU s realnou konstrukci
-%		- nespravne mereni heading
-%		- detekce a tracking ?
-%	- uncertainty of the input of the system
-%		- GPS mereni
-%		- data inklinometru
-%	
-%- vysvetlit, ze se budeme snazit potlacit jen nektere chyby (neresime treba nepresnost mezi modelem a realnou CU z hledsiak translaci mezi klouby)
-%
-%- rozdeleni na chybu rotace a translace
-%	- nepresnost v rotaci je daleko zavaznejsi, nez nepresnost v translaci
-%	- priklad a obrazek vlivu nepresnosti o x mrad na lokalizaci cile ve vzdalenosti y m/km
-%
-%- zdroj chyb:
-%	- detekce
-%	- tracking
-%	- GPS pozice
-%	- natoceni vuci severu
-%	- rozliseni PTU
-%	- model PTU - translace mezi klouby
-%	- model PTU - rotace mezi klouby
-%	- uchyceni kamery
-%		- rotace podle opticke osy
-%		- rotace podle osy azimutu
-%		- rotace podle osy elevace
+Since the precision can be affected severely by multiple independent factors it is essential to perform the error analysis in order to discover and prospectively alleviate the most prominent contributors of the overall error.
+
+%.........................................................................
+%.........................................................................
+\subsection{Sources of Error}
+
+- vysvetleni typu chyb:
+	- system error (systemova chyba)
+		- nesoulad modelu CU s realnou konstrukci
+		- nespravne mereni heading, horizontality
+		- nespravne urceni GPS pozice stanic
+		- detekce a tracking ?
+		- kalibrace kamer
+	- random error
+		- tracker (spatne urceni, turbulence, refrakce, ...)
+		- mereni z PT unit
+		- delay
+		- synchronizace casu
+
+- vysvetlit, ze budu analyzovat presnost pro obecnou chybu, ktera muze byt zpusobena jak random tak system
+- vysvetlit, ze system je nachylny hlavne na uhly, ne na translace (mozna obrazek)
+- vysvetlit a odkazat se, ze systematic error je potlacena rektifikaci, zastanicenim, kalibraci; random error je potlacena vychytavkama v trackeru a PTP synchronizaci
+
+=== obr. rotace vs translace -> system nachylny na rotaci ===
+--- p
+
+The precision of estimating the target position is subject to systematic error (miscalibration of the instruments) and random error (wrong measurements and disturbances in the environment) \cite{taylor1997introduction}. Atmospheric turbulence, refractive index fluctuations and uncertainty of the visual tracker are the main causes of the random error which is analysed in section \ref{txt:randomErrorAnalysis}. The systematic error was alleviated and/or measured using the custom designed stationing and rectification process.
 
 %- vysvetleni input a output systemu a pojmu sensitivity analysis (http://samples.sainsburysebooks.co.uk/9780470725177_sample_389211.pdf)
 
-\vata[20]
+%.........................................................................
+%.........................................................................
+\subsection{Error in Two-View System}
+
+- zavislost chyby na dvou hlavnich velicinach (za predpokladu, ze system dela constant chybu v uhlu)
+	- vzdalenost cile
+	- velikost baze
+
+- Monza Zavislost presnosti na chybe trackeru v px -> 3D funkce, Z = chyba, X = velikost chyby v px, Y = vzdlaenost cile (pocitam stereosystem, cil je presne uprostred proti bazi kolmo)
+- Pridat zaver, ze i male chybove uhly, jako jsou desetiny stupne, ma smysl resit, a pridat sample vypocet, jakou to udela chybu (aby se dalo odkazovat dale z testu) -> tedy je nezbytne udelat precizni rektifikaci a stationing.
+
+
+
+Stereoscopic systems are affected by a phenomenon of diminishing accuracy of depth measurement with increasing distance of the target from the cameras \cite{Cyganek:2007:ICV:1214366}. The depth measurement resolution for canonical stereo setup is $R = \frac{rZ^{2}}{fb - rZ}$, where $f$ is the focal length, $b$ is the base length, $r$ is the horizontal size of one pixel and $Z$ is the target distance. By substituting $r$ by $pr$, where $p$ is the random error represented by integer number of pixels we obtain the position estimation error function $E = \frac{prZ^{2}}{fb - prZ}$.
+
+The OLS does not conform to the canonical stereo setup (all cameras can rotate freely), so the dependence of the error on the target distance is no longer quadratic (considering the setup of two cameras where only one of them makes error): $E = B\tan(\arctan(\frac{D}{B}) + \arctan(\frac{r}{f})) - D$. The cameras setup as well as the error shown as the function of the base length and target distance is depicted in Figure \ref{fig:errorGivenBaseAndDistance}.
+
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.27\linewidth]{fig/error_2units.pdf}
+	\includegraphics[width=0.66\linewidth, height=6.0cm]{fig/error_analysis_base_distance.pdf}
+	\caption{Left figure depicts the setup of two cameras $C1$ and $C2$, where only $C2$ makes an error worth $p$ pixels. $T$ represents the ground truth position of the target whereas $T'$ is the wrongly estimated position. Right figure shows the position estimation error as the function of base size and target distance (given the random error $p~=~10~px$ and following constants: $r~=~3.75e^{-6}~m,\ f~=~50e^{-3}~m$).}
+	\label{fig:errorGivenBaseAndDistance}
+\end{figure}
+
+%.........................................................................
+%.........................................................................
+\subsection{Error in Multiple-View System}
+
+=== obrazek schema chyba podle vrcholoveho uhlu, schema vypoctu chyby ===
+
+A more realistic scenario, where each camera makes a random error $p$, is depicted in Figure \ref{fig:errorMapGivenTargetPosition}. A significant advantage of using multiple cameras is demonstrated --- geometrical limitations of the two-camera setup make it impossible to precisely evaluate the position of the target placed close to the line collinear with the baseline. In the multi-camera setup, on the other hand, the subset of two cameras forming the baseline $B_{i}$ is used for each position of the target, following the rule: $i = \argmax_{i}\ \vec{t_{i}}\vec{n_{i}}$, where $\vec{t_{i}}$ is the direction of the line segment linking the center of the baseline and the target and $n_{i}$ is the normal vector of the baseline $B_{i}$.
+
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.49\linewidth]{fig/error_analysis_2units.pdf}
+	\includegraphics[width=0.49\linewidth]{fig/error_analysis_3units.pdf}
+	\caption{The position estimation error as a function of the horizontal position of the target. Two-camera (left) and three-camera (right) setup with $b = 20\ m$ are confronted, where utilization of more cameras always yields lower errors. The first two cameras are placed on the X axis with the coordinate frame center in the middle of their baseline. The third camera is placed on the Y axis, so that all the cameras form a regular triangle.} 
+	\label{fig:errorMapGivenTargetPosition}
+\end{figure}
+
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
