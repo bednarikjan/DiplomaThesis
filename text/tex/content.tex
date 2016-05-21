@@ -1183,6 +1183,14 @@ Each of the namespaces \texttt{camera\_unit\_N} controls a separate camera unit.
 - popis gui
 - co se vypisuje, zobrazuje (bb)
 
+%% GUI
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.85\linewidth]{fig/gui.png}
+	\caption{.}
+	\label{fig:gui}
+\end{figure}
+
 %.........................................................................
 %.........................................................................
 \subsection{System Output}
@@ -1225,11 +1233,27 @@ Since the Gazebo is distributed also as one of the standard packages of the ROS 
 \paragraph{testing a tracker} The Gazebo provides the ROS plugin simulating an RGB camera, which captures the virtual scene and publishes a stream of rendered images. Thus it can be used to test an object tracking algorithm using arbitrarily complex environment and moving objects (see Figure \ref{fig:gazebo_camera_stream}).
 
 %% The screenshot of Gazebo scene and image streams from cameras.
+%\begin{figure}[htb]
+%	\centering
+%	\includegraphics[width=14.5cm]{fig/gazebo_camera_stream.png}
+%	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (the gas station), a flying object (the red sphere) and four manipulators. All four virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
+%	\label{fig:gazebo_camera_stream}
+%\end{figure}
+
+%% The screenshot of Gazebo scene and image streams from cameras.
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=14.5cm]{fig/gazebo_camera_stream.png}
-	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (the gas station), a flying object (the red sphere) and four manipulators. All four virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
-	\label{fig:gazebo_camera_stream}
+	\includegraphics[width=0.65\linewidth]{fig/gazebo.png}
+	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (terrain with trees), a flying object (the UAV) and two CUs. Both virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
+	\label{fig:gazebo}
+\end{figure}
+
+%% Screenshot from rviz where three CUs track a target.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.65\linewidth]{fig/rviz.png}
+	\caption{.}
+	\label{fig:rviz}
 \end{figure}
 
 \paragraph{testing a manipulator} It is a good practice to include a real hardware in the simulation during the development \cite{on_hw_in_the_loop}. Both actuators and sensors would be difficult to simulate properly, moreover a real manipulator is constrained in terms of the operational range (see Section \ref{txt:camera_unit}), maximum acceleration and speed and communication throughput so it is necessary to thoroughly test its performance. This so called hardware-in-the-loop simulation reveals whether the implementation of motion control is correct and whether the possibilities of the manipulator suffice to track arbitrarily fast (simulated) objects.
