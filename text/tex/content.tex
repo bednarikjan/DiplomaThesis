@@ -1055,64 +1055,44 @@ The localization component continuously estimates the location of the target in 
 %=========================================================================
 \chapter{Implementation} \label{txt:implementation}
 
-- uvod
+The implementation of the OLS is built on the robotic framework \textit{Robot Operating System} and \textit{C++} is used as the main programming language. Furthermore, the physical simulator \textit{Gazebo} was used during both development and testing phase in order to prepare the system for real world environment tests. Due to the platforms support limitations of the ROS, the OLS can only be run within Linux distribution Ubuntu.
 
-The whole system is built on the robotic framework Robot Operating System (for details see Section \ref{txt:application_of_ros}). Since the ROS defines multiple conventions, restrictions and best practices the whole system design including the selection of a programing language, a programing and a communication paradigm, a target platform and a tool for physical simulations is impacted by the possibilities of this framework.
-
-As of writing this text a current state of the implementation mainly builds on the virtual environment provided by the physical simulator Gazebo (see Section \ref{txt:application_of_gazebo}). When confronted with the overview of all subsystems making up the whole system presented in Section \ref{txt:design_of_the_OLS}, so far the following parts are already designed, implemented and/or integrated:
-
-\begin{itemize}
-	\item manual control of the manipulator using peripheral devices
-	\item manual selection of a target and distribution of its appearance to all CUs
-	\item integration and utilization of a OpenTLD tracker
-	\item the first prototype of triangulation of a 3D positions of a target within global frame
-	\item integration of all subsystems
-\end{itemize}
-
-Furthermore a few additional tools were utilized and/or implemented as the necessary building blocks allowing for further development and testing:
-
-\begin{itemize}
-	\item a functional model of a whole system in Gazebo environment
-	\item a standalone application for rectification
-\end{itemize}
+Section \ref{txt:application_of_ros} provides the reasoning for why the ROS was chosen as the base framework, Section \ref{txt:system_architecture} focuses on the architecture of the OLS, shows the user interface and summarizes the external libraries integrated in the system. Finally, Section \ref{txt:development_and_testing} demonstrates the necessity of using the simulator Gazebo and gives the technical background of how the ROS was used in order to obtain the real world environment datasets and to test the OLS.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{Application of ROS} \label{txt:application_of_ros}
+\section{Application of the ROS} \label{txt:application_of_ros}
 
-- obecne o ROSu
+The ROS\footnote{Official website of the ROS: \url{http://www.ros.org}} is a collection of open source libraries, tools and conventions which serve the purpose of a middlewear running alongside a real operating system. Among other features the ROS provides the programmer with hardware abstraction, low-level device control, implementation of commonly-used functionality, message-passing among processes, package management, a wide range of visualization and debugging tools, time synchronization or data capture and playback \cite{O'Kane201310}.
 
-Despite its name the ROS\footnote{The official website of ROS: \url{http://www.ros.org}} is not an operating system but rather a collection of open source libraries, tools and conventions which serve the purpose of a middlewear running alongside a real operating system, however it provides the programmer with the hardware abstraction,  low-level device control, implementation of commonly-used functionality,
-message-passing between processes, and package management \cite{O'Kane201310}.
-
-Since the original motivation for developing ROS was to support the collaboration among the experts in the field of robotics in the means of a common software platform~\cite{ROS-an-open-source-Robot-Operating-System}, a huge developer community has formed around ROS which resulted in wide-scale penetration of this framework as well as the support for a huge range of hardware devices.
+Utilization of ROS significantly simplified the development since it provides the tools and means meeting the requirements posed by the design of the OLS (see Section \ref{txt:ros_properties_used_in_ols}). Above that, the ROS encompasses multiple packages providing common algorithms and support for hardware devices which the OLS relies on (see Section \ref{txt:standard_ros_packages}).
 
 %.........................................................................
 %.........................................................................
-\subsection{ROS Properties Used in the OLS}
+\subsection{ROS Properties Used in the OLS} \label{txt:ros_properties_used_in_ols}
 
-- popsat schopnosti ROSu, ktere jsem pouzil (distribuovany system, tf, support for hw, visualization, debugging, modularity)
+The OLS is designed to become a relatively complex system, thus it exhibits non-trivial implementation requirements --- among others, the distribution of the running components among multiple computers, the time synchronization or fast computation of transformations among coordinate frames. Table \ref{tab:ols_requirements_ros_features} lists all the main requirements of the OLS and corresponding features of the ROS.
 
-The OLS is designed to become a relatively complex system, thus it exhibits non-trivial implementation requirements such as a need to distribute the computation among multiple computers, the real time performance, integration with physical simulator, etc. Since ROS is a mature framework satisfying the most of theses requirements (see Table \ref{tab:ols_requirements_ros_features}), it was chosen as a main implementation platform.
-
-
-{\renewcommand{\arraystretch}{1.5}
-	\begin{table}[htbp]
+{\renewcommand{\arraystretch}{1.3}
+	\begin{table}[!htbp]
 		\centering
 		\caption{The table lists the most important requirements of the OLS and describes how the ROS framework addresses them.}
 		\begin{tabularx}{0.99\textwidth}{XX}
 			\toprule
 			\textbf{OLS requirements} & \textbf{ROS features} \\
 			\midrule
-			native support for hardware such as Prosilica camera, manipulator Flir PTU D46-70, joystick, keyboard & nodes implementing image capture from Prosilica cameras, capturing events from keyboards and joysticks \\
-			modularity and reusability of source code & each subsystem is represented by a separate process (node), straightforward reusability \\
-			distribution of computation among multiple computers & provides abstraction layer for distributing nodes across devices \\
+			support for camera Prosilica, P\&T unit Flir PTU D46-70, joystick, keyboard & packages \texttt{avt\_vimba\_camera}, \texttt{keyboard}, \texttt{joy} \\
+			distribution of computation among multiple computers & abstraction layer for distributing nodes across devices \\
 			simple data exchange among subsystems & the publisher/subscriber paradigm \cite{O'Kane201310}, support for custom message formats \\
-			real time performance & C++ implementation \\
-			modeling and simulating the robot & custom language \texttt{URDF}\footnotemark ~for robot modeling, integration with Gazebo \\
-			specifying a kinematic chain, heavy 3D transformation computation & native support for computing transformation between frames using package \texttt{tf} \\
-			complex visualization, debugging & a visualization tool \texttt{rviz}\footnotemark ~for visualizing frames, transformations, robot models, image streams etc. \\
+			real time performance & C++ implementation, intrinsic OS level parallelism (each node runs as a process) \\
+			modeling and simulating the CUs & custom language \texttt{URDF}\footnotemark ~for robot modeling, integration with Gazebo \\
+			modeling a kinematic chain, heavy 3D transformations computation & native support for computing transformation between frames using package \texttt{tf} \\
+			3D visualizations & tool \texttt{rviz} for visualizing transformations, robot models, image streams etc. \\
+			advanced debugging & multiple introspection tools such as \texttt{rqt\_graph}, \texttt{rqt\_tf\_tree}, \texttt{rosparam}, \texttt{rostopic}, \texttt{rosmsg} etc. \\
 			physical simulation & integration with Gazebo \\
+			data streams synchronization & message filters for approximate time synchronization \\
+			data capturing and playback & custom container format \texttt{bag} and related tools (\texttt{rosbag}, \texttt{rqt\_bag} etc.) \\
+			support for popular math and vision libraries & conversion API for easy integration of libraries OpenCV, PCL and Eigen \\
 			\bottomrule
 		\end{tabularx}
 		\label{tab:ols_requirements_ros_features}
@@ -1120,40 +1100,29 @@ The OLS is designed to become a relatively complex system, thus it exhibits non-
 }
 	
 \footnotetext{Modeling language \texttt{URDF}: \url{http://wiki.ros.org/urdf}}
-\footnotetext{Visualization tool \texttt{rviz}: \url{http://wiki.ros.org/rviz}}
 	
 %.........................................................................
 %.........................................................................
-\subsection{Standard ROS Packages}
+\subsection{Standard ROS Packages Used in the OLS} \label{txt:standard_ros_packages}
 
-- avt\_vimba\_camera, tf, keyboard, joy, robot\_state\_publisher, gazebo veci (airborne, CUs)
+ROS provides a wide range of packages for interaction with commonly used hardware devices and for performing various computations. Implementation of the OLS utilizes following packages:
 
-ROS provides a wide range of standard packages for interaction with various hardware devices and performing various computations. The implementation of OLS utilizes following packages:
+\paragraph{avt\_vimba\_camera\protect\footnote{Package avt\_vimba\_camera: \url{http://wiki.ros.org/avt_vimba_camera}}}
+This package wraps the Vimba GigE SDK provided by Allied Vision Technologies, the manufacturer of the Prosilica series cameras, and allows the programmer to subscribe to the topic \texttt{camera\textbackslash image\_raw} to easily access the image stream.
 
-\begin{description}
-	\item[avt\_vimba\_camera]\footnote{Package avt\_vimba\_camera: \url{http://wiki.ros.org/avt_vimba_camera}} \hfill \\
-	This package wraps the Vimba GigE SDK provided by Allied Vision Technologies, the manufacturer of the Prosilica series cameras, and allows the programmer to subscribe to the topic \texttt{camera\textbackslash image\_raw} and easily access the image stream.
-	
-	\item[keyboard]\footnote{Package keyboard: \url{http://wiki.ros.org/keyboard}} \hfill \\
-	The package processes the keyboard events and exposes them via \texttt{keydown} and \texttt{keyup} topics.
-	
-	\item[joy]\footnote{Package joy: \url{http://wiki.ros.org/joy}} \hfill \\
-	This package processes the events from a joystick and/or gamepad and exposes them via \texttt{joy} topic.
-	
-	\item[tf]\footnote{Package tf: \url{http://wiki.ros.org/tf}} \hfill \\
-	The package manages the distribution of the states of all joints within all robot models (in case of OLS the kinematic chains representing the camera units) among all nodes as well as it performs the transformation between given frames on demand \cite{tf}.
-	
-\end{description}
+\paragraph{keyboard\protect\footnote{Package keyboard: \url{http://wiki.ros.org/keyboard}}}
+The package processes the keyboard events and exposes them via \texttt{keydown} and \texttt{keyup} topics.
 
+\paragraph{joy\protect\footnote{Package joy: \url{http://wiki.ros.org/joy}}}
+This package processes the events from a joystick and/or gamepad and exposes them via \texttt{joy} topic.
+
+\paragraph{tf\protect\footnote{Package tf: \url{http://wiki.ros.org/tf}}}
+The package manages the distribution of the poses of all kinematic chain joints (representing the CUs) among all nodes and it computes the transformations between requested pair of frames \cite{tf}.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
-\section{System Architecture}
+\section{System Architecture} \label{txt:system_architecture}
 
-- uvod ???
-
-=== obr. architektury ===
-=== obr. GUI ===
 
 %.........................................................................
 %.........................................................................
