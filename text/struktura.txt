@@ -112,6 +112,16 @@ STRUTKTURA DETAILNE
 		- opencvx (?)
 		- PCL, Eigen, OpenCV (calibration)
 		- VimbaSDK, Flir
+		
+	- co tam dat
+		- rectification app
+		- gui - screenshot poskladani oken
+		- used ROS packages
+			- avt_vimba_camera, tf, keyboard, joy, robot_state_publisher, gazebo veci (airborne, CUs)
+		- used SW!
+			- TLD, BGFG, UTM2WGS conversion, Vimba Viewer 
+		- used libraries
+			- OpenCV, PCL, serial, Eigen, Vimba SDK (resi PTP)
 
 6) Experimental Results [5.0]
 	- ziskani datove sady (vyuziti .bag, zamereni DGPS, popsat stationing, nemoznost zpresnit pomoci znameho bodu - chyba se deli na dve rotace) [1.0]
