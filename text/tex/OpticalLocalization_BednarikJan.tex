@@ -161,32 +161,22 @@
 }
 
 %Abstrakt (cesky, slovensky ci anglicky)
-\abstract[cs]{
-\todo{Abstract by mel mit max 10 radku.}
-%	Tato práce popisuje návrh pasivního systému pro optickou lokalizaci leteckých objektů ve vícekamerovém systému schopném autonomně určit globální geografickou pozici sledovaného objektu. Systém staví na využití několika stanic s pozicovatelnými kamerami, přičemž jsou stanice vhodně rozmístěny v daném prostředí. Každá kamerová jednotka provádí detekci a sledování a zasílá data ostatním jednotkám, díky čemuž je možné triangulovat pozici sledovaného objektu. V práci je popsán navržený model kamerové jednotky, rovněž je vysvětlen a proveden proces rektifikace, jehož účelem je redukovat odchylku mezi modelem a reálnou konstrukcí kamerové jednotky. Diskutovány jsou rovněž různé techniky pro vizuální detekci a sledování objektů a jsou vybrány nejvhodnější z nich z hlediska potřeb navrhovaného systému. Dále je popsán návrh, částečná implementace a simulace systému ve fyzikálním simulátoru. V závěru jsou shrnuty další kroky nezbytné pro úspěšný vývoj systému.
-	}
-\abstract[en]{
-\todo{Abstract by mel mit max 10 radku.}
-%	This work presents the passive multi-camera optical localization system suitable for autonomous estimation of the global geographical position of the aerial objects. The system utilizes multiple stations with positionable cameras properly placed within the environment. Each camera unit performs detection and tracking and exchanges the information with each other in order to triangulate the target. In the work the proposed model of the camera unit was described and a rectification process reducing the deviation between the model and the construction of the unit was explained and performed. Various visual detection and tracking approaches were discussed and the most suitable ones were proposed for the final solution. The system was designed, partially implemented and simulated in a physical simulator. The next steps necessary for the successful development of the system were eventually summarized.
-	}
+\abstract[cs]
+{Tato práce představuje semiautonomní systém pro optickou lokalizaci velmi vzdálených pohyblivých cílů za pomocí několika P\&T kamer. Kamery byly kalibrovány a zastaničeny pomocí speciálně navržených kalibračních terčů a metodologie, jejímž účelem je minimalizovat hlavní zdroje chyb, jež byly objeveny během důkladné analýzy přesnosti. Detekce cíle probíhá manuálně, zatímco vizuální sledování je automatické a staví na dvou state-of-the-art přístupech. Odhad 3D lokace cíle je založen na triangulaci z N pohledů pracující s nepřesnými měřeními. Základní sestava o dvou kamerových jednotkách byla otestována na statických cílech a pohybujícím se pozemním cíli, přičemž byla přesnost odhadu lokace cíle porovnána s teoretickým modelem. Díky modularitě a přenosnosti je možné systém nasadit v široké škále situací, jako je například monitoring vytyčeného území, včasná detekce hrozby v bezpečnostních systémech nebo řízení vzdušeného provozu.}
+\abstract[en]
+{This work presents a system for semi-autonomous optical localization of distant moving targets using multiple P\&T cameras. The cameras were calibrated and stationed using custom designed calibration targets and methodology with the objective to alleviate the main sources of error which were pinpointed in thorough precision analysis. The detection of the target is performed manually, while the visual tracking is automatic and builds on two state-of-the-art approaches. The estimation of the location in three-space is based on the N-view triangulation working with noisy measurements. A basic setup consisting of two camera units was tested against static targets and a moving terrestrial target, and the location estimation precision was compared to the theoretical model. The modularity and portability of the system allows fast deployment in a wide range of scenarios including perimeter monitoring or early threat detection in defense systems, as well as air traffic control in public space.}
 
 %Klicova slova (cesky, slovensky ci anglicky)
-\keywords[cs]{
-%	optická lokalizace, lokalizace více kamerami, stereovize, detekce objektů, sledování objektů, triangulace, letecké objekty, UAV, fyzikální simuace, ROS, Gazebo, kinematický řetězec, rektifikace kamery
-	}
-\keywords[en]{
-%	optical localization, mutli camera localization, stereovision, object detection, object tracking, triangulation, aerial objects, UAV, physical simulation, ROS, Gazebo, kinematic chain, camera rectification
-	}
+\keywords[cs]{optická lokalizace, lokalizace více kamerami, stereovize, detekce objektů, sledování objektů, triangulace, odhadh pohybu, UAV, fyzikální simuace, ROS, Gazebo, kinematický řetězec, rektifikace kamery}
+\keywords[en]{optical localization, mutli camera localization, stereovision, object detection, object tracking, triangulation, motion prediction, UAV, physical simulation, ROS, Gazebo, kinematic chain, camera rectification}
 
 %Prohlaseni (u anglicky psane prace anglicky, u slovensky psane prace slovensky)
-\declaration{
-%	TODO -> napsat anglicky! Prohlašuji, že jsem tuto bakalářskou práci vypracoval samostatně pod vedením pana prof. Ing. Adama Herouta, Ph.D. Uvedl jsem všechny literární prameny a publikace, ze kterých jsem čerpal.
-	}
+\declaration
+{I hereby certify that this thesis is a presentation of my original research work and I have excercised reasonable care to ensure it does not to the best of my knowledge breach any law of copyright. Wherever contributions of others are involved, every effort is made to indicate this clearly, with due reference to the literature, and acknowledgement of collaborative research and discussions. The work was done under the guidance of Ing. Adam Herout, Ph.D. at the Brno University of Technology.}
 
 %Podekovani (nepovinne, nejlepe v jazyce prace)
-\acknowledgment{
-%	TODO -> napsat anglicky! V této sekci je možno uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc (externí zadavatel, konzultant, apod.).
-	}
+\acknowledgment
+{I thank my Master's thesis supervisor, prof. Ing. Adam Herout, Ph.D., for guidance of my work. This work is supported by company RCE systems s.r.o. which provided the development space, necessary hardware sources, and consultations and it is greatly appreciated. I thank my adviser, doc. Ing. Vladimír Čech, CSc., for providing his insight into the project.}
 
 \begin{document}
   % Vysazeni titulnich stran
