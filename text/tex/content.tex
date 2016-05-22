@@ -13,65 +13,35 @@
 %=========================================================================
 \chapter{Introduction} \label{txt:introduction}
 
-%\todo{Abstract by mel mit max 10 radku.}
-%\todo{zasazení řešené problematiky do širšího kontextu}
-%\todo{ávaznost diplomové práce na Semestrální projekt a vymezí objem prací, které byly do diplomové práce převzaty, včetně odkazů do kapitol diplomové práce ???}
-%\todo{aplikace systemu, vyhody, nevyhody}
-%\todo{historie}
-%\todo{overview co system dela}
-%\todo{uvest,z e cil muze byt pomerne maly v obraze (par pixelu)}
-%\todo{pridat par paragraphs o hlavnich komponentach systemu}
-%\todo{pridat tabulku requirements pro tracking}
-%
-%In todays world the localization of the aerial objects is an essential component of two main domains, a public air traffic control (ATC) and a national defense. In both cases the main purpose of the system is to estimate the distance and the 3D position of a given airborne vehicle.
-%
-%In case of the ATC, the airports mainly rely on the multilateration systems which specialize on surveillance and control of air traffic during all flight phases \cite{Gaviria:newStrategiesMLAT}. The design of such a system expects that the aircraft are equipped with a secondary surveillance radar transponders which periodically emit the signals to the ground receiving stations, however primary radars are widely used as well \cite{Airtrafficmuseum}. In the military segment the aerial object localization mainly serves the purpose of detecting and identifying a intruder which might pose a threat for a given area under protection. In this scenario only primary radars are used since the aerial objects are not expected to cooperate.
-%
-%Even though being widely used, radar based localization systems suffer from several drawbacks. Radar is a device based on the active emission of the radio signal \cite{toomay2012radar}. In order to localize distant objects, a huge amount of energy must be radiated to make sure it would return from the target and a small amount of energy returned might be easily disrupted \cite{Airtrafficmuseum}. What is more, in defense applications it is not desirable that the tracked object would find out that it is being tracked, which is the condition an actively radiating system, such as a radar, cannot achieve. Last but not least, the professional class radars in use by both public segment and military are in general expensive, large and heavy devices not suitable for mobile deployment.
-%
-%In this work, I propose a fully autonomous passive multi-camera system for detecting, tracking and localizing aerial objects which is based merely on ordinary RGB cameras --- the Optical Localization System (OLS). Since the system does not rely on active emission of a signal, but rather captures the optical information from the environment, it can be used for secret localization of aerial targets. The system is designed to be well suited for mobility and temporary deployment since each camera station used weigh no more than twenty kilograms and the whole system is relatively inexpensive as well.
-%
-%\paragraph{object tracking}
-%Requirements: long-term tracking (partial occlusion, temporal disappearance from scene, ...), multi-hypothesis - possible simultaneous tracking of multiple targets, suitable representation of very small targets (which mich change over time), real-time (at least 10 FPS), moving cameras.
-%
-%\begin{figure}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
-%	\centering
-%	\includegraphics[width=0.45\linewidth, height=5cm]{fig/small_tracked_object.png}
-%	\caption{\todo{Dodat caption}}
-%	\label{fig:small_tracked_object}
-%\end{figure}
-%
-%
-%%-------------------------------------------------------------------------
-%%-------------------------------------------------------------------------
-%%\section{Background} \label{txt:background}
-%
-%%%% Historie
-%
-%The principle of the optical localization of objects, which is based on triangulation, is well known for quite a long time. The first devices which were designed to allow an operator to estimate a distance to a given object using mechanical and optical principles --- optical range finders --- emerged in the second half of the 18th century \cite{bud1998instruments}. Ever since, the optical range finders had been mostly used for military operations in order to estimate the position of either naval, airborne or terrestrial targets until the World War II when radar was invented.
-%
-%The OLS system aims to utilize the same principle as the old optical range finders. However, instead of an optical device requiring the operator to aim on the target manually the OLS takes advantage of the RGB cameras and the image processing techniques capable of detecting, tracking and localizing the target autonomously without the need for a human to interfere. Furthermore, with the use of sensors capable of finding a geographical position of each observer unit the OLS system estimates a global geographical position of a given target (not only the distance or relative position).
-%
-%%%% Princip lokalizace
-%
-%%-------------------------------------------------------------------------
-%%-------------------------------------------------------------------------
-%%\section{Principle of Object Localisation}
-%\todo{Obecne jak to funguje}
-%
-%\begin{figure*}[t]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
-%	\centering
-%	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
-%	\includegraphics[width=0.45\linewidth, height=5cm]{fig/placeholder.pdf}
-%	\caption{\todo{Dodat caption}}
-%	\label{fig:WidePicture}
-%\end{figure*}
-%
-%\vata[4]
+An autonomous localization of arbitrary moving targets is an essential system component used in multiple domains, such as air traffic control, robotic workspaces or surveillance and defense systems. If the sensory data measured by the target are available it is straightforward to derive its location (by means of the GPS, radio multilateration, etc.). There are scenarios, however, were the target is unable (malfunctioning aircraft) or reluctant (UAV intruder) to expose its location. Then the localization estimation system is left with its own observations.  Among others, nowadays, the air traffic control (ATC) and national defense systems are the most widely used applications of tracking and localizing the moving objects. 
+
+In case of the ATC, the airports mainly rely on the multilateration systems which specialize on surveillance and control of air traffic during all flight phases \cite{Gaviria:newStrategiesMLAT}. The design of such a system expects that the aircraft are equipped with a secondary surveillance radar transponders which periodically emit the signals to the ground receiving stations, however, primary radars are widely used as well \cite{Airtrafficmuseum}. 
+
+In the military segment the object localization mainly serves the purpose of the early threat detection where it is necessary to identify and track the intruder which might pose a threat for a given area under protection. In this scenario only primary radars are used since the objects of interest are not expected to cooperate.
+
+Besides the ATC and the national defense there are quite a lot other use cases where the autonomous localization systems are or could be employed. The road traffic security is one of such examples. The localization systems can be used by the police to measure the speed of vehicles and prospectively to pinpoint the exact locations where the speeding occurred. Autonomous traffic analysis is another well suited application for localization systems as the main requirement estimate the tracks of given vehicles with regards to the underlying geographical map.
+
+Even though being widely used, radar based localization systems suffer from several drawbacks. Radar is a device based on the active emission of the radio signal \cite{toomay2012radar}. In order to localize distant objects, a huge amount of energy must be radiated to make sure it would return from the target and a small amount of energy returned might be easily disrupted \cite{Airtrafficmuseum}. What is more, in defense applications it is not desirable that the tracked object would find out that it is being tracked, which is the condition an actively radiating system, such as a radar, cannot achieve. Last but not least, the professional class radars in use by both public segment and military are in general expensive, large and heavy devices not suitable for mobile deployment.
+
+This work presents a semi-autonomous passive multi-camera system for tracking and localizing arbitrary objects --- the Optical Localization System (OLS) --- which is based merely on ordinary RGB cameras. Since the system does not rely on active emission of a signal but rather captures the optical information from the environment, it can be used for secret localization of moving targets. The system is designed to be well suited for mobility and temporary deployment since each camera station used weigh no more than twenty kilograms and the whole system is inexpensive by comparison to radars as well.
+
+The principle of the optical localization of objects, which is based on triangulation, is well known for quite a long time. The first devices which were designed to allow an operator to estimate a distance to a given object using mechanical and optical principles --- optical range finders --- emerged in the second half of the 18th century \cite{bud1998instruments}. Ever since, the optical range finders had been mostly used for military operations in order to estimate the position of either naval, airborne or terrestrial targets until the World War II when radar was invented.
+
+The OLS aims to utilize the same principle as the old optical range finders. However, instead of an optical device requiring the operator to aim on the target manually the OLS takes advantage of the RGB cameras and the image processing techniques capable of tracking and localizing the target autonomously without the need for a human to interfere. Furthermore, with the use of sensors capable of finding a geographical position of each observing unit the OLS system estimates a global geographical position of a given target represented in standard coordinate system (UTM and/or WGS84). A simple schema explaining the operation of the OLS is depicted in Figure \ref{fig:ols_principle}.
+
+This work is organized as follows: In Chapter \ref{txt:related_work} the existing approaches to visual tracking, multi-camera target localization and 3D environment reconstruction are summarized and their suitability for the OLS is discussed. Chapter \ref{txt:precision_of_the_localization} provides thorough analysis of the main sources of localization imprecisions in the OLS and proposes the methods to alleviate the error. Chapter \ref{txt:design_of_the_OLS} describes the design of the OLS from the perspective of system model, visual tracking, triangulation with noisy measurements and occlusion prediction. Chapter \ref{txt:implementation} explains the technical details of the implementation and Chapter \ref{txt:experimental_results} presents the results of conducted experiments. Finally, Chapter \ref{txt:conclusion} concludes the work.
+
+%% The main principle of the OLS.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/ols_principle.pdf}
+	\caption{In the OLS a target is tracked by multiple cameras and triangulation is used in order to estimate its global location.}
+	\label{fig:ols_principle}
+\end{figure}
 
 %=========================================================================
 %=========================================================================
-\chapter{Related Work}
+\chapter{Related Work} \label{txt:related_work}
 
 Being a complex and semi-autonomously working system the multi-camera optical localization system comprises problematics ranging over several different areas. Most importantly, robust visual tracking capable of long-term tracking of arbitrary target which might exhibit time varying appearance and which might move in a cluttered environment must be employed. Furthermore, a suitable approach for estimating the position of the target in 3-space given noisy measurements must be proposed. Finally, occlusion prediction using 3D environment reconstruction can ne incorporated as a possible extension. The overview of visual tracking approaches and the discussion of their suitability for the OLS is given in Section~\ref{txt:object_tracking}, the most widely used methods for localizing targets in 3-space given projective geometry are described in Section~\ref{txt:multi_camera_target_localization} and the problematics of 3D environment reconstruction is introduced in Section~\ref{txt:3d_environment_reconstruction}.
 
@@ -104,7 +74,15 @@ The choice of how the targets are represented determines the domain of approache
 %Beyond these two classes, a few categories of widely used image features can be distinguished, e.g. \textit{gradient, texture or spatio-temporal features}, with some of them being specifically developed for tracking certain classes of objects, such as pedestrians or cars \cite{Yang20113823}.
 
 \paragraph{shape representation} 
-A \textit{shape} model encompasses points \cite{Tomasi91detectionand}, contours \cite{Kass88snakes:active, ActiveContour-BasedVisualTracking} or articulated models \cite{Delamarre2001328, conf/isvc/MigniotA13} (see Figure \ref{fig:object_models}). The point representation is not suitable for the OLS since the distant aerial objects appear relatively small in the image and might not provide enough distinctive points (see Figure \ref{fig:small_tracked_object}). Both contours and articulated models are mostly used for tracking non-rigid deformable objects which is not the main concern of the OLS. Additionally, the accuracy of fitting a contour to a target strongly depends on the convergence criteria of the energy minimization function, thus they might be computationally expensive.
+A \textit{shape} model encompasses points \cite{Tomasi91detectionand}, contours \cite{Kass88snakes:active, ActiveContour-BasedVisualTracking} or articulated models \cite{Delamarre2001328, conf/isvc/MigniotA13} (see Figure \ref{fig:object_models}). The point representation is not suitable for the OLS since the distant objects appear relatively small in the image and might not provide enough distinctive points (see Figure \ref{fig:two_small_tracked_objects}). Both contours and articulated models are mostly used for tracking non-rigid deformable objects which is not the main concern of the OLS. Additionally, the accuracy of fitting a contour to a target strongly depends on the convergence criteria of the energy minimization function, thus they might be computationally expensive.
+
+%% Two images of distant targets which appear small in the image - an UAV and a person.
+\begin{figure}[htb]\centering
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/two_small_tracked_objects.pdf}
+	\caption{Due to their high distance the tracked objects might appear small as projected to the image plane. Therefore, a suitable object model must be chosen to avoid tracking failures.}
+	\label{fig:two_small_tracked_objects}
+\end{figure}
 
 \paragraph{appearance representation} 
 An \textit{appearance} model is represented either by rectangular template \cite{ProbabilisticVisualTrackingTemplate, ObjectTrackinginMonochromaticVideo} or a weighted kernel \cite{Comaniciu:2003:KOT:776753.776799, MultipleCollaborativeKernelTracking} (see Figure \ref{fig:object_models}). The main advantage of both representations is the fact they contain both the spatial and appearance information, additionally they scale well to varying object size (approaching and receding object). The appearance model seem to suit the requirements of the OLS, thus the tracking approaches based on variants of both template and kernel model will be used (see Sections \ref{txt:tracking_learning_detection} and \ref{txt:bgfg_tracker}).
@@ -1248,7 +1226,7 @@ Therefore, once recorded, both these nodes constituting the \textsc{sensory inpu
 
 %=========================================================================
 %=========================================================================
-\chapter{Experimental Results}
+\chapter{Experimental Results} \label{txt:experimental_results}
 
 The OLS was tested both in simulated and real world environment. The simulation was based on Gazebo and utilized hardware-in-the-loop approach. Section \ref{txt:test_regulation} describes the first test which compares various regulation functions and finds the most suitable parameters. Section \ref{txt:multi-camera_scenario} looks closely on the geometrical limitations of the OLS and verifies the proposed approach to localize the target using geometry based weights. Finally, Section \ref{txt:real_world_testing} explains how the real world datasets were obtained and what precision the OLS achieves.
 
