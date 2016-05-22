@@ -56,6 +56,8 @@
 %% Tables
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
 
 \usepackage{siunitx}
 \DeclareSIUnit[number-unit-product = {}]{\inch}{''}
@@ -67,11 +69,13 @@
 %% Algorithms
 \usepackage[ruled, vlined, linesnumbered, nofillcomment]{algorithm2e}
 
-% Tables
-\usepackage{multirow}
-
 % Math symbols
 \usepackage{amsmath}
+
+% List of Abbreviations
+\usepackage[toc,nonumberlist,nopostdot,translate=false]{glossaries} % translate - babel conflict
+\makeglossaries
+\input{glossary}
 
 %%%% Custom commands
 % particle
@@ -232,6 +236,27 @@
   \begin{flushleft}
   \bibliography{bibliography} % viz. literatura.bib
   \end{flushleft}
+
+% Seznam zkratek
+% ---------------------------------------------
+\ifczech
+\renewcommand\glossaryname{Seznam zkratek}
+\else
+\renewcommand\glossaryname{List of Abbreviations}
+\fi
+
+\newglossarystyle{mylong}{%
+	\setglossarystyle{long}% base this style on the long style
+	\renewenvironment{theglossary}%
+	%                                     zkratka            popis           strany 
+	{\begin{longtable}[l]{@{}>{\bfseries}p{0.2\textwidth}p{0.7\textwidth}p{0.1\textwidth}}}%
+		{\end{longtable}}%
+	\renewcommand*{\glsgroupskip}{}%mezery mezi skupinami
+	\renewcommand{\arraystretch}{1.2}%mezery mezi zaznamy
+}
+
+\glossarystyle{mylong}
+\printglossaries
 
   % Prilohy
   % ---------------------------------------------
