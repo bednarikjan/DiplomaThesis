@@ -1171,7 +1171,7 @@ Besides the framework ROS a few other publicly available libraries are used with
 
 \paragraph{PCL} An open-source library for 2D/3D image and point cloud processing\footnote{The official website of PCL: \url{http://pointclouds.org/}}. Motion prediction based on fitting the line to the scattered data using RANSAC algorithm utilizes the PCL in the OLS.
 
-\paragraph{OpenTLD} The OpenTLD library\footnote{The official website of OpenTLD: \url{http://www.gnebehay.com/tld}} represents an open source C++ implementation the TLD tracking algorithm (see Section \ref{txt:tracking_learning_detection}).	
+\paragraph{TLD tracker} The OpenTLD library\footnote{The official website of OpenTLD: \url{http://www.gnebehay.com/tld}} represents an open source C++ implementation the TLD tracking algorithm (see Section \ref{txt:tracking_learning_detection}).	
 
 \paragraph{BGFG tracker} The implementation of the BGFG tracker (see Section \ref{txt:bgfg_tracker}) which was provided by the authors of the tracker \cite{ObjectTrackinginMonochromaticVideo}.
 
@@ -1183,28 +1183,15 @@ Besides the framework ROS a few other publicly available libraries are used with
 %-------------------------------------------------------------------------
 \section{Development and Testing} \label{txt:development_and_testing}
 
-=== obr. gazebo s terenem + rviz kamery ===
-=== obr. rviz promitani paprsku ===
-
 - uvod
 
 %.........................................................................
 %.........................................................................
 \subsection{Application of Gazebo} \label{txt:application_of_gazebo}
 
-Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a physical simulator providing the tools to model and simulate robots in both indoor and outdoor environment. The simulator has been developed since 2002 and today represents a mature system with wide penetration and support, while being distributed as open source and freeware. 
+Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a physical simulator providing the tools to model and simulate robots in both indoor and outdoor environment. Since the Gazebo is distributed as one of the standard packages of the ROS framework it is straightforward to integrate the simulation environment with the already implemented ROS nodes. Since the OLS is designed to track and localize very distant targets it is not possible to test the system during development in the laboratory. Therefore, the physical simulation is necessary for the development phase in order to prepare the system for the real world operation. Gazebo was used for multiple tasks:
 
-Since the Gazebo is distributed also as one of the standard packages of the ROS framework it is straightforward to integrate the simulation environment with the already implemented ROS nodes. There are multiple advantages of using the simulator over a development using a real hardware, the main motivations were as follows:
-
-\paragraph{testing a tracker} The Gazebo provides the ROS plugin simulating an RGB camera, which captures the virtual scene and publishes a stream of rendered images. Thus it can be used to test an object tracking algorithm using arbitrarily complex environment and moving objects (see Figure \ref{fig:gazebo_camera_stream}).
-
-%% The screenshot of Gazebo scene and image streams from cameras.
-%\begin{figure}[htb]
-%	\centering
-%	\includegraphics[width=14.5cm]{fig/gazebo_camera_stream.png}
-%	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (the gas station), a flying object (the red sphere) and four manipulators. All four virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
-%	\label{fig:gazebo_camera_stream}
-%\end{figure}
+\paragraph{Testing the tracker} Gazebo provides the ROS plugin simulating an RGB camera which captures the virtual scene and publishes a stream of rendered images. Therefore, it can be used to test an object tracking algorithm using arbitrarily complex environment and moving objects (see Figure \ref{fig:gazebo}).
 
 %% The screenshot of Gazebo scene and image streams from cameras.
 \begin{figure}[htb]
@@ -1214,36 +1201,42 @@ Since the Gazebo is distributed also as one of the standard packages of the ROS 
 	\label{fig:gazebo}
 \end{figure}
 
+\paragraph{Testing the P\&T unit} It is a good practice to include a real hardware in the simulation during the development in the \textit{hardware-in-the-loop} manner \cite{on_hw_in_the_loop}. Both actuators and sensors would be difficult to simulate properly, moreover a real P\&T unit is constrained in terms of the operational range (see Section \ref{txt:camera_unit}), maximum acceleration and speed and communication throughput so it is necessary to thoroughly test its performance. The simulation reveals whether the implementation of motion control is correct and whether the possibilities of the P\&T unit suffice to track arbitrarily fast (simulated) objects.
+
+\paragraph{Testing the triangulation} Thanks to the Gazebo it is possible to simulate a flying object with a-priory set trajectory (see Figure \ref{fig:gazebo}) and evaluate the precision of a position estimation algorithm using comparison between the estimated target position and a ground-truth. The visualization of the back-projected rays forming the skew-lines is done using visualization tool \textit{rviz}\footnote{The ROS package rviz: \url{http://wiki.ros.org/rviz}} (see Figure \ref{fig:rviz}).
+
 %% Screenshot from rviz where three CUs track a target.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.65\linewidth]{fig/rviz.png}
-	\caption{.}
+	\caption{Three CUs tracking the target and the back-projected rays are visualized by the \textit{rviz} tool.}
 	\label{fig:rviz}
 \end{figure}
-
-\paragraph{testing a manipulator} It is a good practice to include a real hardware in the simulation during the development \cite{on_hw_in_the_loop}. Both actuators and sensors would be difficult to simulate properly, moreover a real manipulator is constrained in terms of the operational range (see Section \ref{txt:camera_unit}), maximum acceleration and speed and communication throughput so it is necessary to thoroughly test its performance. This so called hardware-in-the-loop simulation reveals whether the implementation of motion control is correct and whether the possibilities of the manipulator suffice to track arbitrarily fast (simulated) objects.
-
-\paragraph{testing a triangulation} Thanks to the Gazebo it is possible to simulate a flying object with a-priory set trajectory and evaluate the precision of a position estimation algorithm using comparison between the estimated target position and a ground-truth.
 
 %.........................................................................
 %.........................................................................
 \subsection{Ground Truth Tracker} \label{txt:ground_truth_tracker}
 
-- popsat gt tracker - na co je, konstanty
+Both visual trackers employed by the OLS are expected to provide noisy and delayed measurements. The noise might be caused by either of the typical tracking difficulties (see Section \ref{txt:object_tracking}) and the delay is inevitable due to the computational complexity of visual tracking algorithms. What is more, both the noise and the delay will vary across different environments and different devices running the OLS. As was explained in Section \ref{txt:precision_analysis} the random error of the visual tracker can ha sever impact on the localization precision.
+
+Therefore, in order to test the performance of the OLS utilizing the sub-optimal visual tracking algorithm, the \textit{ground truth (GT) tracker} simulating both the noise and the delay was implemented. In time $t$ the GT tracker outputs the estimated 2D position $\vec{o_{t-t_{d}}}$ of the target $\vec{O_{t-t_{d}}}$:
+
+\begin{align}
+\vec{o_{t-t_{d}}} &= \matr{P_{t-t_{d}}}\vec{O_{t-t_{d}}} + \vec{o_{n}},\\ 
+t_{d} &\sim \mathcal{N}(\mu_{t_{d}}, \sigma_{t_{d}}),\\
+\vec{o_{n_{dim}}} &\sim \mathcal{N}(\mu_{n_{dim}}, \sigma_{n_{dim}}),
+\end{align}
+where $t_{d}$ is the time delay, $\matr{P_{t-t_{d}}}$ is the projection matrix at time $t-t_{d}$, $\vec{o_{n}}$ is the (2D) noise, $\mu_{t_{d}}$ and $\sigma_{t_{d}}$ are the parameters for the time delay normal distribution and $\mu_{n_{dim}}$ and $\sigma_{t_{dim}}$ are the parameters for the noise normal distribution for each dimension $dim$. By changing the constants $\mu_{t_{d}}$. $\sigma_{t_{d}}$, $\mu_{n_{dim}}$ and $\sigma_{n_{dim}}$ it is possible to simulate various performance of the visual tracker.
 
 %.........................................................................
 %.........................................................................
-\subsection{Handling Datasets} \label{txt:handling_datasets}
+\subsection{Handling the Datasets} \label{txt:handling_datasets}
 
-- popsat .bag
-- zminit navrh s manipulator-iface
+When testing the OLS in the real world environment it is necessary to record all the sensory data so that the experiments can be rerun later (with different implementations, different settings etc.). Since all the streams must be time synchronized, the time stamps must be recorded as well and the resulting dataset should be easy to playback.
 
-%.........................................................................
-%.........................................................................
-\subsection{Real World Performance} \label{txt:real_world_performance}
-	
-- setup a FPS
+For these purposes the ROS provides the data format \textit{bag}\footnote{The bag format provided by the ROS: \url{http://wiki.ros.org/Bags}} as well as the set of tools for both recording, editing and playing back the data. The OLS was designed so as to only record the sensory data coming from the P\&T unit (the \textit{manipulator} node) and the camera (the \textit{camera} node). 
+
+Therefore, once recorded, both these nodes constituting the \textsc{sensory input} (see Figure \ref{fig:sw_ols}) can be easily replaced by the playback of the given \textit{bag} representing the recorded data. This approach makes the system operate as if it was running in the real world environment, hence various tests can be rerun repeatedly.
 
 %=========================================================================
 %=========================================================================
