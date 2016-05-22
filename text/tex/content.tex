@@ -1123,64 +1123,61 @@ The package manages the distribution of the poses of all kinematic chain joints 
 %-------------------------------------------------------------------------
 \section{System Architecture} \label{txt:system_architecture}
 
+The OLS is divided into multiple ROS nodes with the aim to loosely resemble the hardware components. Predefined ROS messages as well as the custom ones are used to exchange the data among nodes. During runtime the operator is presented with a set of windows serving the purpose of visualizing the current state and providing the interaction capabilities. The main output of the OLS is the continuous stream of the textual information representing the estimated information about the tracked target, most importantly its global location given in UTM coordinates.
 
 %.........................................................................
 %.........................................................................
-\subsection{Nodes Interaction Design}
+\subsection{Nodes Interaction Design} \label{txt:nodes_interaction_design}
 
-- popsat obrazek
-- vysvetlit navaznost na pipeline ze SW architecture
-
-The system is divided into multiple ROS nodes (processes running in the operating system) with the aim to loosely resemble the hardware components. Five namespaces are used, one \texttt{master} namespace and four \texttt{camera\_unit\_N} namespaces, where $N \in \{0, 1, 2, 3\}$ identifies a unique camera unit. The overview of the system architecture from the perspective of the ROS namespaces, nodes, messages and services is depicted on Figure \ref{fig:sw_ols}.
+% Five namespaces are used, one \texttt{master} namespace and four \texttt{camera\_unit\_N} namespaces, where $N \in \{0, 1, 2, 3\}$ identifies a unique camera unit. 
+ 
+The overview of the system architecture from the perspective of the ROS namespaces, nodes, messages and services is depicted in Figure \ref{fig:sw_ols}. The distribution of the computation tasks to the separate nodes loosely corresponds to the end-to-end data flow pipeline proposed in Section \ref{txt:sw_pipeline} (see Figure \ref{fig:pipeline}). The nodes running within the \textsc{master} namespace serve the purpose of the access point for the operator as well as the main controller of the whole system while each of the namespaces \texttt{CU-N} controls a separate CU.
 
 %% The diagram of the software components - ROS nodes - and ROS topics.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.98\linewidth]{fig/sw_ols.pdf}
-	\caption{The diagram of the software components represented by the ROS nodes. The communication among topics is implemented using ROS topics (normal arrows) and ROS services (dashed arrows).}
+	\caption{The diagram of the software components represented by the ROS nodes. The communication among topics is implemented using ROS messages (standard arrows) and ROS services (dashed arrows).}
 	\label{fig:sw_ols}
 \end{figure}
 
-The nodes running within the \texttt{master} namespace serve the purpose of the access point for an user (an operator) as well as the main controller of the whole system. The node \texttt{controls} keeps the information about the tracked targets and distributes the workload to the separate camera units based on their position and orientation with regards to the newly discovered target. The node \texttt{position\_estimation} calculates the triangulation and estimates the 3D position of the target. The node \texttt{GUI} implements the graphical user interface allowing the operator to control the system and the nodes \texttt{joy} and \texttt{keyboard} process the events from peripherals.
+Required target is selected via the \textit{user interface} node (using either of the peripherals controlled by the \textit{joy} and \textit{keyboard} nodes) and the information is immediately propagated to the \textit{controls} node which keeps the information about all tracked targets. The \textit{tracking} node of the given CU is informed about the new target and the visual tracking is initialized. Furthermore, the \textit{tracking} node continuously regulate the motion of the P\&T unit --- the \textit{manipulator} node --- and it publishes its estimates of the target position in two-space. 
 
-Each of the namespaces \texttt{camera\_unit\_N} controls a separate camera unit. The namespace contains the standard node \texttt{avt\_vimba\_camera} processing the input image stream from Prosilica camera and it implements the node \texttt{manipulator}, which controls the manipulator and publishes its state, and the node \texttt{detection\_and\_tracking}, which performs the computationally most expensive tasks of the object detection, learning its appearance and tracking.
+The \textit{position estimation} node continuously receives the measurements from single trackers and it computes the final estimate of the target position in three-space. Additionally, it estimates the parameters of the target motion model. Finally, the output is presented to the operator via the \textit{user interface} node and the textual data information is published via the \textit{target-state-global} message.
 
 %.........................................................................
 %.........................................................................
 \subsection{User Interface}
 
-- popis gui
-- co se vypisuje, zobrazuje (bb)
+The OLS do not provide a single integrated graphical user interface. Contrarily, the user interface is composed of multiple windows, each having a different purpose (see Figure \ref{fig:gui}). The \textit{camera\_stream} window which is opened for each CU displays the image stream from corresponding camera and allows the user to select the target of interest (by drawing a bounding box). Furthermore, it displays the progress of tracking and estimated information about the tracked target. The \textit{rviz} window displays the 3D visualization of all CUs and back-projected rays and the \textit{maps} window displays the position and orientation of all CUs and the localized target.
 
 %% GUI
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.85\linewidth]{fig/gui.png}
-	\caption{.}
+	\caption{The graphical interface of the OLS containing the \textit{camera\_stream} windows (top), \textit{rviz} window (bottom left) and \textit{maps} window (bottom right).}
 	\label{fig:gui}
 \end{figure}
 
 %.........................................................................
 %.........................................................................
-\subsection{System Output}
+\subsection{Third Party Software Used in the OLS} \label{txt:external_libraries}
 
-- popsat vystupni zpravu
+Besides the framework ROS a few other publicly available libraries are used within the implementation:
 
-%.........................................................................
-%.........................................................................
-\subsection{External Libraries} \label{txt:external_libraries}
-- TLD, BGFG, UTM2WGS conversion, Vimba Viewer
-- OpenCV, PCL, serial, Eigen, Vimba SDK (resi PTP)
+\paragraph{OpenCV} Computer vision library\footnote{The official website of OpenCV: \url{http://opencv.org}} providing algorithms for image processing, computer vision and machine learning. Version 2.4.11 compiled with the support for CUDA is used. In the OLS it is used by both visual trackers and by the \textit{user interface} node.
 
-Besides the framework ROS a few other publicly available libraries are used within the implementation.
+\paragraph{Eigen} Open source C++ template library\footnote{The official website of Eigen: \url{http://eigen.tuxfamily.org}} implementing the data structures and methods for fast solving of linear algebra problems. The OLS uses Eigen mostly for computations regarding the triangulation.
 
-\paragraph{OpenCV} Open Source Computer Vision Library\footnote{The official website of OpenCV: \url{http://opencv.org}} is a free open source library providing algorithms for image processing, computer vision and machine learning. Version 2.4.11 is used as it is a component of ROS Indigo.
+\paragraph{PCL} An open-source library for 2D/3D image and point cloud processing\footnote{The official website of PCL: \url{http://pointclouds.org/}}. Motion prediction based on fitting the line to the scattered data using RANSAC algorithm utilizes the PCL in the OLS.
 
-\paragraph{Eigen} This open source C++ template library\footnote{The official website of Eigen: \url{http://eigen.tuxfamily.org}} implements the data structures and methods for fast and convenient solving of linear algebra problems.
+\paragraph{OpenTLD} The OpenTLD library\footnote{The official website of OpenTLD: \url{http://www.gnebehay.com/tld}} represents an open source C++ implementation the TLD tracking algorithm (see Section \ref{txt:tracking_learning_detection}).	
 
-\paragraph{OpenTLD} The OpenTLD library\footnote{The official website of OpenTLD: \url{http://www.gnebehay.com/tld}} represents an open source C++ implementation the TLD tracking algorithm (see Section \ref{txt:detection_and_tracking}).	
+\paragraph{BGFG tracker} The implementation of the BGFG tracker (see Section \ref{txt:bgfg_tracker}) which was provided by the authors of the tracker \cite{ObjectTrackinginMonochromaticVideo}.
 
-\paragraph{Serial} A cross-platform library Serial\footnote{The official website of Serial: \url{https://github.com/wjwwood/serial}} implemented in C++ provides the API for interfacing with RS-232 serial like ports. It is used to control the manipulator.
+\paragraph{Serial} A cross-platform library\footnote{The official website of Serial: \url{https://github.com/wjwwood/serial}} implemented in C++ providing the API for interfacing with RS-232 serial like ports. It is used to control the P\&T unit Flir PTU D46-70.
+
+\paragraph{LatLong-UTM} An open-source library\footnote{The official website of LatLong-UTM: \url{http://ereimer.net/programs/LatLong-UTM.htm}} providing routines for coordinate conversion between WGS84 and UTM coordinate systems.s
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -1195,7 +1192,7 @@ Besides the framework ROS a few other publicly available libraries are used with
 %.........................................................................
 \subsection{Application of Gazebo} \label{txt:application_of_gazebo}
 
-Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a physical simulator developed by the OSRF\footnote{Open Source Robotic Foundation: \url{http://www.osrfoundation.org/}} providing the tools to model and simulate robots in both indoor and outdoor environment. The simulator has been developed since 2002 and today represents a mature system with wide penetration and support, while being distributed as open source and freeware. 
+Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a physical simulator providing the tools to model and simulate robots in both indoor and outdoor environment. The simulator has been developed since 2002 and today represents a mature system with wide penetration and support, while being distributed as open source and freeware. 
 
 Since the Gazebo is distributed also as one of the standard packages of the ROS framework it is straightforward to integrate the simulation environment with the already implemented ROS nodes. There are multiple advantages of using the simulator over a development using a real hardware, the main motivations were as follows:
 
