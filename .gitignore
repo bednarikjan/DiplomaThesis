@@ -24,7 +24,7 @@
 *.synctex.gz
 *.asv
 *.ptc
-OpticalLocalization_BednarikJan.pdf
+# OpticalLocalization_BednarikJan.pdf
 text/bibliography/*
 text/sablona/*
 text/tex-old_template/*
