@@ -59,6 +59,7 @@
 \usepackage{longtable}
 \usepackage{multirow}
 
+%% Units
 \usepackage{siunitx}
 \DeclareSIUnit[number-unit-product = {}]{\inch}{''}
 
@@ -77,6 +78,9 @@
 \makeglossaries
 \input{glossary}
 
+% Include other PDFs
+\usepackage[final]{pdfpages}
+
 %%%% Custom commands
 % particle
 \newcommand{\particle}[2]{(\vec{x_{#1}^{#2}},w_{#1}^{#2})}
@@ -84,7 +88,8 @@
 % argmax
 \newcommand*{\argmax}{\operatornamewithlimits{argmax}\limits}
 
-\renewcommand{\floatpagefraction}{.9}
+%% Only assign a signle page for a figure/table if it takes more then X percent of the page size
+\renewcommand{\floatpagefraction}{.9} % X = 90 pct
 
 % Matrix notation
 \newcommand{\matr}[1]{\mathbf{#1}}
