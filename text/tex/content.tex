@@ -444,7 +444,7 @@ In case of reconstruction approach proposed by Snavely, Seitz and Szeliski \cite
 
 %.........................................................................
 %.........................................................................
-\subsection{VisualSFM}
+\subsection{VisualSFM} \label{txt:visual_sfm}
 
 VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index.html}} is a well established application for end-to-end scene reconstruction using multiple cameras which follows the standard pipeline described in Section \ref{fig:3d_reconstruction_pipeline} and adds another method for dense reconstruction. For sparse reconstruction the application uses parallel implementation of bundle adjustment \cite{ChangchangWu:2011:MBA:2191740.2191945} and for dense reconstruction the Patch-based Multi-view Stereo Software (PMVS) approach is utilized \cite{Furu:2010:PMVS}. The demonstration of dense reconstruction is depicted in Figure \ref{fig:visualsfm_tower}. Upon successful reconstruction the VisualSFM enables the 3D point cloud to be exported in standard PLY format which could be imported to the \gls{ols} for instance with the use of Point Cloud Library (see Section \ref{txt:occlusion_prediction}).
 
@@ -798,7 +798,7 @@ Therefore, the BGFG tracker was adjusted so as to assign a belief to each measur
 Since the \gls{ols} is designed as multi-camera system, the random error or failure of a single tracker might be compensated by the rest of the units; consequently the total impact on the localization precision is alleviated. In order to denote the certainty of the measurements coming from individual trackers the notion of \textit{belief} is introduced for the BGFG tracker (the operation of the BGFG tracker is described in Section \ref{txt:bgfg_tracker}).
 
 The \textit{belief} is calculated for each frame and it is based on the distance function (\ref{eq:bgfg_distance_function}) which BGFG tracker uses to evaluate the candidate states represented by the particles. Basically, the distance function corresponds to the visual similarity of two image patches -- the target template and current candidate weighted by its foreground mask. Therefore, the particle weight is normalized by the maximum possible similarity so as to obtain a percent value \textit{belief} representing the similarity (i.e. $\textit{belief} \in [0, 1]$):
-\begin{align}
+\begin{align} \label{eq:belief}
 	belief = \frac{\sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}(1 - |I_{t}^{(x,y)} - I_{c}^{(x,y)}|)^{2}}}{\sum_{(x,y) \in I}{e^{min(M_{t}^{(x,y)}, M_{c}^{(x,y)})}}},
 \end{align}
 
@@ -966,20 +966,63 @@ The future position $\vec{p_{t}}$ of the target can be then simply estimated as 
 %-------------------------------------------------------------------------
 \section{Occlusion Prediction} \label{txt:occlusion_prediction}
 
-\todo{dokoncit}
+As was explained in Section \ref{txt:3d_environment_reconstruction}, if the 3D model corresponding to the environment is available and if the motion of the target can be predicted (see Section \ref{txt:3d_motion_predicition}), it is possible to predict that the target will be occluded by another object. Since the \gls{ols} is composed of multiple cameras it is possible to reconstruct the environment using standard multi-view approaches such as the bundle adjustment. The problematics of obtaining the 3D model represented as a point cloud is described in Section \ref{txt:obtaining_the_3d_model} and the proposed approach to occlusion prediction is given in Section \ref{txt:occlusion_prediction_algorithm}.
 
-%- zminit, ze byl testovan widely used SW VisualSFM, ale bohuzel nepodporuje inicialni vlozeni intrinsics a extrinsics pro vice kamer
-%- zminit, ze je pomoci VisualSFM aspon ukazano, jaky je rozdil mezi pouzitim 2 nebo 4 (ci vice) views na rekonstrukci popelnice z gazeba.
-%- zminit, ze detailni zabyvani se 3d rekonstrukci je out of scope teto prace, prace se zameruje spis na pouziti rekonstruovaneho modelu pro predikci okluze
-%- popat algoritmus predikce (vypocet uhlu vektoru k danemu 3D bodu a predpovezene pozici cile)
-%- dat obrazek, pohled shora, kde cil se pohybuje smerem za prekazku, zobrazit predikovanou pozici cile a vybarvit body, ktere nalezi prekazce
-% zminit pozuiti PCL (odkazuji se na ni z textu sem)
+%.........................................................................
+%.........................................................................
+\subsection{Obtaining the 3D Model of the Environment} \label{txt:obtaining_the_3d_model}
+
+Since the software tool VisualSFM (see Section \ref{txt:visual_sfm}) integrates the state-of-the-art approaches to 3D reconstruction its suitability for the OLS was tested. Even though it produces high-quality results in the scenarios where large amount of images with overlapping FOVs are provided (tens or hundreds of photographs), with just a few views (two to four) --- which is the case of the OLS --- the visual reconstruction performs rather unsatisfactorily.
+
+The VisualSFM was tested with the task to reconstruct a couple of artificial environments created within the simulator Gazebo (see Section \ref{txt:application_of_gazebo}). The Figure \ref{fig:3d_reconstrcion_2vs4cus} demonstrates the comparison of reconstruction output based on two and four views. It can be seen that using mere two views results in imprecise estimates with sever noise while four views provide more reasonable results. Nevertheless, in both cases the relative positions and orientations of the cameras were not estimated correctly, hence the resulting model was wrongly positioned with regards to the ground truth position.
+
+Unfortunately, the VisualSFM does not provide the option to set a priori known information about the intrinsics and extrinsics of each camera which are known in the OLS and which could help initialize the reprojection error optimization algorithm used by the bundle adjustment (see Section \ref{txt:bundle_adjustment}) so as to start near the (possibly) global minimum.
+
+Therefore, VisualSFM does not suite the requirements of the OLS and different solution should be found in order to use the system to perform the 3D environment reconstruction on its own. The problematics of autonomous 3D reconstruction is out of scope of this work which rather focuses on how to exploit the 3D model to predict the occlusion (see Section \ref{txt:occlusion_prediction_algorithm}).
+
+%% Comparison of VisualSFM performance for 2 and 4 units
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\linewidth]{fig/3d_reconstruction_2vs4cus.pdf}
+	\caption{The 3D reconstruction of the rigid object given the two (left) and four (right) views captured by artificial cameras plugged-in the simulator Gazebo. Reconstruction based on four views produces far less noise, however, the position of the model is still estimated incorrectly with regards to the cameras.}
+	\label{fig:3d_reconstrcion_2vs4cus}
+\end{figure}
+
+
+%.........................................................................
+%.........................................................................
+\subsection{Occlusion Prediction Algorithm and Application} \label{txt:occlusion_prediction_algorithm}
+
+A sample scenario where the full occlusion occurs for both cameras in a basic two-view setup is depicted in Figure \ref{fig:occlusion_prediciton} (a). The 3D model of the environment is represented as a point cloud $P = \{\vec{p_{1}}, \vec{p_{2}}, ..., \vec{p_{N}}\}$ where $\vec{p_{i}}$ is the i-th point $\vec{p} = [x, y, z]^{T}$. The function $occ(\vec{p}, \vec{T'})$ then determines for each part of the model (represented by the given point $\vec{p_{i}}$) whether it occludes the target $T$ at the position $T'$ predicted for time $t_{i}+\Delta t$ (where $\Delta t$ is the time difference for which the future position is predicted):
+
+\begin{align}
+occ(\vec{p}, \vec{T'}) = 
+	\begin{cases}
+		1, & \text{if}\ \frac{\vec{p}\vec{T'}}{|\vec{p}||\vec{T'}|} \leq \frac{\eta}{2} \land \lVert \vec{p} - \vec{CU} \rVert \leq \Vert \vec{T'} - \vec{CU} \rVert \\		
+		0, & \text{otherwise},
+	\end{cases}
+\end{align}
+where $\vec{CU}$ is the central point of the camera and $eta$ is the required angle specifying how big surrounding of the target $T'$ is considered (see Figure \ref{fig:occlusion_prediciton} (b)). Put in other words, only those points $\vec{p_{i}}$ that lie within the cone given by angle $\eta$ back-projected from the camera center $\vec{CU}$ towards the predicted location of the target $T'$ and which are closer to $\vec{CU}$ than the target $T'$ itself.
+
+If the occlusion is spotted, the output belief $bel$ of the tacker (see Section \ref{txt:measurement_belief}) can be set $0$ in order to disregard this measurement completely:
+\begin{align}
+bel = 
+	\begin{cases}
+		0, & \text{if}\ \sum_{i=1}^{N}{occ(\vec{p_{i}}, \vec{T'})} \textgreater T_{occ} \\		
+		bel_{orig}, & \text{otherwise},
+	\end{cases}
+\end{align}
+where $T_{occ}$ is an empirically set threshold used to disregard the small amount of points representing the reconstruction noise and $bel_{orig}$ is the originally computed belief as shown in \ref{eq:belief}. A different softer solution is to use nonlinear function to scale the $bel_{orig}$ to be inversely proportional to the number of points possibly causing the occlusion:
+\begin{align}
+bel = e^{-\kappa \sum_{i=1}^{N}{occ(\vec{p_{i}}, \vec{T'})}}bel_{orig},
+\end{align}
+where $\kappa$ is the empirically set constant. Note that these concepts are only proposed as the possible approaches to predict the occlusion and were not implemented since the obtained datasets did not include any scenario where the occlusion would appear.
 
 %% Schema of occlusion by obstacle as seen by 2 CUs. Occlusion prediciotn via point cloud schema.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.95\linewidth]{fig/occlusion_2_units_pointcloud.pdf}
-	\caption{\todo{pridat caption}.}
+	\caption{A sample schema demonstrating the occurrence of the occlusion caused by the \textit{obstacle} (a). The demonstration of the 3D environment model represented by a pointcloud where a certain amount of points (depicted in red color) possibly cause the occlusion for target $T'_{t_{2}+\Delta t}$ (b).}
 	\label{fig:occlusion_prediciton}
 \end{figure}
 
