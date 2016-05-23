@@ -318,9 +318,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.7641237"
-     inkscape:cx="461.78991"
-     inkscape:cy="844.9391"
+     inkscape:zoom="1.5236614"
+     inkscape:cx="288.45752"
+     inkscape:cy="898.48754"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -337,7 +337,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -392,7 +392,7 @@
          y="244.77243"
          x="112.14406"
          id="tspan3494"
-         sodipodi:role="line">PP<tspan
+         sodipodi:role="line">S<tspan
    style="font-size:5px"
    id="tspan3496">l</tspan></tspan></text>
     <text
@@ -471,7 +471,7 @@
          id="tspan3587"
          x="222.14406"
          y="244.77243"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10">PP<tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10">S<tspan
    id="tspan3589"
    style="font-size:5px">r</tspan></tspan></text>
     <text
@@ -519,7 +519,7 @@
          id="tspan3490-6-7"
          x="160.4124"
          y="304.15854"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10">b</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10">B</tspan></text>
     <circle
        r="2.875"
        cy="117.51971"
@@ -743,15 +743,15 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="336.14404"
+       x="342.14404"
        y="236.77243"
        id="text6678"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6680"
-         x="336.14404"
+         x="342.14404"
          y="236.77243"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10">PP<tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10">S<tspan
    id="tspan6682"
    style="font-size:5px">1</tspan></tspan></text>
     <text
@@ -826,15 +826,15 @@
     <text
        sodipodi:linespacing="125%"
        id="text6708"
-       y="234.11546"
-       x="459.95175"
+       y="232.11546"
+       x="471.95175"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:cmr10;-inkscape-font-specification:cmr10"
-         y="234.11546"
-         x="459.95175"
+         y="232.11546"
+         x="471.95175"
          id="tspan6710"
-         sodipodi:role="line">PP<tspan
+         sodipodi:role="line">S<tspan
    style="font-size:5px"
    id="tspan6712">2</tspan></tspan></text>
     <text

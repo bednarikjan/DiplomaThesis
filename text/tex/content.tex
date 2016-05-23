@@ -241,7 +241,7 @@ Localization of a target corresponds to the process of mapping image locations o
 	\vec{x} &= P\vec{X},\\
 	P &= KR[I|-C],
 \end{align}
-where $I$ is the identity matrix, $R$ and $C$ are the rotation and translation matrices representing the orientation and position of the camera frame with respect to the world frame and $K$ is the \textit{intrinsics matrix} (or \textit{camera calibration matrix}) consisting of focal length $f$, coordinates of the principal point $PP = (x_{0}, y_{0})^{T}$ and skew parameter $s$:
+where $I$ is the identity matrix, $R$ and $U$ are the rotation and translation matrices representing the orientation and position of the camera frame with respect to the world frame and $K$ is the \textit{intrinsics matrix} (or \textit{camera calibration matrix}) consisting of focal length $f$, coordinates of the principal point $S = (x_{0}, y_{0})^{T}$ and skew parameter $s$:
 \begin{align}
 	K = \begin{bmatrix}
 		\alpha_{x} & s          & x_{0} \\
@@ -260,14 +260,14 @@ where $I$ is the identity matrix, $R$ and $C$ are the rotation and translation m
 
 \subsection{Stereo Setups}
 
-With two calibrated cameras (i.e. $K$, $R$ and $C$ matrices are known) observing the same portion of the environment it is possible to estimate the location of the given point/object in 3-space. The \textit{canonical stereoscopic system} is one of the widely used setups capable of estimating the depth of points in the scene \cite{Cyganek:2007:ICV:1214366}. The optical axes of both cameras are collinear and the notion of \textit{disparity} is introduced. Disparity refers to the difference in the image location of the same 3D point when projected under perspective to two different cameras \cite{Stockman:2001:CV:558008} and the coordinates of a point in 3-space can be derived using following equations (see Figure \ref{fig:canonical_vs_general_stereo}):
+With two calibrated cameras (i.e. $K$, $R$ and $U$ matrices are known) observing the same portion of the environment it is possible to estimate the location of the given point/object in 3-space. The \textit{canonical stereoscopic system} is one of the widely used setups capable of estimating the depth of points in the scene \cite{Cyganek:2007:ICV:1214366}. The optical axes of both cameras are collinear and the notion of \textit{disparity} is introduced. Disparity refers to the difference in the image location of the same 3D point when projected under perspective to two different cameras \cite{Stockman:2001:CV:558008} and the coordinates of a point in 3-space can be derived using following equations (see Figure \ref{fig:canonical_vs_general_stereo}):
 
 \begin{align}
-	z &= fb/(x_{l} - x_{r}) = fb/d,\\
-	x &= x_{l}z/f = b + x_{r}z/f,\\
+	z &= fB/(x_{l} - x_{r}) = fB/d,\\
+	x &= x_{l}z/f = B + x_{r}z/f,\\
 	y &= y_{l}z/f = y_{r}z/f,
 \end{align}
-where $f$ is the focal length, $b$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $PP$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, the \gls{ols} cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with an arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:design_of_the_OLS}).
+where $f$ is the focal length, $B$ is the baseline, $x_{l}$ and $x_{r}$ are the horizontal distances between the principal points $S$ of the respective camera and the projection $t_{l}$ and $t_{r}$ respectively (the same applies for $y_{l}$ and $y_{r}$ in vertical direction), $d$ is the disparity and $(x, y, z)^{T}$ are the 3-space coordinates of the target. Nevertheless, the \gls{ols} cannot be modeled as canonical stereoscopic system due to the fact that it is designed to work with an arbitrary number of cameras and furthermore, the extrinsics of the cameras are not fixed (the cameras rotate freely in space, see Section \ref{txt:design_of_the_OLS}).
 
 %% Canonical stereo setup vs general stereo setup
 \begin{figure}[tbh]
@@ -293,11 +293,11 @@ The process of finding the location of a target in 3-space as an intersection of
 In general, the same problem holds within each pair of cameras in N-view setup. Instead of the intersection, the minimum distance between each pair of skew lines might be found as a line segment perpendicular to both skew lines (see Figure \ref{fig:multi_view_intersection}) via the following equation \cite{Forsyth:2002:CVM:580035}:
 \begin{align}
 \begin{split}
-	z_{ij}\vec{p_{i}} &= \vec{T_{ij}} + z_{ij}R_{ij}\vec{p_{j}} + \lambda_{ij}(\vec{p_{i}} \times R_{ij}\vec{p_{j}}),\\
+	z_{ij}\vec{q_{i}} &= \vec{T_{ij}} + z_{ij}R_{ij}\vec{q_{j}} + \lambda_{ij}(\vec{q_{i}} \times R_{ij}\vec{q_{j}}),\\
 	\forall i,j           &= 1,2,...,N \land i \neq j,
 \end{split}
 \end{align}
-where $\vec{p_{i}}$ is the direction of back-projected line in camera $i$, $z_{ij}$ gives the scale of vector ${p_{i}}$ so as to define a point $P_{ij}$ which is the closest to the line back-projected from camera $j$, $T_{ij}$ and $R_{ij}$ are the translation and rotation of the coordinate frame of the camera $j$ with respect to the coordinate frame of the camera $i$ and $\lambda_{ij}$ defines the length of the line segment connecting both back-projected skew lines.
+where $\vec{q_{i}}$ is the direction of back-projected line in camera $i$, $z_{ij}$ gives the scale of vector ${q_{i}}$ so as to define a point $Q_{ij}$ which is the closest to the line back-projected from camera $j$, $T_{ij}$ and $R_{ij}$ are the translation and rotation of the coordinate frame of the camera $j$ with respect to the coordinate frame of the camera $i$ and $\lambda_{ij}$ defines the length of the line segment connecting both back-projected skew lines.
 
 A similar approach to finding the closest distance between each pair of cameras is used in the \gls{ols} (see Section \ref{txt:target_localization_using_triangulation}).
 
@@ -313,7 +313,7 @@ A similar approach to finding the closest distance between each pair of cameras 
 
 Since the back-projected lines are skew, there is not the only correct solution to the localization problem. Contrarily, the position of the target must be estimated. Hartley and Zisserman \cite{Hartley:2003:MVG:861369} propose a couple of methods where the approaches basically boil down either to solving an overdetermined system of linear equations or to minimization of the geometric error. Both approaches are briefly described below.
 
-\paragraph{Direct Linear Transformation (DLT)} The \gls{dlt} algorithm is based on the assumption that an overdetermined system of linear equations in the form $\matr{A}\vec{x} = \vec{0}$ (where $\matr{A}$ is the matrix of coefficients, $\vec{x}$ is the vector of unknowns and $\vec{0}$ is the zero vector) is available and that given the noise there is no exact solution. In case of a stereo setup where the image points $\vec{t_{1}}$ and $\vec{t_{2}}$ in 2-space on each camera correspond to a target $\vec{T}$ in 3-space the overdetermined system of linear equations can be defined with vector $\vec{x} = (t_{1}^{x}, t_{1}^{y}, t_{2}^{x}, t_{2}^{y})$ and matrix $\matr{A}$:
+\paragraph{Direct Linear Transformation (DLT)} The \gls{dlt} algorithm is based on the assumption that an overdetermined system of linear equations in the form $A\vec{x} = \vec{0}$ (where $A$ is the matrix of coefficients, $\vec{x}$ is the vector of unknowns and $\vec{0}$ is the zero vector) is available and that given the noise there is no exact solution. In case of a stereo setup where the image points $\vec{t_{1}}$ and $\vec{t_{2}}$ in 2-space on each camera correspond to a target $\vec{T}$ in 3-space the overdetermined system of linear equations can be defined with vector $\vec{x} = (t_{1}^{x}, t_{1}^{y}, t_{2}^{x}, t_{2}^{y})$ and matrix $A$:
 \begin{align}
 	A = \begin{bmatrix}
 		t_{1}^{x}\vec{p_{1}^{3}}^{T} - \vec{p_{1}^{1}}^{T} \\
@@ -322,7 +322,7 @@ Since the back-projected lines are skew, there is not the only correct solution 
 		t_{2}^{y}\vec{p_{2}^{3}}^{T} - \vec{p_{2}^{2}}^{T} \\
 	\end{bmatrix},
 \end{align}
-where $\vec{p_{cam}^{r}}$ is the $rth$ row of the projection matrix $\matr{P_{cam}}$ of the camera $cam$. The ultimate solution is found using the SVD\footnote{Singular Value Decomposition} as the singular vector corresponding to the smallest singular value of $\matr{A}$.
+where $\vec{p_{cam}^{r}}$ is the $rth$ row of the projection matrix $P_{cam}$ of the camera $cam$. The ultimate solution is found using the SVD\footnote{Singular Value Decomposition} as the singular vector corresponding to the smallest singular value of $A$.
 
 \paragraph{Reprojection Error Minimization} Similarly as DLT this method assumes that the correspondence between image points $\vec{t_{1}}$ and $\vec{t_{2}}$ does not meet the epipolar constraint. The aim thus is to estimate the position of the target $\vec{T}$ in 3-space which projects to image points $\vec{t_{1}'}$ and $\vec{t_{2}'}$ satisfying the epipolar constraint and which at the same time minimizes the reprojection error function $ref$:
 \begin{align}
@@ -364,7 +364,7 @@ Assuming the most general scenario where multiple images of the scene taken from
 	\label{fig:3d_reconstruction_pipeline}
 \end{figure}
 
-The algorithm takes an arbitrary number of images on the input and performs \textit{SIFT keypoint detection} as the first step. Next, individual keypoints are matched across all images creating the \textit{tracks}. A \textit{fundamental matrix $\matr{F}$} is estimated for each pair of images (see Section \ref{txt:epipolar_geometry}) and those matches which are outliers with regards to $\matr{F}$ are removed. Finally, the \textit{iterative sparse bundle adjustment} (see Section \ref{txt:bundle_adjustment}) which produces the estimates of camera parameters (both intrinsics and extrinsics) and 3D locations of matched points is run.
+The algorithm takes an arbitrary number of images on the input and performs \textit{SIFT keypoint detection} as the first step. Next, individual keypoints are matched across all images creating the \textit{tracks}. A \textit{fundamental matrix $F$} is estimated for each pair of images (see Section \ref{txt:epipolar_geometry}) and those matches which are outliers with regards to $F$ are removed. Finally, the \textit{iterative sparse bundle adjustment} (see Section \ref{txt:bundle_adjustment}) which produces the estimates of camera parameters (both intrinsics and extrinsics) and 3D locations of matched points is run.
 
 In case of the \gls{ols}, both extrinsics and intrinsics are known. However, they are correct only up to a systematic and random error caused by imprecise stationing and rectification (see Chapter \ref{txt:precision_of_the_localization}) and a noise which the \gls{pt} unit orientation measurements are subject to. Therefore, in order to achieve a 3D reconstruction of the surrounding environment it is still reasonable to employ the bundle adjustment technique. In order to exploit the a priori known information the bundle adjustment could be for instance initialized with known camera calibration and pose parameters so as to make the optimization algorithm more likely to find the global optimum.
 
@@ -384,12 +384,12 @@ What the epipolar geometry relation says is that the observed target $\vec{T}$ m
 	\label{fig:epipolar_geometry}
 \end{figure}
 
-Ultimately, the \textit{epipolar constraint} is defined as follows: \textit{Each image point $\vec{t_{i}}$ of a space point $\vec{T}$ lies in the image plane only on the corresponding epipolar line}. This can be stated numerically using the \textit{fundamental matrix} $\matr{F}$:
+Ultimately, the \textit{epipolar constraint} is defined as follows: \textit{Each image point $\vec{t_{i}}$ of a space point $\vec{T}$ lies in the image plane only on the corresponding epipolar line}. This can be stated numerically using the \textit{fundamental matrix} $F$:
 \begin{align}
-	\vec{t_{1}}^{T}\matr{F}\vec{t_{2}} = 0
+	\vec{t_{1}}^{T}F\vec{t_{2}} = 0
 \end{align}
 
-Fundamental matrix $\matr{F}$ can be estimated from mere image correspondences for instance using normalized 8-point algorithm within RANSAC framework \cite{Hartley:2003:MVG:861369, Cyganek:2007:ICV:1214366}.
+Fundamental matrix $F$ can be estimated from mere image correspondences for instance using normalized 8-point algorithm within RANSAC framework \cite{Hartley:2003:MVG:861369, Cyganek:2007:ICV:1214366}.
 
 %.........................................................................
 %.........................................................................
@@ -479,16 +479,16 @@ Whether being systematic or random, in the \gls{ols} the error eventually reflec
 
 Stereoscopic systems are affected by a phenomenon of diminishing accuracy of depth measurement with increasing distance of the target from the cameras \cite{Cyganek:2007:ICV:1214366}. The depth measurement resolution for canonical stereo setup is:
 \begin{align}
-R = \frac{rd^{2}}{fB - rD},
+R = \frac{cd^{2}}{fB - cD},
 \end{align}
-where $f$ is the focal length, $B$ is the baseline length, $r$ is the horizontal size of one pixel and $D$ is the target distance. By substituting $r$ by $pr$, where $p$ is the random error represented by integer number of pixels we obtain the \textit{position estimation error function}:
+where $f$ is the focal length, $B$ is the baseline length, $c$ is the horizontal size of one pixel and $D$ is the target distance. By substituting $c$ by $pc$, where $p$ is the random error represented by integer number of pixels we obtain the \textit{position estimation error function}:
 \begin{align}
-E = \frac{prD^{2}}{fB - prD}.
+E = \frac{pcD^{2}}{fB - pcD}.
 \end{align}
 
 The \gls{ols} does not conform to the canonical stereo setup (all cameras can rotate freely) so the dependence of the error on the target distance is no longer quadratic (considering the setup of two cameras where only one of them makes error): 
 \begin{align}
-E = B\tan(\arctan(\frac{D}{B}) + \arctan(\frac{r}{f})) - D.
+E = B\tan(\arctan(\frac{D}{B}) + \arctan(\frac{c}{f})) - D.
 \end{align}
 
 The cameras setup as well as the error shown as the function of the baseline length and target distance are depicted in Figure \ref{fig:errorGivenBaseAndDistance}. Note that the higher the distance of the target and at the same time the lower the baseline length the higher the precision error.
@@ -615,10 +615,10 @@ A military monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted 
 
 \begin{equation}
 \begin{aligned}
-\beta &= \arctan\frac{d_{h}cs}{f},
+\beta &= \arctan\frac{d_{h}c}{f},
 \end{aligned}
 \end{equation}
-where $f$ is the focal length and $cs$ is the physical size of one pixel.
+where $f$ is the focal length and $c$ is the physical size of one pixel.
 
 %% Photograph of the camera unit with the telescope mounted on the top
 %% Screenshot of the digital crosshair and the offset
@@ -805,13 +805,13 @@ In order not to lose the moving target from the field of view the manipulator ha
 
 Contrarily, there are two main reasons why it is necessary to predict the future 2D position of the target. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of a sudden and rapid movement of the target. Second, the measurements are delayed (due to the tracking algorithm computation and communication delay) and the P\&T unit manifests considerable latency.
 
-Given the time stamped ($t$) states of the manipulator $\vec{m} = (\phi, \psi)$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = (x, y)$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the target $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between current and future 2D position in $T$ seconds:
+Given the time stamped ($t$) states of the manipulator $\vec{m} = [\phi, \psi]$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = [x, y]$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the target $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between current and future 2D position in $T$ seconds:
 
 \begin{align}
 	\vec{\omega_{t}} &= \frac{\sum_{i=0}^{N-2}{\alpha(\vec{p_{i+1}} - \vec{p_{i}}) + (\vec{m_{i+1}} - \vec{m_{i}})}}{\sum_{i=0}^{N-2}{t_{i+1} - t_{i}}},\\
 	\vec{d} &= \vec{\omega_{t}}T,
 \end{align}
-where $\alpha = \arctan{(\frac{cs}{f})}$ is the angular difference given by one \textit{pixel} which can be computed with the knowledge of the physical size of one pixel $cs$ and focal length $f$.
+where $\alpha = \arctan{(\frac{c}{f})}$ is the angular difference given by one \textit{pixel} which can be computed with the knowledge of the physical size of one pixel $c$ and focal length $f$.
 
 Then the manipulator can be instructed to move so as to reach the given angular distance $\vec{d}$. It is necessary that the angular speed $\vec{\omega_{m}}$ of the manipulator decreases gradually and smoothly as the target position is approached since the harsh motion of the camera might causes the failure of the tracker (see Section \ref{txt:adjusting_prediction_step}).
 
@@ -847,7 +847,7 @@ This section describes the proposed triangulation method in two-view scenario (s
 
 As explained in Section \ref{txt:multi_camera_target_localization}, the position of the target in 3-space as seen by the stereoscopic system with known cameras' parameters can be calculated using triangulation. In case of the \gls{ols} the intrinsics were estimated for each camera during calibration and extrinsics are known at each time thanks to the sensory data streamed from the manipulators. However, due to the random and systematic error the rays back-projected from each camera might not intersect in the 3D space (see Figure \ref{fig:triangulationSchematicView}). Therefore, the common plane for both back-projected rays must first be found.
 
-The estimation of the 3D position of the target consists of the following steps. First, back-projection is used to find the vectors $\vec{u}$ and $\vec{v}$ which form the planes $C_{1}C_{2}U$ and $C_{1}C_{2}V$ with the angle $\alpha$ between them. Both vectors are then rotated around the axis $\vec{m}$ so that they lie in the same plane $C_{1}C_{2}W$: $\vec{u'} = R(\beta_{1})\vec{u}$, $\vec{v'} = R(\beta_{2})\vec{v}$. The rotation angles $\beta_{1}$ and $\beta_{2}$ correspond to the confidences $bel_{1}$ and $bel_{2}$ obtained from both trackers: $|\beta_{1}| = |\alpha|\frac{bel_{2}}{bel_{1} + bel_{2}},~|\beta_{2}| = |\alpha| -\beta_{1}$. Finally, the intersection $W$ of the vectors $\vec{u'}$ and $\vec{v'}$ is found.
+The estimation of the 3D position of the target consists of the following steps. First, back-projection is used to find the vectors $\vec{u}$ and $\vec{v}$ which form the planes $C_{1}C_{2}U$ and $C_{1}C_{2}V$ with the angle $\alpha$ between them. Both vectors are then rotated around the axis $\vec{m}$ so that they lie in the same plane $C_{1}C_{2}W$: $\vec{u'} = R(\beta_{1})\vec{u}$, $\vec{v'} = R(\beta_{2})\vec{v}$. The rotation angles $\beta_{1}$ and $\beta_{2}$ correspond to the confidences $conf_{1}$ and $conf_{2}$ obtained from both trackers: $|\beta_{1}| = |\alpha|\frac{conf_{2}}{conf_{1} + conf_{2}},~|\beta_{2}| = |\alpha| -\beta_{1}$. Finally, the intersection $W$ of the vectors $\vec{u'}$ and $\vec{v'}$ is found.
 
 % Triangulation with noisy measurements in 2-view system.
 \begin{figure}[htb]\centering
@@ -861,7 +861,7 @@ The estimation of the 3D position of the target consists of the following steps.
 %.........................................................................
 \subsection{Incorporating Target-Base Geometry} \label{txt:incorporating_target-base_geometry}
 
-If multiple CUs are used, the location of the target in 3-space can be estimated as the weighted centroid of the estimates $T_{i}$ computed by each pair of the camera units forming the baseline $b_{i}$. The weights correspond to the angle $\gamma$ between the baseline $b_{i}$ and the line intersecting the initially estimated position of the target $T'$ and the baseline center $bc_{i}$ since this angle significantly affects the localization precision (see Section \ref{txt:precision_of_the_localization}).
+If multiple CUs are used, the location of the target in 3-space can be estimated as the weighted centroid of the estimates $T_{i}$ computed by each pair of the camera units forming the baseline $B_{i}$. The weights correspond to the angle $\gamma$ between the direction vector $b_{i}$ of the baseline $B_{i}$ and the line intersecting the initially estimated position of the target $T'$ and the baseline center $bc_{i}$ since this angle significantly affects the localization precision (see Section \ref{txt:precision_of_the_localization}).
 
 Basically, the location of the target in 3-space is estimated twice. The first estimation $T'$ corresponds to the standard centroid of the individual estimates $T_{i}$. The second estimation refines the position $T'$ by using the weights corresponding to the target-baseline geometry (see Algorithm \ref{alg:3dPosEstimation}). The demonstration of the three-view scenario is shown in Figure \ref{fig:target-base_and_weighted_centroid}.
 
@@ -875,20 +875,20 @@ Basically, the location of the target in 3-space is estimated twice. The first e
 
 \begin{algorithm}
 	\SetAlgoNoLine	
-	\KwIn{Set of bases $B = {b_{1}, b_{2}, ..., b_{N}}$.}
+	\KwIn{Set of baselines direction vectors $B = {\vec{b_{1}}, \vec{b_{2}}, ..., \vec{b_{N}}}$.}
 	\KwOut{3D position estimate $T$.}
 	\DontPrintSemicolon
 	\BlankLine
 	
 	\SetCommentSty{textnormal}
 	\tcc{3D location estimate disregarding weights}
-	\ForEach{$b_{i} \in B$}
+	\ForEach{$\vec{b_{i}} \in B$}
 	{
-		$\vec{T_{i}} = Estimate3DPosFrom2Views(b_{i})$\;
+		$\vec{T_{i}} = Estimate3DPosFrom2Views(\vec{b_{i}})$\;
 	}
 	$\vec{T'} = \frac{1}{N}\sum_{i=1}^{N}\vec{T_{i}}$\;	
 	\tcc{Weighted estimation of the 3D location. $\vec{bc_{i}}$ represents center of the baseline $b_{i}$}
-	\ForEach{$b_{i} \in B$}
+	\ForEach{$\vec{b_{i}} \in B$}
 	{
 		$\gamma_{i} = |\vec{b_{i}}(\vec{T'} - \vec{bc_{i}})|$\;
 		$w_{i} = \frac{e^{\kappa\gamma_{i}}}{\sum_{j=1}^{N}e^{\kappa\gamma_{j}}}$\;
@@ -912,7 +912,7 @@ The method RANSAC is used in order to fit the line model to the observed time st
 	\vec{v} = \sum_{i=1}^{N-1}{\frac{\vec{o_{i}} - \vec{o_{i-1}}}{t_{i} - t_{i-1}}}
 \end{align}
 
-The future position $\vec{p_{t}}$ of the target can be then simply estimated as $\vec{p} = \vec{p_{0}} + \vec{v}t$ given current position $\vec{p_{0}}$. The tolerance $d$ was empirically set to $2~m$ and RANSAC is computed for $N = 30$ last observations (see Figure \ref{fig:ransac}).
+The future position $\vec{o_{t}}$ of the target can be then simply estimated as $\vec{o} = \vec{o_{0}} + \vec{v}t$ given current position $\vec{o_{0}}$. The tolerance $d$ was empirically set to $2~m$ and RANSAC is computed for $N = 30$ last observations (see Figure \ref{fig:ransac}).
 
 %% RANSAC
 \begin{figure}[htb]
@@ -1253,7 +1253,7 @@ As can be seen in Figure \ref{fig:test_reg_lin_pow}, the linear function cannot 
 
 In order to keep the moving targets close to the center of the image plane, the prediction of future position of the target must be employed (see Section \ref{txt:2d_motion_prediction_and_regulation}). A suitable value of variable $T_{pred}$ specifying the time in the future for which the position of the target is predicted should be chosen. If $T_{pred}$ is too small the P\&T unit is not able to keep up with the motion of the target and the center of the image screen always falls behind the target. Contrarily, if $T_{pred}$ is too high, the P\&T unit overshoots to the \textit{cutoff} region (see Figure~\ref{fig:regulation_lin_power}) and anticipates the position of the target.
 
-Therefore, in the second test a simple scenario consisting of one P\&T unit and the simulated target moving with a constant speed along a line between two boundaries was created. Different values for prediction time $T_{pred}$ were set and the horizontal distance $d_{h}$ between the center of the image $PP$ and the projection $t$ of the target $T$ was measured (see Figure \ref{fig:test_motion_predict}). As was expected, with increasing value of $T_{pred}$ the overall distance $d_{h}$ decreases up to the point where the P\&T unit starts to overshoot. Note that it is not possible to select the best universal value since the performance depends on the distance, speed and motion model of the target. Therefore, it is necessary to choose the right value with regards to the given scenario.
+Therefore, in the second test a simple scenario consisting of one P\&T unit and the simulated target moving with a constant speed along a line between two boundaries was created. Different values for prediction time $T_{pred}$ were set and the horizontal distance $d_{h}$ between the center of the image $S$ and the projection $t$ of the target $T$ was measured (see Figure \ref{fig:test_motion_predict}). As was expected, with increasing value of $T_{pred}$ the overall distance $d_{h}$ decreases up to the point where the P\&T unit starts to overshoot. Note that it is not possible to select the best universal value since the performance depends on the distance, speed and motion model of the target. Therefore, it is necessary to choose the right value with regards to the given scenario.
 
 % Comparison of amount of time for future position prediciton.
 \begin{figure}[htb]\centering
