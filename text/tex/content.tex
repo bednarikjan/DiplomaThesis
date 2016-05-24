@@ -707,7 +707,7 @@ The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tr
 %% Photos of Flir and Prosilica.
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=0.9\linewidth]{fig/prosilica_gt1290c_flir_ptud4670_computar.png}
+	\includegraphics[width=0.7\linewidth]{fig/prosilica_gt1290c_flir_ptud4670_computar.png}
 	\caption{Product pictures of manipulator Flir PTU D46-70 (left), camera Prosilica GT 1290C (middle) and lens Computar M5018-MP2 (right).}
 	\label{fig:prosilica_gt1290c_flir_ptud4670}
 \end{figure}
@@ -716,9 +716,9 @@ The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tr
 %-------------------------------------------------------------------------
 \subsection{Model} \label{txt:model}
 
-The model of the camera unit is based on a kinematic chain consisting of six joints and five links corresponding to the distances between separate parts of the surveying tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \textsc{ground} itself is dependent on the reference location (let us call it \textsc{origin}) which represents the origin of the global coordinate frame. The transformation between \textsc{origin} and \textsc{ground} reflects the position and orientation of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing}).
+The model of the camera unit is based on a kinematic chain consisting of six joints and five links corresponding to the distances between separate parts of the surveying tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \textsc{ground} itself is dependent on the reference location (\textsc{origin}) which represents the origin of the global coordinate frame. The transformation between \textsc{origin} and \textsc{ground} reflects the position and orientation of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing}).
 
-The kinematic chain is designed as the composition of transformation matrices where a single joint can be located as a solution to the \textit{forward kinematics problem}, i.e. by applying the Euclidean transformation on the position of the joint it is dependent on. For instance the transformation matrix $M_{cam}$ of the joint \textsc{camera} can be derived as:
+The kinematic chain is designed as the composition of transformation matrices where a single joint can be located as a solution to the \textit{forward kinematics problem}. For instance the transformation matrix $M_{cam}$ of the joint \textsc{camera} can be derived as:
 
 \begin{equation}
 M_{cam} = M_{ele}T_{cam}R_{Z_{cam}}R_{X_{cam}}R_{Y_{cam}},
@@ -728,7 +728,7 @@ where $M_{ele}$ is the transformation matrix of the joint \textsc{ele} which the
 Note that from the implementation point of view, the \gls{ols} is built on the \gls{ros} framework (see Chapter \ref{txt:implementation}) which presents certain conventions, most importantly the orientation of the coordinate frame which is used throughout the document (see Figure \ref{fig:frame_convention}).
 
 %% ROS frame conventions
-\begin{figure}[htb]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.2\linewidth]{fig/frame_convention.pdf}
 	\caption{Frame orientation convention which is used throughout the work --- a right handed coordinate system with X axis aiming forward, Y axis aiming left and Z axis aiming up.}
@@ -736,7 +736,7 @@ Note that from the implementation point of view, the \gls{ols} is built on the \
 \end{figure}
 
 %% A schema of the camera unit - kinematic chain.
-\begin{figure}[htb]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\linewidth]{fig/camera_unit_kinematic_chain.pdf}
 	\caption{Schematic view of the kinematic chain of a camera unit with the joints depicted by the yellow circles. The sizes of all components necessary to specify the translation matrices between consecutive joints are shown as well. Note that this is the rear view, i.e. the camera is seen from behind. Thus the joints \textsc{camera} and \textsc{focus} overlap as they both lie on the optical axis (the joint \textsc{focus} has a lower value of the Z coordinate).}
@@ -866,14 +866,14 @@ If multiple CUs are used, the location of the target in 3-space can be estimated
 Basically, the location of the target in 3-space is estimated twice. The first estimation $T'$ corresponds to the standard centroid of the individual estimates $T_{i}$. The second estimation refines the position $T'$ by using the weights corresponding to the target-baseline geometry (see Algorithm \ref{alg:3dPosEstimation}). The demonstration of the three-view scenario is shown in Figure \ref{fig:target-base_and_weighted_centroid}.
 
 % Target-base geometry and weighted centroid computation
-\begin{figure}[htb]\centering
+\begin{figure}[!htb]\centering
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/target-base_and_weighted_centroid.pdf}
 	\caption{Left figure depicts the initial estimation of the target-baseline angles $\gamma_{i}$ in three-view localization scenario with the target $T_{GT}$. The right figure demonstrates the final estimation of the target location using the weights $w_{i} \sim \gamma_{i}$.}
 	\label{fig:target-base_and_weighted_centroid}
 \end{figure}
 
-\begin{algorithm}
+\begin{algorithm}[!h]
 	\SetAlgoNoLine	
 	\KwIn{Set of baselines direction vectors $B = {\vec{b_{1}}, \vec{b_{2}}, ..., \vec{b_{N}}}$.}
 	\KwOut{3D position estimate $T$.}
@@ -915,7 +915,7 @@ The method RANSAC is used in order to fit the line model to the observed time st
 The future position $\vec{o_{t}}$ of the target can be then simply estimated as $\vec{o} = \vec{o_{0}} + \vec{v}t$ given current position $\vec{o_{0}}$. The tolerance $d$ was empirically set to $2~m$ and RANSAC is computed for $N = 30$ last observations (see Figure \ref{fig:ransac}).
 
 %% RANSAC
-\begin{figure}[htb]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/ransac_theory_rviz.png}
 	\caption{The RANSAC algorithm is capable of estimating the model parameters given the noisy data and it is robust even in the presence of outliers which are effectively disregarded (left). This method is used in the \gls{ols} in order to estimate the direction and speed of the target with the assumption of linear motion model (right). The three-view scenario where the 3D line (yellow) is fitted to the noisy measurements (white spheres) and where the speed is estimated (red arrow) is demonstrated in \textit{rviz} environment.}
