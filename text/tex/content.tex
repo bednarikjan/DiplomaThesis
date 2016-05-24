@@ -15,19 +15,19 @@
 
 An autonomous localization of arbitrary moving targets is an essential system component used in multiple domains, such as air traffic control, robotic workspaces or surveillance and defense systems. If the sensory data measured by the target are available it is straightforward to derive its location (by means of the GPS, radio multilateration, etc.). There are scenarios, however, were the target is unable (malfunctioning aircraft) or reluctant (UAV intruder) to expose its location. Then the localization estimation system is left with its own observations.  Among others, nowadays, the air traffic control (\gls{atc}) and national defense systems are the most widely used applications of tracking and localizing the moving objects. 
 
-In case of the \gls{atc}, the airports mainly rely on the multilateration systems which specialize on surveillance and control of air traffic during all flight phases \cite{Gaviria:newStrategiesMLAT}. The design of such a system expects that the aircraft are equipped with a secondary surveillance radar transponders which periodically emit the signals to the ground receiving stations, however, primary radars are widely used as well \cite{Airtrafficmuseum}. 
+In case of the \gls{atc}, the airports mainly rely on the multilateration systems which specialize on surveillance and control of air traffic during all flight phases \cite{Gaviria:newStrategiesMLAT}. The design of such a system expects that the aircraft are equipped with a secondary surveillance radar transponders which periodically emit the signals to the ground receiving stations. However, primary radars are widely used as well \cite{Airtrafficmuseum}. 
 
-In the military segment the object localization mainly serves the purpose of the early threat detection where it is necessary to identify and track the intruder which might pose a threat for a given area under protection. In this scenario only primary radars are used since the objects of interest are not expected to cooperate.
+In the military segment, the object localization mainly serves the purpose of early threat detection where it is necessary to identify and track the intruder which might pose a threat for a given area under protection. In this scenario only primary radars are used since the objects of interest are not expected to cooperate.
 
-Besides the ATC and the national defense there are quite a lot other use cases where the autonomous localization systems are or could be employed. The road traffic security is one of such examples. The localization systems can be used by the police to measure the speed of vehicles and prospectively to pinpoint the exact locations where the speeding occurred. Autonomous traffic analysis is another well suited application for localization systems as the main requirement is to estimate the tracks of given vehicles with regards to the underlying geographical map.
+Besides the ATC and the national defense, there are quite a lot other use cases where the autonomous localization systems are or could be employed. The road traffic security is one of such examples. The localization systems can be used by the police to measure the speed of vehicles and prospectively to pinpoint the exact locations where the speeding occurred. Autonomous traffic analysis is another well suited application for localization systems as the main requirement is to estimate the tracks of the given vehicles with regards to the underlying geographical map.
 
-Even though being widely used, radar based localization systems suffer from several drawbacks. Radar is a device based on the active emission of the radio signal \cite{toomay2012radar}. In order to localize distant objects, a huge amount of energy must be radiated to make sure it would return from the target and a small amount of energy returned might be easily disrupted \cite{Airtrafficmuseum}. What is more, in defense applications it is not desirable that the tracked object would find out that it is being tracked, which is the condition actively radiating systems, such as radars, cannot achieve. Last but not least, the professional class radars in use by both public segment and military are in general expensive, large and heavy devices not suitable for mobile deployment.
+Even though being widely used, radar based localization systems suffer from several drawbacks. Radar is a device based on the active emission of the radio signal \cite{toomay2012radar}. In order to localize distant objects, a huge amount of energy must be emitted to make sure it would return from the target and a small amount of energy returned might be easily disrupted \cite{Airtrafficmuseum}. What is more, in defense applications it is not desirable that the tracked object would find out that it is being tracked. That is the condition which actively radiating systems, such as radars, cannot achieve. Last but not least, the professional class radars used by both public segment and military are in general expensive, large and heavy devices not suitable for mobile deployment.
 
-This work presents a semi-autonomous passive multi-camera system for tracking and localizing arbitrary objects --- the Optical Localization System (\gls{ols}) --- which is based merely on ordinary RGB cameras. Since the system does not rely on active emission of a signal but rather captures the optical information from the environment, it can be used for secret localization of moving targets. The system is designed to be well suited for mobility and temporary deployment since each camera station weighs no more than twenty kilograms and the whole system is inexpensive by comparison to radars.
+This work presents a semi-autonomous passive multi-camera system for tracking and localizing arbitrary objects --- the Optical Localization System (\gls{ols}) --- which is based merely on ordinary RGB cameras. Since the system does not rely on active emission of a signal but rather captures the optical information from the environment, it can be used for secret localization of moving targets. The system is designed to be suited for mobility and temporary deployment since each camera station weighs no more than twenty kilograms and the whole system is inexpensive by comparison to radars.
 
-The principle of the optical localization of objects, which is based on triangulation, is well known for quite a long time. The first devices which were designed to allow an operator to estimate a distance to a given object using mechanical and optical principles --- optical range finders --- emerged in the second half of the 18th century \cite{bud1998instruments}. Ever since, the optical range finders had been mostly used for military operations in order to estimate the position of either naval, airborne or terrestrial targets until the World War II when radar was invented.
+The principle of the optical localization of objects which is based on triangulation is well known for quite a long time. The first devices which were designed to allow an operator to estimate a distance to a given object using mechanical and optical principles --- optical range finders --- emerged in the second half of the 18th century \cite{bud1998instruments}. Ever since, the optical range finders had been mostly used for military operations in order to estimate the position of either naval, airborne or terrestrial targets until the World War II when radar was invented.
 
-The \gls{ols} aims to utilize the same principle as the old optical range finders. However, instead of an optical device requiring the operator to aim on the target manually the \gls{ols} takes advantage of the RGB cameras and the image processing techniques capable of tracking and localizing the target autonomously without the need for a human to interfere. Furthermore, with the use of sensors capable of finding a geographical position of each observing unit the \gls{ols} system estimates a global geographical position of a given target represented in standard coordinate system (\gls{utm} and/or \gls{wgs84}). A simple schema explaining the operation of the \gls{ols} is depicted in Figure \ref{fig:ols_principle}.
+The \gls{ols} aims to utilize the same principle as the old optical range finders. However, instead of an optical device requiring the operator to aim on the target manually the \gls{ols} takes advantage of the RGB cameras and the image processing techniques capable of tracking and localizing the target autonomously without the need for a human to interfere. Furthermore, with the use of sensors capable of finding a geographical position of each observing unit the \gls{ols} system estimates a global geographical position of the given target represented in standard coordinate system (\gls{utm} and/or \gls{wgs84}). A simple schema explaining the operation of the \gls{ols} is depicted in Figure \ref{fig:ols_principle}.
 
 This work is organized as follows: In Chapter \ref{txt:related_work} the existing approaches to visual tracking, multi-camera target localization and 3D environment reconstruction are summarized and their suitability for the \gls{ols} is discussed. Chapter \ref{txt:precision_of_the_localization} provides thorough analysis of the main sources of localization imprecisions in the \gls{ols} and proposes the methods to alleviate the error. Chapter \ref{txt:design_of_the_OLS} describes the design of the \gls{ols} from the perspective of system model, visual tracking, triangulation with noisy measurements and occlusion prediction. Chapter~\ref{txt:implementation} explains the technical details of the implementation and Chapter \ref{txt:experimental_results} presents the results of conducted experiments. Finally, Chapter \ref{txt:conclusion} concludes the work.
 
@@ -421,7 +421,7 @@ VisualSFM\footnote{Official website of VisualSFM: \url{http://ccwu.me/vsfm/index
 %=========================================================================
 \chapter{Precision of Localization in Multi-camera System} \label{txt:precision_of_the_localization}
 
-The whole chapter is devoted to exploring the problematics of error analysis which must be performed prior to the system design. The objective is to find prospectively the most severe sources of error already in the early stages of the system development and to take appropriate measures in order to eliminate them. First, the proposed topology of the \gls{ols} design so as to maximize the system precision is proposed and described in Section \ref{txt:system_topology}. Section \ref{txt:precision_analysis} then discusses the main sources of error in the system, categorizes them and provides a detailed analysis of impact each error poses on the \gls{ols}. Finally, Sections \ref{txt:stationing} and \ref{txt:rectification} explain the processes of \textit{stationing} and \textit{rectification} which aim on eliminating certain types of errors.
+The whole chapter is devoted to exploring the problematics of error analysis which must be performed prior to the system design. The objective is to find prospectively the most severe sources of error already in the early stages of the system development and to take appropriate measures in order to eliminate them. First, the topology of the \gls{ols} system minimizing the geometrical limitations is proposed and described in Section \ref{txt:system_topology}. Section \ref{txt:precision_analysis} then discusses the main sources of error in the system, categorizes them and provides a detailed analysis of impact each error poses on the \gls{ols}. Finally, Sections \ref{txt:stationing} and \ref{txt:rectification} explain the processes of \textit{stationing} and \textit{rectification} which aim on eliminating certain types of errors.
 
 %-------------------------------------------------------------------------
 %-------------------------------------------------------------------------
@@ -469,7 +469,7 @@ Whether being systematic or random, in the \gls{ols} the error eventually reflec
 \begin{figure}[htb]\centering
 	\centering
 	\includegraphics[width=0.55\linewidth]{fig/rotation_vs_translation.pdf}
-	\caption{The impact of undesirable error translation $t_{\epsilon}$ (left) and error rotation angle $r_{\epsilon}$ (right) of the CU model which causes the back-projection of incorrect ray $r'$ instead of correct $r$. Note that in case of $t_{\epsilon}$ the localization error $E_{i}$ is invariant to the distance $D_{i}$ of target $T_{i}$. Contrarily, in case of $r_{\epsilon}$ the more distant the target $T_{i}$ is the higher value the localization error $E_{i}$ reaches.}
+	\caption{The impact of undesirable error translation $t_{\epsilon}$ (left) and error rotation angle $r_{\epsilon}$ (right) of the CU model which causes the back-projection of incorrect ray $r'$ instead of correct $r$. Note that in case of $t_{\epsilon}$ the localization error $E_{i}$ is invariant to the distance $D_{i}$ of the target $T_{i}$. Contrarily, in case of $r_{\epsilon}$ the more distant the target $T_{i}$ is the higher value the localization error $E_{i}$ reaches.}
 	\label{fig:rotation_vs_translation}
 \end{figure}
 
@@ -509,7 +509,7 @@ A more realistic scenario where each camera makes a random error $p$ is depicted
 \begin{align}
 i = \argmax_{i}\ \vec{t_{i}}\vec{n_{i}},
 \end{align}
-where $\vec{t_{i}}$ is the direction of the line segment linking the center of the baseline $CU_{c}$ and the target and $n_{i}$ is the normal vector of the baseline $B_{i}$. Put in other way, the baseline $B_{i}$ yielding the highest absolute value of angle $\gamma$ is chosen to compute the position of the target.
+where $\vec{t_{i}}$ is the direction of the line segment linking the center of the baseline $CU_{c}$ and the target and $\vec{n_{i}}$ is the normal vector of the baseline $B_{i}$. Put in other way, the baseline $B_{i}$ yielding the highest absolute value of angle $\gamma$ is chosen to compute the position of the target.
 
 % Target-base geometry.
 % Methodology of worst error estimation.
@@ -520,12 +520,12 @@ where $\vec{t_{i}}$ is the direction of the line segment linking the center of t
 	\label{fig:target_base_geometry_and_worst_error}
 \end{figure}
 
-The Figure \ref{fig:errorMapGivenTargetPosition} depicts the position estimation error as the function of the target's position with regards to the CUs for both two-camera and three-camera setups. In this scenario only horizontal position of the target is considered (i.e. its height is disregarded) and it is assumed that each tracker makes the random error worth $p = 10~px$. For each position of the target the worst possible location estimation is considered (see Figure \ref{fig:target_base_geometry_and_worst_error}).
+The Figure \ref{fig:errorMapGivenTargetPosition} depicts the position estimation error as the function of the target's position with regards to the CUs for both two-camera and three-camera setups. In this scenario only horizontal position of the target is considered (i.e. its altitude is disregarded) and it is assumed that each tracker makes the random error worth $p = 10~px$. For each position of the target the worst possible location estimation is considered (see Figure \ref{fig:target_base_geometry_and_worst_error}).
 
 \begin{figure}[!htb]\centering
 	\centering
 	\includegraphics[width=0.95\linewidth]{fig/2_vs_3_cus.pdf}
-	\caption{The position estimation error as the function of the horizontal position of the target. Two-camera (left) and three-camera (right) setup with $B = 20\ m$ are confronted where utilization of more cameras always yields lower errors. The first two cameras are placed on the X axis with the coordinate frame center in the middle of their baseline. The third camera is placed on the Y axis, so that all the cameras form a regular triangle.} 
+	\caption{The position estimation error as the function of the horizontal position of the target. Two-camera (left) and three-camera (right) setup with $B = 20\ m$ are confronted where utilization of more cameras always yields lower errors. The first two cameras (blue and green dots) are placed on the X axis with the coordinate frame center in the middle of their baseline. The third camera (red dot) is placed on the Y axis, so that all the cameras form a regular triangle.} 
 	\label{fig:errorMapGivenTargetPosition}
 \end{figure}
 
@@ -601,7 +601,7 @@ In this part the rectification target with three parallel horizontal black lines
 %.........................................................................
 \subsection{Measuring Rotation Along the Azimuthal Axis}
 
-The mount can still rotate around the axis parallel with the azimuthal axis (see Figure \ref{fig:rect_model_top_view}). It is necessary to ensure that the optical axis of the camera is perpendicular to the elevation axis. The same target from the first part of the rectification is used but two black crosses are added to the selected horizontal black line. The distance $d_{ao}\ m$ between two crosses equals to the distance between the azimuthal and optical axis (which is known from the engineering design, see Figure \ref{fig:rect_azi_axis}).
+The mount can still rotate around the axis parallel with the azimuthal axis (see Figure \ref{fig:rect_model_top_view}). It is necessary to ensure that the optical axis of the camera is perpendicular to the elevation axis. The same target from the first part of the rectification is used but two black crosses are added to the selected horizontal black line. The distance $d_{ao}$ between two crosses equals to the distance between the azimuthal and optical axis (which is known from the engineering design, see Figure \ref{fig:rect_azi_axis}).
 
 %% The top view of the model of the camera unit
 \begin{figure}[htb]
@@ -611,7 +611,7 @@ The mount can still rotate around the axis parallel with the azimuthal axis (see
 	\label{fig:rect_model_top_view}
 \end{figure}
 
-A military monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the \gls{pt}. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis intersects the right cross and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset $d_{h}$ expressed in pixels is transformed to the default rotation angle $\beta$ (see Figure \ref{fig:rect_pixel_offset}) of the joint \textsc{camera} in the CU model:
+A military monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the \gls{pt} unit. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis intersects the right cross and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset $d_{h}$ expressed in pixels is transformed to the default rotation angle $\beta$ (see Figure \ref{fig:rect_pixel_offset}) of the joint \textsc{camera} in the CU model:
 
 \begin{equation}
 \begin{aligned}
@@ -634,7 +634,7 @@ where $f$ is the focal length and $c$ is the physical size of one pixel.
 	\begin{minipage}{.59\textwidth}
 		\centering
 		\includegraphics[width=.99\linewidth]{fig/rect_azi_axis.pdf}
-		\captionof{figure}{Rectification target with the pairs of black crosses. The two crosses in a pair are $d_{ao}\ m$ apart. A digital crosshair is displayed in order to find the horizontal offset $d_{h}$.}
+		\captionof{figure}{Rectification target with the pairs of black crosses. The two crosses in a pair are $d_{ao}$ meters apart. A digital crosshair is displayed in order to find the horizontal offset $d_{h}$.}
 		\label{fig:rect_azi_axis}
 	\end{minipage}
 \end{figure}
@@ -944,7 +944,7 @@ Therefore, VisualSFM does not suite the requirements of the OLS and different so
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{fig/3d_reconstruction_2vs4cus.pdf}
-	\caption{The 3D reconstruction of the rigid object given the two (left) and four (right) views captured by artificial cameras plugged-in the simulator Gazebo. Reconstruction based on four views produces far less noise, however, the position of the model is still estimated incorrectly with regards to the cameras.}
+	\caption{The 3D reconstruction of the rigid object given two (left) and four (right) views captured by artificial cameras plugged in the simulator Gazebo. Reconstruction based on four views produces far less noise, however, the position of the model is still estimated incorrectly with regards to the cameras.}
 	\label{fig:3d_reconstrcion_2vs4cus}
 \end{figure}
 
@@ -964,7 +964,7 @@ occ(\vec{p}, \vec{T'}) =
 \end{align}
 where $\vec{CU}$ is the central point of the camera and $eta$ is the required angle specifying how big surrounding of the target $T'$ is considered (see Figure \ref{fig:occlusion_prediciton} (b)). Put in other words, only those points $\vec{p_{i}}$ that lie within the cone given by angle $\eta$ back-projected from the camera center $\vec{CU}$ towards the predicted location of the target $T'$ and which are closer to $\vec{CU}$ than the target $T'$ itself.
 
-If the occlusion is spotted, the output confidence $conf$ of the tacker (see Section \ref{txt:measurement_confidence}) can be set $0$ in order to disregard this measurement completely:
+If the occlusion is spotted, the output confidence $conf$ of the tacker (see Section \ref{txt:measurement_confidence}) can be set to $0$ in order to disregard this measurement completely:
 \begin{align}
 conf = 
 	\begin{cases}
@@ -972,11 +972,11 @@ conf =
 		conf_{orig}, & \text{otherwise},
 	\end{cases}
 \end{align}
-where $T_{occ}$ is an empirically set threshold used to disregard the small amount of points representing the reconstruction noise and $conf_{orig}$ is the originally computed confidence as shown in \ref{eq:confidence}. A different softer solution is to use nonlinear function to scale the $bel_{orig}$ to be inversely proportional to the number of points possibly causing the occlusion:
+where $T_{occ}$ is an empirically set threshold used to disregard the small amount of points representing the reconstruction noise and $conf_{orig}$ is the originally computed confidence as shown in (\ref{eq:confidence}). A different, softer solution is to use nonlinear function to scale the $conf_{orig}$ to be inversely proportional to the number of points possibly causing the occlusion:
 \begin{align}
 conf = e^{-\kappa \sum_{i=1}^{N}{occ(\vec{p_{i}}, \vec{T'})}}conf_{orig},
 \end{align}
-where $\kappa$ is the empirically set constant. Note that these concepts are only proposed as the possible approaches to predict the occlusion and were not implemented since the obtained datasets did not include any scenario where the occlusion would appear.
+where $\kappa$ is the empirically set constant. Note that these concepts are only proposed as the possible approaches to predict the occlusion and were not implemented.
 
 %% Schema of occlusion by obstacle as seen by 2 CUs. Occlusion prediciotn via point cloud schema.
 \begin{figure}[htb]
@@ -1130,15 +1130,15 @@ The overview of the system architecture from the perspective of the ROS namespac
 	\label{fig:sw_ols}
 \end{figure}
 
-Required target is selected via the \textit{user interface} node (using either of the peripherals controlled by the \textit{joy} and \textit{keyboard} nodes) and the information is immediately propagated to the \textit{controls} node which keeps the information about all tracked targets. The \textit{tracking} node of the given CU is informed about the new target and the visual tracking is initialized. Furthermore, the \textit{tracking} node continuously regulate the motion of the P\&T unit --- the \textit{manipulator} node --- and it publishes its estimates of the target position in two-space. 
+Required target is selected via the \textit{user interface} node (using either of the peripherals controlled by the \textit{joy} and \textit{keyboard} nodes) and the information is immediately propagated to the \textit{controls} node which keeps the information about all tracked targets. The \textit{tracking} node of the given CU is informed about the new target and the visual tracking is initialized. Furthermore, the \textit{tracking} node continuously regulate the motion of the P\&T unit --- the \textit{manipulator} node --- and it publishes its estimates of the target position in 2-space. 
 
-The \textit{position estimation} node continuously receives the measurements from single trackers and it computes the final estimate of the target position in three-space. Additionally, it estimates the parameters of the target motion model. Finally, the output is presented to the operator via the \textit{user interface} node and the textual data information is published via the \textit{target-state-global} message.
+The \textit{position estimation} node continuously receives the measurements from single trackers and it computes the final estimate of the target position in 3-space. Additionally, it estimates the parameters of the target motion model. Finally, the output is presented to the operator via the \textit{user interface} node and the textual data information is published via the \textit{target-state-global} message.
 
 %.........................................................................
 %.........................................................................
 \subsection{User Interface} \label{txt:user_interface}
 
-The \gls{ols} do not provide a single integrated graphical user interface. Contrarily, the user interface is composed of multiple windows, each having a different purpose (see Figure \ref{fig:gui}). The \textit{camera\_stream} window which is opened for each CU displays the image stream from corresponding camera and allows the user to select the target of interest (by drawing a bounding box). Furthermore, it displays the progress of tracking and estimated information about the tracked target. The \textit{rviz} window displays the 3D visualization of all CUs and back-projected rays and the \textit{maps} window displays the position and orientation of all CUs and the localized target.
+The \gls{ols} does not provide a single integrated graphical user interface. Contrarily, the user interface is composed of multiple windows, each having a different purpose (see Figure \ref{fig:gui}). The \textit{camera\_stream} window which is opened for each CU displays the image stream from corresponding camera and allows the user to select the target of interest (by specifying a bounding box). Furthermore, it displays the progress of tracking and estimated information about the tracked target. The \textit{rviz} window displays the 3D visualization of all CUs and back-projected rays and the \textit{maps} window displays the position and orientation of all CUs and the localized target.
 
 %% GUI
 \begin{figure}[htb]
@@ -1186,13 +1186,13 @@ Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.65\linewidth]{fig/gazebo.png}
-	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (terrain with trees), a flying object (the UAV) and two CUs. Both virtual camera streams are displayed real-time using \texttt{rviz} tool (right).}
+	\caption{The screenshot of a Gazebo simulation (left) consisting of a virtual environment (terrain with trees), a flying object (the UAV) and two CUs. Both virtual camera streams are displayed in real-time using \texttt{rviz} tool (right).}
 	\label{fig:gazebo}
 \end{figure}
 
 \paragraph{Testing the P\&T unit} It is a good practice to include a real hardware in the simulation during the development in the \textit{hardware-in-the-loop} manner \cite{on_hw_in_the_loop}. Both actuators and sensors would be difficult to simulate properly, moreover a real P\&T unit is constrained in terms of the operational range (see Section \ref{txt:camera_unit}), maximum acceleration and speed and communication throughput so it is necessary to thoroughly test its performance. The simulation reveals whether the implementation of motion control is correct and whether the possibilities of the P\&T unit suffice to track arbitrarily fast (simulated) objects.
 
-\paragraph{Testing the triangulation} Thanks to the Gazebo it is possible to simulate a flying object with a-priory set trajectory (see Figure \ref{fig:gazebo}) and evaluate the precision of a position estimation algorithm using comparison between the estimated target position and a ground-truth. The visualization of the back-projected rays forming the skew-lines is done using visualization tool \textit{rviz}\footnote{The ROS package rviz: \url{http://wiki.ros.org/rviz}} (see Figure \ref{fig:rviz}).
+\paragraph{Testing the triangulation} Thanks to the Gazebo it is possible to simulate a flying object with a priori set trajectory (see Figure \ref{fig:gazebo}) and evaluate the precision of a position estimation algorithm using comparison between the estimated target position and a ground-truth. The visualization of the back-projected rays forming the skew-lines is done using visualization tool \textit{rviz}\footnote{The ROS package rviz: \url{http://wiki.ros.org/rviz}} (see Figure \ref{fig:rviz}).
 
 %% Screenshot from rviz where three CUs track a target.
 \begin{figure}[htb]
@@ -1206,16 +1206,16 @@ Gazebo\footnote{The official website of Gazebo: \url{http://gazebosim.org}} is a
 %.........................................................................
 \subsection{Ground Truth Tracker} \label{txt:ground_truth_tracker}
 
-Both visual trackers employed by the \gls{ols} are expected to provide noisy and delayed measurements. The noise might be caused by either of the typical tracking difficulties (see Section \ref{txt:object_tracking}) and the delay is inevitable due to the computational complexity of visual tracking algorithms. What is more, both the noise and the delay will vary across different environments and different devices running the \gls{ols}. As was explained in Section \ref{txt:precision_analysis} the random error of the visual tracker can have severe impact on the localization precision.
+Both visual trackers employed in the \gls{ols} are expected to provide noisy and delayed measurements. The noise might be caused by either of the typical tracking difficulties (see Section \ref{txt:object_tracking}) and the delay is inevitable due to the computational complexity of visual tracking algorithms. What is more, both the noise and the delay will vary across different environments and different devices running the \gls{ols}. As was explained in Section \ref{txt:precision_analysis} the random error of the visual tracker can have severe impact on the localization precision.
 
 Therefore, in order to test the performance of the \gls{ols} utilizing the sub-optimal visual tracking algorithm, the \textit{ground truth (GT) tracker} simulating both the noise and the delay was implemented. In time $t$ the GT tracker outputs the estimated 2D position $\vec{o_{t-t_{d}}}$ of the target $\vec{O_{t-t_{d}}}$:
 
 \begin{align}
-\vec{o_{t-t_{d}}} &= \matr{P_{t-t_{d}}}\vec{O_{t-t_{d}}} + \vec{o_{n}},\\ 
+\vec{o_{t-t_{d}}} &= P_{t-t_{d}}\vec{O_{t-t_{d}}} + \vec{o_{n}},\\ 
 t_{d} &\sim \mathcal{N}(\mu_{t_{d}}, \sigma_{t_{d}}),\\
 \vec{o_{n_{dim}}} &\sim \mathcal{N}(\mu_{n_{dim}}, \sigma_{n_{dim}}),
 \end{align}
-where $t_{d}$ is the time delay, $\matr{P_{t-t_{d}}}$ is the projection matrix at time $t-t_{d}$, $\vec{o_{n}}$ is the (2D) noise, $\mu_{t_{d}}$ and $\sigma_{t_{d}}$ are the parameters for the time delay normal distribution and $\mu_{n_{dim}}$ and $\sigma_{t_{dim}}$ are the parameters for the noise normal distribution for each dimension $dim$. By changing the constants $\mu_{t_{d}}$. $\sigma_{t_{d}}$, $\mu_{n_{dim}}$ and $\sigma_{n_{dim}}$ it is possible to simulate various performance of the visual tracker.
+where $t_{d}$ is the time delay, $P_{t-t_{d}}$ is the projection matrix at time $t-t_{d}$, $\vec{o_{n}}$ is the (2D) noise, $\mu_{t_{d}}$ and $\sigma_{t_{d}}$ are the parameters for the time delay normal distribution and $\mu_{n_{dim}}$ and $\sigma_{t_{dim}}$ are the parameters for the noise normal distribution for each dimension $dim$. By changing the constants $\mu_{t_{d}}$, $\sigma_{t_{d}}$, $\mu_{n_{dim}}$ and $\sigma_{n_{dim}}$ it is possible to simulate various performance of the visual tracker.
 
 %.........................................................................
 %.........................................................................
@@ -1423,7 +1423,7 @@ The kinematic chain based model of the camera was suggested and the BGFG tracker
 
 The \gls{ols} was implemented in C++ within the framework ROS and simulator Gazebo was used to test the system in hardware-in-the-loop manner. Real world datasets were obtained and the system was tested against both static and moving targets. It has been shown that the localization precision is 4--10 times lower as compared to the expected precision while the most likely culprit is the imprecisely performed stationing and rectification.
 
-As for the further development the tracking algorithm should be investigated so that it would perform well even with cluttered background and more thorough stationing and rectification should be accomplished. Furthermore, automatic detection and possibly classification of moving targets could be implemented and the approach 
+As for the further development the tracking algorithm should be investigated so that it would perform well even in environments with cluttered background and more thorough stationing and rectification should be accomplished. Furthermore, automatic detection and possibly classification of moving targets could be implemented and the approach 
 to handoff the target among separate CUs should be proposed to make the \gls{ols} fully autonomous.
 
 The work was conducted in collaboration with consortium of companies RCE systems s.r.o\footnote{The official website of RCE systems s.r.o: \url{http://www.rcesystems.cz/}}. and Oprox a.s.\footnote{The official website of company Oprox a.s.: \url{http://www.oprox.cz/}} and with the Department of Measurement at Faculty of Electrical Engineering, Czech Technical University in Prague\footnote{The official website of Department of Measurement, FEL, ČVUT: \url{http://measure.fel.cvut.cz}} as a real world application. The development will continue so that a standalone solution could be produced to potential customers.
