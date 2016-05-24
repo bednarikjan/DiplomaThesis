@@ -366,7 +366,7 @@ Assuming the most general scenario where multiple images of the scene taken from
 
 The algorithm takes an arbitrary number of images on the input and performs \textit{SIFT keypoint detection} as the first step. Next, individual keypoints are matched across all images creating the \textit{tracks}. A \textit{fundamental matrix $F$} is estimated for each pair of images (see Section \ref{txt:epipolar_geometry}) and those matches which are outliers with regards to $F$ are removed. Finally, the \textit{iterative sparse bundle adjustment} (see Section \ref{txt:bundle_adjustment}) which produces the estimates of camera parameters (both intrinsics and extrinsics) and 3D locations of matched points is run.
 
-In case of the \gls{ols}, both extrinsics and intrinsics are known. However, they are correct only up to a systematic and random error caused by imprecise stationing and rectification (see Chapter \ref{txt:precision_of_the_localization}) and a noise which the \gls{pt} unit orientation measurements are subject to. Therefore, in order to achieve a 3D reconstruction of the surrounding environment it is still reasonable to employ the bundle adjustment technique. In order to exploit the a priori known information the bundle adjustment could be for instance initialized with known camera calibration and pose parameters so as to make the optimization algorithm more likely to find the global optimum.
+In case of the \gls{ols}, both extrinsics and intrinsics are known. However, they are correct only up to a systematic and random error caused by imprecise stationing and rectification (see Chapter \ref{txt:precision_of_the_localization}) and a noise which the \gls{pt}\footnote{pan and tilt} unit orientation measurements are subject to. Therefore, in order to achieve a 3D reconstruction of the surrounding environment it is still reasonable to employ the bundle adjustment technique. In order to exploit the a priori known information the bundle adjustment could be for instance initialized with known camera calibration and pose parameters so as to make the optimization algorithm more likely to find the global optimum.
 
 %.........................................................................
 %.........................................................................
@@ -587,7 +587,7 @@ The camera is attached to a custom made metal mount. The mount itself is then at
 	\label{fig:rect_model_front_view}
 \end{figure}
 
-In this part the rectification target with three parallel horizontal black lines is used. As the first step a surveying automatic level is used to rotate the target so that the black lines become horizontal. The camera is then positioned so as to aim approximately at the center of the target. The camera image stream is blended with the same stream mirrored across the vertical axis. Finally, the objective is to manually rotate the camera so that the black lines in blended image stream appear visually aligned (see Figure \ref{fig:rect_mirrored_stream}). Once set, the mount with the camera is fixed to the manipulator using two set screws.
+In this part the rectification target with three parallel horizontal black lines is used. As the first step a surveying automatic level is used to rotate the target so that the black lines become horizontal. The camera is then positioned so as to aim approximately at the center of the target. The camera image stream is blended with the same stream mirrored across the vertical axis. Finally, the objective is to manually rotate the camera so that the black lines in blended image stream appear visually aligned (see Figure \ref{fig:rect_mirrored_stream}). Once set, the mount with the camera is fixed to the \gls{pt} using two set screws.
 
 %% Rectification of the rows of the camera image sensor - original stream blended with the mirrored stream
 \begin{figure}[htb]
@@ -611,7 +611,7 @@ The mount can still rotate around the axis parallel with the azimuthal axis (see
 	\label{fig:rect_model_top_view}
 \end{figure}
 
-A military monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the manipulator. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis intersects the right cross and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset $d_{h}$ expressed in pixels is transformed to the default rotation angle $\beta$ (see Figure \ref{fig:rect_pixel_offset}) of the joint \textsc{camera} in the CU model:
+A military monocular telescope (see Figure \ref{fig:rect_telescope}) is mounted on top of the \gls{pt}. The optical axis of the telescope intersects the azimuthal axis, it is perpendicular to it and it intersects the left cross of a given pair on the rectification target. The camera is rotated so that its optical axis intersects the right cross and then it is fixed using set screws. As the screws are tightened the camera is unintentionally rotated a bit again which causes the visual offset between the crosshair and the cross on the target. The offset $d_{h}$ expressed in pixels is transformed to the default rotation angle $\beta$ (see Figure \ref{fig:rect_pixel_offset}) of the joint \textsc{camera} in the CU model:
 
 \begin{equation}
 \begin{aligned}
@@ -657,7 +657,7 @@ where $f$ is the focal length and $c$ is the physical size of one pixel.
 
 Considering the limited elevation range of the P\&T unit \texttt{Flir PTU D46-70} (see Section \ref{txt:camera_unit}) the camera must be mounted pre-rotated around the elevation axis by approximately $-60^{\circ}$. However, after fixing the camera it is necessary to find this default angle precisely. 
 
-For this purpose a pair of rectification targets which consist of horizontal black and white lines representing the marks of a ruler are used. The targets are positioned in a row with the distance of a few meters so that the front target would overlap approximately half of the rare target when observed from the camera. The operator manually adjusts the elevation of the manipulator until the digital crosshair intersects the same mark on both targets where the two marks form a straight line (see figure \ref{fig:rect_default_elevation_angle}). Once such an elevation is found the angle is recorded and integrated to the model of the camera unit as an angle of rotation around the Y-axis of the joint \textsc{camera} (see Section \ref{txt:camera_unit}).
+For this purpose a pair of rectification targets which consist of horizontal black and white lines representing the marks of a ruler are used. The targets are positioned in a row with the distance of a few meters so that the front target would overlap approximately half of the rare target when observed from the camera. The operator manually adjusts the elevation of the \gls{pt} unit until the digital crosshair intersects the same mark on both targets where the two marks form a straight line (see figure \ref{fig:rect_default_elevation_angle}). Once such an elevation is found the angle is recorded and integrated to the model of the camera unit as an angle of rotation around the Y-axis of the joint \textsc{camera} (see Section \ref{txt:camera_unit}).
 
 %% The rectification target for finding the default elevation angle.
 \begin{figure}[htb]
@@ -688,17 +688,17 @@ The hardware components used for tracking stations are described in greater deta
 %-------------------------------------------------------------------------
 \subsection{Devices and Components} \label{txt:devices}
 
-The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a manipulator (P\&T unit\footnote{From English Pan and Tilt.}), a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted. Each CU is equipped with its own desktop computer for processing the image data and calculating the 3D position estimates.
+The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tripod providing a solid base on which a \gls{pt} unit, a camera and all of the devices used for stationing (LED target, GPS sensor and inclinometer) are mounted. Each CU is equipped with its own desktop computer for processing the image data and calculating the 3D position estimates.
 
 %% A photo of a camera unit and an rviz model.
 \begin{figure}[tbh]
 	\centering
 	\includegraphics[width=10cm]{fig/camera_unit_photo_model.jpg}
-	\caption{A photograph (left) of the upper part of the camera unit consisting of a manipulator Flir PTU-D46-70 with the aluminum mount carrying a camera Prosilica GT 1290C and a corresponding 3D model (right) created for \textit{rviz} and \textit{Gazebo} simulator (see Section~\ref{txt:application_of_gazebo}).}
+	\caption{A photograph (left) of the upper part of the camera unit consisting of a \gls{pt} unit Flir PTU-D46-70 with the aluminum mount carrying a camera Prosilica GT 1290C and a corresponding 3D model (right) created for \textit{rviz} and \textit{Gazebo} simulator (see Section~\ref{txt:application_of_gazebo}).}
 	\label{fig:camera_unit_photo_model}
 \end{figure}
 
-\paragraph{Manipulator Flir PTU-D46-70} A manipulator PTU D46-70\footnote{Website of the product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional manipulators this is a lower middle class device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed $4.08~kg$ \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The manipulator incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the manipulator, otherwise it could lose synchrony and report wrong position.
+\paragraph{Manipulator Flir PTU-D46-70} A \gls{pt} unit PTU D46-70\footnote{Website of the product Flir PTU-D46-70: \url{http://www.flir.com/mcs/view/?id=53712}} produced by manufacturer Flir is used (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). As compared to the other professional \gls{pt} units this is a lower middle class device consisting of two stepper motors (pan and tilt axes). The device is capable of maximal angular speed of $60^{\circ}/s$ with the resolution of $0.003^{\circ}$ while the payload must not exceed $4.08~kg$ \cite{Flir_ptud4670}. The operational range is limited to $[-180^{\circ}, 180^{\circ}]$ in azimuth and $[-47^{\circ}, 80^{\circ}]$ in elevation. The \gls{pt} unit incorporates no position feedback, the position is inferred from the number of steps and the current resolution, thus it is necessary not to overload the \gls{pt} unit, otherwise it could lose synchrony and report wrong position.
 
 \paragraph{Camera Prosilica GT 1290C} Prosilica GT 1290C\footnote{Website of the product Prosilica GT 1290C: \url{https://www.alliedvision.com/en/products/cameras/detail/1290-1.html}} is an industrial camera manufactured by the company Allied Vision (see Figure \ref{fig:prosilica_gt1290c_flir_ptud4670}). It is an RGB camera equipped with CCD sensor (type 1/3'') with the resolution of $1280 \times 960$ px and support for $33.3$ FPS and it communicates through gigabit Ethernet \cite{Prosilica_gt1290c}. What is important, the camera natively supports the Precision Time Protocol (\gls{ptp}) for precise time synchronization which is a crucial feature in each application relying on stereo vision and it is capable of time synchronization among devices within the range of nanoseconds \cite{PTP}. The manufacturer claims that Prosilica GT 1290C achieves the synchronization precision of $1~\mu s$.
 
@@ -708,7 +708,7 @@ The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tr
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/prosilica_gt1290c_flir_ptud4670_computar.png}
-	\caption{Product pictures of manipulator Flir PTU D46-70 (left), camera Prosilica GT 1290C (middle) and lens Computar M5018-MP2 (right).}
+	\caption{Product pictures of \gls{pt} unit Flir PTU D46-70 (left), camera Prosilica GT 1290C (middle) and lens Computar M5018-MP2 (right).}
 	\label{fig:prosilica_gt1290c_flir_ptud4670}
 \end{figure}
 
@@ -716,7 +716,7 @@ The CU (see Figure \ref{fig:camera_unit_photo_model}) consists of a surveying tr
 %-------------------------------------------------------------------------
 \subsection{Model} \label{txt:model}
 
-The model of the camera unit is based on a kinematic chain consisting of six joints and five links corresponding to the distances between separate parts of the surveying tripod and separate parts of the manipulator (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \textsc{ground} itself is dependent on the reference location (\textsc{origin}) which represents the origin of the global coordinate frame. The transformation between \textsc{origin} and \textsc{ground} reflects the position and orientation of the given manipulator within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing}).
+The model of the camera unit is based on a kinematic chain consisting of six joints and five links corresponding to the distances between separate parts of the surveying tripod and separate parts of the \gls{pt} unit (see Figure \ref{fig:camera_unit_kinematic_chain}). The starting joint \textsc{ground} itself is dependent on the reference location (\textsc{origin}) which represents the origin of the global coordinate frame. The transformation between \textsc{origin} and \textsc{ground} reflects the position and orientation of the given \gls{pt} unit within the environment (which is estimated during the stationing process, see Section \ref{txt:stationing}).
 
 The kinematic chain is designed as the composition of transformation matrices where a single joint can be located as a solution to the \textit{forward kinematics problem}. For instance the transformation matrix $M_{cam}$ of the joint \textsc{camera} can be derived as:
 
@@ -750,7 +750,7 @@ Note that from the implementation point of view, the \gls{ols} is built on the \
 
 The visual tracking subsystem of the \gls{ols} is based on the TLD tracker (see Section \ref{txt:tracking_learning_detection}) and the BGFG tracker (see Section \ref{txt:bgfg_tracker}). As explained in Section \ref{txt:precision_of_the_localization}, the system is subject to multiple different sources of error which influence the precision of localization. As far as the visual tracking is concerned, the random error caused mostly by the common difficulties such as the background clutter, varying illumination, target appearance change, etc. (see Section \ref{txt:object_model}) is of the most significance. Furthermore, in the worst case scenario the tracker might fail completely and never recover unless the human operator interferes.
 
-Therefore, the BGFG tracker was adjusted so as to assign a confidence to each measurement which then enables the localization subsystem to combine the measurements in the weighted manner (see Section \ref{txt:measurement_confidence}). Furthermore, the bootstrap particle filter (BPF) algorithm of the BGFG tracker was adjusted so as to alleviate the failures caused by the harsh camera motion (see Section \ref{txt:adjusting_prediction_step}). Finally, the most suitable strategy for regulating the motion of the manipulator based on predicting the 2D motion of the target is proposed (see Section~\ref{txt:2d_motion_prediction_and_regulation}).
+Therefore, the BGFG tracker was adjusted so as to assign a confidence to each measurement which then enables the localization subsystem to combine the measurements in the weighted manner (see Section \ref{txt:measurement_confidence}). Furthermore, the bootstrap particle filter (BPF) algorithm of the BGFG tracker was adjusted so as to alleviate the failures caused by the harsh camera motion (see Section \ref{txt:adjusting_prediction_step}). Finally, the most suitable strategy for regulating the motion of the \gls{pt} unit based on predicting the 2D motion of the target is proposed (see Section~\ref{txt:2d_motion_prediction_and_regulation}).
 
 %.........................................................................
 %.........................................................................
@@ -801,11 +801,11 @@ where $fd_{dim_{n}}$ is the coordinate of maximal intensity $F_{max_{n}}$ of the
 %.........................................................................
 \subsection{2D Motion Prediction and Regulation} \label{txt:2d_motion_prediction_and_regulation}
 
-In order not to lose the moving target from the field of view the manipulator has to rotate the camera around both azimuthal and elevation axis appropriately. The most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the manipulator to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
+In order not to lose the moving target from the field of view the \gls{pt} unit has to rotate the camera around both azimuthal and elevation axis appropriately. The most straightforward approach would be to simply measure the angular distance between the current measurement (i.e. the projection of the target to the image plane) and the center of the image and instruct the \gls{pt} unit to move so as to minimize this distance as fast as possible. However, this approach is not sufficient. 
 
 Contrarily, there are two main reasons why it is necessary to predict the future 2D position of the target. First, it is desirable to keep the target as close to the center of the image as possible so that there would be enough time to react in case of a sudden and rapid movement of the target. Second, the measurements are delayed (due to the tracking algorithm computation and communication delay) and the P\&T unit manifests considerable latency.
 
-Given the time stamped ($t$) states of the manipulator $\vec{m} = [\phi, \psi]$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = [x, y]$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the target $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between current and future 2D position in $T$ seconds:
+Given the time stamped ($t$) states of the \gls{pt} unit $\vec{m} = [\phi, \psi]$ where $\phi$ and $\psi$ are the angular positions (given in $radians$) and tracker measurements $\vec{p} = [x, y]$, where $x$ and $y$ are the positions of the target (given in $pixels$), the 2D angular speed of the target $\vec{\omega_{t}}$ can be estimated as the moving average over $N$ last measurements $i$ as well as the angular difference $\vec{d} = (\phi_{diff}, \psi_{diff})$ between current and future 2D position in $T$ seconds:
 
 \begin{align}
 	\vec{\omega_{t}} &= \frac{\sum_{i=0}^{N-2}{\alpha(\vec{p_{i+1}} - \vec{p_{i}}) + (\vec{m_{i+1}} - \vec{m_{i}})}}{\sum_{i=0}^{N-2}{t_{i+1} - t_{i}}},\\
@@ -813,9 +813,9 @@ Given the time stamped ($t$) states of the manipulator $\vec{m} = [\phi, \psi]$ 
 \end{align}
 where $\alpha = \arctan{(\frac{c}{f})}$ is the angular difference given by one \textit{pixel} which can be computed with the knowledge of the physical size of one pixel $c$ and focal length $f$.
 
-Then the manipulator can be instructed to move so as to reach the given angular distance $\vec{d}$. It is necessary that the angular speed $\vec{\omega_{m}}$ of the manipulator decreases gradually and smoothly as the target position is approached since the harsh motion of the camera might causes the failure of the tracker (see Section \ref{txt:adjusting_prediction_step}).
+Then the \gls{pt} unit can be instructed to move so as to reach the given angular distance $\vec{d}$. It is necessary that the angular speed $\vec{\omega_{m}}$ of the \gls{pt} unit decreases gradually and smoothly as the target position is approached since the harsh motion of the camera might causes the failure of the tracker (see Section \ref{txt:adjusting_prediction_step}).
 
-Due to the fact the tracker measurements and consequently the motion commands sent to the manipulator are delayed, the regulation function must define a \textit{deadzone}, i.e. the minimal angular distance $d_{min}$ to the target from which the manipulator is instructed to stop, otherwise it would oscillate in the vicinity of the static target indefinitely. The angular distance $d_{max}$ then defines the maximal desired \textit{cutoff} angular speed $\omega_{m_{max}}$ of the manipulator. The regulation function is then given as follows:
+Due to the fact the tracker measurements and consequently the motion commands sent to the \gls{pt} unit are delayed, the regulation function must define a \textit{deadzone}, i.e. the minimal angular distance $d_{min}$ to the target from which the \gls{pt} unit is instructed to stop, otherwise it would oscillate in the vicinity of the static target indefinitely. The angular distance $d_{max}$ then defines the maximal desired \textit{cutoff} angular speed $\omega_{m_{max}}$ of the \gls{pt} unit. The regulation function is then given as follows:
 
 \begin{align}
 	\omega_{m} &=
@@ -831,7 +831,7 @@ where $f_{reg}$ is either linear ($f_{lin} = ax+b$) or power ($f_{pow} = ax^{k}+
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.75\linewidth]{fig/regulation_linear_power.pdf}
-	\caption{The linear and power regulation function used for controlling the angular speed of the manipulator in the given dimension (azimuth or elevation).}
+	\caption{The linear and power regulation function used for controlling the angular speed of the \gls{pt} unit in the given dimension (azimuth or elevation).}
 	\label{fig:regulation_lin_power}
 \end{figure}
 
@@ -845,7 +845,7 @@ This section describes the proposed triangulation method in two-view scenario (s
 %.........................................................................
 \subsection{Triangulation} \label{txt:triangulation}
 
-As explained in Section \ref{txt:multi_camera_target_localization}, the position of the target in 3-space as seen by the stereoscopic system with known cameras' parameters can be calculated using triangulation. In case of the \gls{ols} the intrinsics were estimated for each camera during calibration and extrinsics are known at each time thanks to the sensory data streamed from the manipulators. However, due to the random and systematic error the rays back-projected from each camera might not intersect in the 3D space (see Figure \ref{fig:triangulationSchematicView}). Therefore, the common plane for both back-projected rays must first be found.
+As explained in Section \ref{txt:multi_camera_target_localization}, the position of the target in 3-space as seen by the stereoscopic system with known cameras' parameters can be calculated using triangulation. In case of the \gls{ols} the intrinsics were estimated for each camera during calibration and extrinsics are known at each time thanks to the sensory data streamed from the \gls{pt} units. However, due to the random and systematic error the rays back-projected from each camera might not intersect in the 3D space (see Figure \ref{fig:triangulationSchematicView}). Therefore, the common plane for both back-projected rays must first be found.
 
 The estimation of the 3D position of the target consists of the following steps. First, back-projection is used to find the vectors $\vec{u}$ and $\vec{v}$ which form the planes $C_{1}C_{2}U$ and $C_{1}C_{2}V$ with the angle $\alpha$ between them. Both vectors are then rotated around the axis $\vec{m}$ so that they lie in the same plane $C_{1}C_{2}W$: $\vec{u'} = R(\beta_{1})\vec{u}$, $\vec{v'} = R(\beta_{2})\vec{v}$. The rotation angles $\beta_{1}$ and $\beta_{2}$ correspond to the confidences $conf_{1}$ and $conf_{2}$ obtained from both trackers: $|\beta_{1}| = |\alpha|\frac{conf_{2}}{conf_{1} + conf_{2}},~|\beta_{2}| = |\alpha| -\beta_{1}$. Finally, the intersection $W$ of the vectors $\vec{u'}$ and $\vec{v'}$ is found.
 
@@ -996,7 +996,7 @@ In order to support scalability and to meet the computational demands, the \gls{
 %.........................................................................
 \subsection{Hardware Topology} \label{txt:hardware_topology}
 
-Considering the big picture of the system, \gls{ols} is designed as a star topology, where each node is represented as either the tracking unit or the overview unit (\gls{tu/ou})~--~a~standalone independent device continuously capturing the camera image stream, performing visual tracking and regulating the motion of the manipulator. All TU/OUs are interconnected via the Gigabit Ethernet switch. 
+Considering the big picture of the system, \gls{ols} is designed as a star topology, where each node is represented as either the tracking unit or the overview unit (\gls{tu/ou})~--~a~standalone independent device continuously capturing the camera image stream, performing visual tracking and regulating the motion of the \gls{pt} unit. All TU/OUs are interconnected via the Gigabit Ethernet switch. 
 
 One of the TU/OUs is selected as the \textsc{master} -- a central node of the topology which is continuously receiving the tracking estimates from all the TU/OUs and estimating the 3D location of the target (see Figure \ref{fig:hw_ols}). Additionally, the \textsc{master} serves the purpose of the interface between the \gls{ols} and the human operators and enables them to manually initialize the system and control each TU/OU (using keyboard and/or joystick) during runtime if necessary. All the TU/OUs are synchronized using PTP which is ensured by the hardware support provided by Prosilica cameras.
 
